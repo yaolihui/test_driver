@@ -1,0 +1,12 @@
+ifeq ($(KERNELRELEASE),)
+
+KDIR := /lib/modules/$(shell uname -r)/build
+KDIR := ~/Desktop/linux-4.19.211
+all:
+	make -C $(KDIR) M=$(PWD) modules
+	rm -f .*.cmd *.o *.mod.o  *.mod.c *.symvers *.mod *.order
+else
+
+obj-m := sysfs_create_file.o device_create_file.o device_add_group.o device_add_groups.o
+
+endif
