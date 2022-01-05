@@ -6,7 +6,10 @@
 
 #define MY_MAJOR 300
 
-dev_t dno = MKDEV(MY_MAJOR, 0);
+extern int reg_cdev(int mjr);
+extern void unreg_cdev(void);
+
+dev_t dno = 0;//MKDEV(MY_MAJOR, 0);
 struct class *cls;
 struct device *dev;
 char mm[10];
@@ -33,9 +36,12 @@ DEVICE_ATTR(test, 0660, test_show, test_store);
 
 int enter(void)
 {
-    printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printk("\n%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
 
-	cls = class_create(THIS_MODULE,"1_class");
+	dno = reg_cdev(MY_MAJOR);
+	printk("%s:reg_cdev:dno=%d\n", __func__, dno);
+
+	cls = class_create(THIS_MODULE, "1_class");
 	printk("class_creat cls=%p\n", cls);
 
 	dev = device_create(cls, NULL, dno, NULL, "1_device");
@@ -55,8 +61,11 @@ void quit(void)
 
 	class_destroy(cls);
 	printk("class_destory\n");
-    
-    printk("\n===================================\n");
+
+	unreg_cdev();
+	printk("%s:unreg_cdev dno=%d\n", __func__, dno);
+	
+    printk("\n%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
 }
 
 module_init(enter);

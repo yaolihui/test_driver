@@ -1,0 +1,10 @@
+/*.si4project
+/.tmp_versions
+*.ko
+.*.cmd
+*.o
+*.mod.o
+*.mod.c
+*.symvers
+*.mod
+*.order
