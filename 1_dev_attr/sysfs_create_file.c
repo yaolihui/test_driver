@@ -2,18 +2,19 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/device.h>
-#include <linux/cdev.h>
 
 #define MY_MAJOR 300
 
-dev_t dno = MKDEV(MY_MAJOR, 0);
+dev_t dno;
 struct class *cls;
 struct device *dev;
 char mm[10];
 
+extern int reg_cdev(int);
+extern void unreg_cdev(void);
+
 ssize_t test_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_show dev=%p, buf=%s\n", dev, buf);
@@ -35,6 +36,10 @@ int enter(void)
 {
     printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
+	dno = reg_cdev(MY_MAJOR);
+	printk("reg_cdev dno=%d\n", dno);
+	if(dno < 0) return 0;
+
 	cls = class_create(THIS_MODULE,"1_class");
 	printk("class_creat cls=%p\n", cls);
 
@@ -55,7 +60,9 @@ void quit(void)
 
 	class_destroy(cls);
 	printk("class_destory\n");
-    
+
+	unreg_cdev();
+	
     printk("\n===================================\n");
 }
 

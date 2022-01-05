@@ -23,7 +23,6 @@ ssize_t test_store(struct device *dev, struct device_attribute *attr,const char 
 
 ssize_t test2_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_shows dev=%p, buf=%s\n", dev, buf);

@@ -13,7 +13,6 @@ char mm[10];
 
 ssize_t test_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_show dev=%p, buf=%s\n", dev, buf);

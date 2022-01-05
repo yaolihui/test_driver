@@ -23,7 +23,6 @@ ssize_t test_store(struct device *dev, struct device_attribute *attr,const char 
 
 ssize_t test2_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_shows dev=%p, buf=%s\n", dev, buf);
@@ -38,8 +37,8 @@ ssize_t test2_store(struct device *dev, struct device_attribute *attr,const char
 	mm[9]='\0';
 	printk("test_store2 dev=%p, mm=%s, count=%d", dev, mm, (int)count);
 	return 10;
-
 }
+
 DEVICE_ATTR(test1, 0660, test_show, test_store);
 DEVICE_ATTR(test2, 0660, test2_show, test2_store);
 DEVICE_ATTR(test3, 0660, test_show, test_store);
