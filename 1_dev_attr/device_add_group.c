@@ -23,7 +23,6 @@ ssize_t test_store(struct device *dev, struct device_attribute *attr,const char 
 
 ssize_t test2_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_shows dev=%p, buf=%s\n", dev, buf);
@@ -55,7 +54,7 @@ struct attribute_group attr_grp = {
 
 int enter(void)
 {
-    printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	cls = class_create(THIS_MODULE,"3_class");
 	printk("class_creat cls=%p\n", cls);
@@ -66,8 +65,8 @@ int enter(void)
 	device_add_group(dev, &attr_grp);
 	printk("device_add_group\n");
 
-    printk("end of enter\n");
-    return 0;
+    	printk("end of enter\n");
+	return 0;
 }
 
 void quit(void)
