@@ -13,7 +13,6 @@ char mm[10];
 
 ssize_t test_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_show dev=%p, buf=%s\n", dev, buf);
@@ -33,7 +32,7 @@ DEVICE_ATTR(test, 0660, test_show, test_store);
 
 int enter(void)
 {
-    printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    	printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	cls = class_create(THIS_MODULE,"2_class");
 	printk("class_creat cls=%p\n", cls);
@@ -44,8 +43,8 @@ int enter(void)
 	device_create_file(dev, &dev_attr_test);
 	printk("sysfs_create_file\n");
 
-    printk("\nend of enter\n");
-    return 0;
+    	printk("\nend of enter\n");
+    	return 0;
 }
 
 void quit(void)
@@ -56,7 +55,7 @@ void quit(void)
 	class_destroy(cls);
 	printk("class_destory\n");
     
-    printk("\n===================================\n");
+    	printk("\n===================================\n");
 }
 
 module_init(enter);
