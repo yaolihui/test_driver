@@ -23,7 +23,6 @@ ssize_t test_store(struct device *dev, struct device_attribute *attr,const char 
 
 ssize_t test2_show(struct device *dev, struct device_attribute *attr,char *buf)
 {
-
 	printk("mm=%s\n", mm);	
 	strcpy(buf, mm);
 	printk("test_shows dev=%p, buf=%s\n", dev, buf);
@@ -38,7 +37,6 @@ ssize_t test2_store(struct device *dev, struct device_attribute *attr,const char
 	mm[9]='\0';
 	printk("test_store2 dev=%p, mm=%s, count=%d", dev, mm, (int)count);
 	return 10;
-
 }
 DEVICE_ATTR(test1, 0660, test_show, test_store);
 DEVICE_ATTR(test2, 0660, test2_show, test2_store);
@@ -72,7 +70,7 @@ const struct attribute_group *attr_grps[] = {
 
 int enter(void)
 {
-    printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    	printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 	cls = class_create(THIS_MODULE,"4_class");
 	printk("class_creat cls=%p\n", cls);
@@ -83,8 +81,8 @@ int enter(void)
 	device_add_groups(dev, attr_grps);
 	printk("device_add_group\n");
 
-    printk("end of enter\n");
-    return 0;
+    	printk("end of enter\n");
+    	return 0;
 }
 
 void quit(void)
@@ -95,7 +93,7 @@ void quit(void)
 	class_destroy(cls);
 	printk("class_destory\n");
     
-    printk("\n===================================\n");
+    	printk("\n===================================\n");
 }
 
 module_init(enter);
