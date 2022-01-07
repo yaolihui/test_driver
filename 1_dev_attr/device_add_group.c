@@ -65,7 +65,7 @@ int enter(void)
 	device_add_group(dev, &attr_grp);
 	printk("device_add_group\n");
 
-    	printk("end of enter\n");
+  	printk("end of enter\n");
 	return 0;
 }
 

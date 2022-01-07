@@ -22,12 +22,12 @@ int reg_cdev(int mjr)
 	devno = MKDEV(mjr, 0);
 	
 	if(mjr) {
-        	ret = register_chrdev_region(devno , 1, "1_test_char_dev");
+  		ret = register_chrdev_region(devno , 1, "1_test_char_dev");
 		major = mjr;
    	} else {
-        	ret = alloc_chrdev_region(&devno , 0, 1, "1_test_char_dev");
-        	major = MAJOR(devno);
-    	}
+		ret = alloc_chrdev_region(&devno , 0, 1, "1_test_char_dev");
+		major = MAJOR(devno);
+	}
 	printk("%s: ret=%d, major=%d, devno=%d\n", __func__, ret, major, devno);
 	if(ret < 0) return ret;
 
