@@ -36,6 +36,9 @@ DEVICE_ATTR(test, 0660, test_show, test_store);
 int enter(void)
 {
 	printk("\n%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__);
+	
+	dno = reg_cdev(MY_MAJOR);
+	printk("%s:reg_cdev:dno=%d\n", __func__, dno);
 
 
 	cls = class_create(THIS_MODULE, "1_class");
@@ -46,10 +49,7 @@ int enter(void)
 
 	sysfs_create_file(&dev->kobj, &dev_attr_test.attr);
 	printk("sysfs_create_file\n");
-		
-	dno = reg_cdev(MY_MAJOR);
-	printk("%s:reg_cdev:dno=%d\n", __func__, dno);
-
+	
   	printk("\nend of enter\n");
 	return 0;
 }
