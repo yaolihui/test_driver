@@ -14,18 +14,21 @@ struct file_operations  fops = {
 static struct cdev *cdev;
 static dev_t devno;
 static int major;
+static const char* DEV_NAME = "1_test_char_dev";
 
 int reg_cdev(int mjr)
 {
-	int ret;
+
+	//register_chrdev(mjr, DEV_NAME, &fops);
 
 	devno = MKDEV(mjr, 0);
 	
+	int ret;
 	if(mjr) {
-  		ret = register_chrdev_region(devno , 1, "1_test_char_dev");
+  		ret = register_chrdev_region(devno , 1, DEV_NAME);
 		major = mjr;
    	} else {
-		ret = alloc_chrdev_region(&devno , 0, 1, "1_test_char_dev");
+		ret = alloc_chrdev_region(&devno , 0, 1, DEV_NAME);
 		major = MAJOR(devno);
 	}
 	printk("%s: ret=%d, major=%d, devno=%d\n", __func__, ret, major, devno);
@@ -44,7 +47,7 @@ int reg_cdev(int mjr)
 
 	ret = cdev_add(cdev, devno, 1);
 	printk("%s: ret=%d, cdev=%p, devno=%d, major=%d\n", __func__, ret, cdev, devno, major);
-	
+
 	return devno;
 }
 

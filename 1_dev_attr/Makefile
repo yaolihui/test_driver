@@ -9,14 +9,15 @@ all:
 	rm -f .*.cmd *.o *.mod.o  *.mod.c *.symvers *.mod *.order
 	ls *.ko
 
-install:
+install: uninstall
 	sudo insmod sysfs_create.ko
 	sudo insmod device_create.ko
 	sudo insmod add_group.ko
 	sudo insmod add_groups.ko
+	ls /dev
 
 uninstall:
-	sudo rmmod sysfs_create device_create add_group add_groups
+	-sudo rmmod sysfs_create device_create add_group add_groups
 	
 else
 
