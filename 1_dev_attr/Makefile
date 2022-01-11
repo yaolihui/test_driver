@@ -10,11 +10,11 @@ all:
 	ls *.ko
 
 install: uninstall
-	sudo insmod sysfs_create.ko
-	sudo insmod device_create.ko
-	sudo insmod add_group.ko
-	sudo insmod add_groups.ko
-	ls /dev
+	sudo insmod sysfs_create.ko  && sudo chmod 666 /dev/1_device
+	sudo insmod device_create.ko && sudo chmod 666 /dev/2_device
+	sudo insmod add_group.ko	 && sudo chmod 666 /dev/3_device
+	sudo insmod add_groups.ko	 && sudo chmod 666 /dev/4_device
+	ls -l /dev |head -n 5
 
 uninstall:
 	-sudo rmmod sysfs_create device_create add_group add_groups

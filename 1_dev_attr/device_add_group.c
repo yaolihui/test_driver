@@ -54,7 +54,7 @@ struct attribute_group attr_grp = {
 
 int enter(void)
 {
-	printk("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printk("\n %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 
 	cls = class_create(THIS_MODULE,"3_class");
 	printk("class_creat cls=%p\n", cls);
@@ -65,19 +65,19 @@ int enter(void)
 	device_add_group(dev, &attr_grp);
 	printk("device_add_group\n");
 
-  	printk("end of enter\n");
+  	printk("\n end of %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 	return 0;
 }
 
 void quit(void)
 {
 	device_destroy(cls, dno);
-	printk("device_destory\n");
+	printk("device_destory, dno=%d\n ", dno);
 
 	class_destroy(cls);
-	printk("class_destory\n");
+	printk("class_destory, cls=%p\n ", cls);
     
-    printk("\n===================================\n");
+    printk("\n end of %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 }
 
 module_init(enter);
