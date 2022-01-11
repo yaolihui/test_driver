@@ -30,10 +30,10 @@ ssize_t test_write(struct file * f, const char __user * buf, size_t count , loff
 
 
 struct file_operations  fops = {
-     .owner = THIS_MODULE,
-     .open = test_open,
-     .read = test_read,
-     .write = test_write,
+     .owner = 	THIS_MODULE,
+     .open = 	test_open,
+     .read = 	test_read,
+     .write = 	test_write,
      .release = NULL,
      .unlocked_ioctl = NULL,
  };
