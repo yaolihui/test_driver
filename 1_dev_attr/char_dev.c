@@ -10,10 +10,10 @@ int test_open(struct inode * i, struct file * f)
 	return 0;
 }
 
-ssize_t test_read(struct file * f, char __user * buf, size_t count , loff_t *p)
+ssize_t test_read(struct file * f, char __user * user, size_t count , loff_t *p)
 {
 	printk("%s, mchar=%s, count=%d, loff_t=%d, strlen=%d \n", __func__, mchar, count, *p, strlen(mchar));
-	if (copy_to_user(buf, mchar, strlen(mchar))) printk("%s: copy_to_user fail \n", __func__);
+	if (copy_to_user(user, mchar, strlen(mchar))) printk("%s: copy_to_user fail \n", __func__);
 
 	// printk("%s: buf=%s \n", __func__, buf); // buf 为user空间变量，不可读取
 
