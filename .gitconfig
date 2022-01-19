@@ -1,0 +1,25 @@
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/"]
+	insteadof = https://android.googlesource.com
+[url "https://hub.fastgit.org"]
+	insteadof = http://github.com
+
+[credential]
+	helper = store --file ~/e/.git-credentials
+[http]
+	sslVerify = false
+	sslcainfo = C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt
+[user]
+	email = yaolihui888@163.com
+	name = yaolihui
+[alias]
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit 
+	st = status
+	co = checkout
+	ci = commit
+	br = branch
+	rs = reset
+	
+[core]
+	autocrlf = true
+	fscache = true
+	symlinks = false
