@@ -5,6 +5,7 @@
 
 [credential]
 	helper = store --file ~/e/.git-credentials
+	helper = store --file /e/.git-credentials
 [http]
 	sslVerify = false
 	sslcainfo = C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt
