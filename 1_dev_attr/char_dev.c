@@ -48,8 +48,9 @@ int reg_cdev(int mjr)
 
 	//register_chrdev(mjr, DEV_NAME, &fops);
 
-	devno = MKDEV(mjr, 0);
-	
+	devno = MKDEV(mjr, 0xFFFFF/*最大子设备号*/);
+	printk("%s: devno=%x, size=%d, major=%d, minor=%d \n", __func__, devno, sizeof(devno), MAJOR(devno), MINOR(devno));
+
 	int ret;
 	if(mjr) {
   		ret = register_chrdev_region(devno , 1, DEV_NAME);
