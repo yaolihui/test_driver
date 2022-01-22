@@ -19,8 +19,7 @@ uninstall:
 	lsmod
 else
 
-
-
+ccflags-y := -std=gnu99 -Wno-declaration-after-statement
 obj-m := platform_device_set_res.o platform_driver_get_res.o
 
 endif

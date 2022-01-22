@@ -24,7 +24,7 @@ static struct resource test_resources[] = {
 };
 
 void dev_release(struct device *dev){
-	printk("\n enter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
+	printk("\nenter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 }
 
 struct platform_device pdev = {
@@ -38,17 +38,17 @@ struct platform_device pdev = {
 
 static int init_device_fn(void)
 {
-	printk("\n enter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
+	printk("\nenter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 	int ret =  platform_device_register(&pdev);
-	printk("\n end %s:%s:%d, num_resources=%d\n ", __FILE__, __FUNCTION__, __LINE__, pdev.num_resources);
+	printk("\nend %s:%s:%d, num_resources=%d\n ", __FILE__, __FUNCTION__, __LINE__, pdev.num_resources);
 	return ret;
 }
 
 static void exit_device_fn(void)
 {
-	printk("\n enter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
+	printk("\nenter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 	platform_device_unregister(&pdev);
-	printk("\n end %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
+	printk("\nend %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 }
 
 module_init(init_device_fn);
