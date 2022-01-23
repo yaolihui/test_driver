@@ -6,7 +6,7 @@ KDIR := /usr/src/$(shell uname -r)
 all:
 	rm -f *.ko
 	make -C $(KDIR) M=$(PWD) modules
-	rm -f .*.cmd *.o *.mod.o  *.mod.c *.symvers *.mod *.order .*.o.d
+	rm -rf .*.cmd *.o *.mod.o  *.mod.c *.symvers *.mod *.order .*.o.d .tmp_versions
 	ls *.ko
 
 install: uninstall
