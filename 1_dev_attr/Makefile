@@ -1,7 +1,7 @@
 ifeq ($(KERNELRELEASE),)
 
 KDIR := /lib/modules/$(shell uname -r)/build
-KDIR := /usr/src/$(shell uname -r)
+#KDIR := /usr/src/$(shell uname -r)
 
 all:
 	rm -f *.ko
