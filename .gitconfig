@@ -24,3 +24,4 @@
 	autocrlf = true
 	fscache = true
 	symlinks = false
+	editor = vim
