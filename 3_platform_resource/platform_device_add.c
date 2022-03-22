@@ -28,7 +28,7 @@ void dev_release(struct device *dev){
 }
 
 struct platform_device pdev = {
-	.name = "test_100_name",
+	.name = "test_101_name",
 	.num_resources = ARRAY_SIZE(test_resources),
 	.resource = test_resources,
 	.dev = {						// There MUST be supply, otherwise, get error while rmmod
@@ -39,7 +39,8 @@ struct platform_device pdev = {
 static int init_device_fn(void)
 {
 	printk("\nenter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
-	int ret = platform_device_register(&pdev);
+	device_initialize(&pdev.dev);
+	int ret = platform_device_add(&pdev); // as usually, call by inner of platform_device_register
 	printk("\nend %s:%s:%d, num_resources=%d\n ", __FILE__, __FUNCTION__, __LINE__, pdev.num_resources);
 	return ret;
 }
@@ -47,7 +48,7 @@ static int init_device_fn(void)
 static void exit_device_fn(void)
 {
 	printk("\nenter %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
-	platform_device_unregister(&pdev);
+	platform_device_del(&pdev);
 	printk("\nend %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 }
 
