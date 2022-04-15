@@ -57,7 +57,7 @@ int main(void)
 	printf("sizeof(struct B)=%ld\n", sizeof(struct B));
 	printf("sizeof(struct C)=%ld\n", sizeof(struct C));
 	printf("sizeof(struct D)=%ld\n", sizeof(struct D));
-	printf("sizeof(struct E)=%ld\n", sizeof(struct E));
+	printf("sizeof(struct E)=%ld, ", sizeof(struct E));	struct E *e; printf("sizeof(*e)=%d, sizeof(e)=%d\n", sizeof(*e), sizeof(e));
 	printf("sizeof(struct F)=%ld\n", sizeof(struct F));
 	printf("sizeof(struct G)=%ld\n", sizeof(struct G));
 	printf("sizeof(struct H)=%ld\n", sizeof(struct H));
