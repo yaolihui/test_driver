@@ -130,3 +130,4 @@ alias reposync='repo sync -c -j6 --no-tags --no-clone-bundle'
 #export CCACHE_EXEC=/usr/bin/ccache
 #/usr/bin/ccache -M 1G
 #/usr/bin/ccache -s
+# echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
