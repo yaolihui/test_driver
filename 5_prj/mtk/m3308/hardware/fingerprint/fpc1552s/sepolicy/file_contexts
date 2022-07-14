@@ -1,0 +1,14 @@
+#for fpc
+/sys/devices/platform/1100a000.spi0/spi_master/spi0(/.*)?      u:object_r:sysfs_fpc:s0
+/sys/devices/platform/1100a000.spi/spi_master/spi0/spi0.0(/.*)?      u:object_r:sysfs_fpc:s0
+
+#/sys/bus/spi/devices/spi0.0(/.*)?      u:object_r:sysfs_fpc:s0
+#/sys/bus/spi/devices/spi0.0/clk_enable	u:object_r:sysfs_fpc:s0
+#/sys/bus/spi/devices/spi0.0/do_wakeup	u:object_r:sysfs_fpc:s0
+#/sys/bus/spi/devices/spi0.0/hw_reset	u:object_r:sysfs_fpc:s0
+#/sys/bus/spi/devices/spi0.0/irq	u:object_r:sysfs_fpc:s0
+#/sys/bus/spi/devices/spi0.0/wakeup_enable	u:object_r:sysfs_fpc:s0
+
+# Fingerprint data
+# in system/sepolicy/private
+#/data/system/users/[0-9]+/fpdata(/.*)? u:object_r:fingerprintd_data_file:s0

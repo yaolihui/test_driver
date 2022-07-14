@@ -1,0 +1,5 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="test_mode_text_width">80dp</dimen>
+    <dimen name="test_mode_text_height">42dp</dimen>
+</resources>

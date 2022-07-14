@@ -1,0 +1,5 @@
+
+#add for fingerprint
+allow hal_fingerprint_default teetz_device:chr_file {open ioctl read write};
+allow hal_fingerprintmmi_default  hal_fingerprint_default:unix_stream_socket {connectto};
+allow engpc hal_fingerprint_default:unix_stream_socket {connectto};

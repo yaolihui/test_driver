@@ -1,0 +1,23 @@
+cc_binary {
+    name: "vendor.silead.hardware.fingerprintext@1.0-service",
+    defaults: ["hidl_defaults"],
+    init_rc: ["vendor.silead.hardware.fingerprintext@1.0-service.rc"],
+    owner: "silead",
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        "sileadCommand.cpp",
+        "sileadFingerprint.cpp",
+        "service.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libhidlbase",
+        "libhardware",
+        "libutils",
+        "vendor.silead.hardware.fingerprintext@1.0",
+    ],
+
+}

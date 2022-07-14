@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Image Subscription</string>
+    <string name="app_label">Image Subscription</string>
+    <string name="app_description">Receive images captured by fingerprint sensor</string>
+    <string name="enable_key">enable</string>
+    <string name="enable_title">Enable</string>
+    <string name="enable_notification_title">Enable</string>
+    <string name="enable_on_boot_key">enable_on_boot</string>
+    <string name="enable_on_boot_title">Enable on boot</string>
+    <string name="disable_notification_title">Disable</string>
+    <string name="save_png_key">save_png</string>
+    <string name="save_png_title">Save PNG</string>
+    <string name="folder_key">folder</string>
+    <string name="folder_title">Store images into</string>
+    <string name="default_folder">sdcard/Android/data/com.fingerprints.imagesubscription</string>
+</resources>

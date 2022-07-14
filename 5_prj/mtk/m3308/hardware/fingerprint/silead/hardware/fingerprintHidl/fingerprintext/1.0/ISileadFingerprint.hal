@@ -1,0 +1,8 @@
+package vendor.silead.hardware.fingerprintext@1.0;
+
+import ISileadFingerprintCallback;
+
+interface ISileadFingerprint {
+    requestCmd(uint32_t cmdId, vec<uint8_t> param) generates (int32_t debugErrno);
+    setNotify(ISileadFingerprintCallback clientCallback) generates (int32_t debugErrno);
+};

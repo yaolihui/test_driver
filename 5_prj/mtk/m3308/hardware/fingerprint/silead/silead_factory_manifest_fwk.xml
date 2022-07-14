@@ -1,0 +1,10 @@
+<compatibility-matrix version="1.0" type="framework" level="5">
+    <hal format="hidl" optional="true">
+		<name>vendor.silead.hardware.fingerprintext</name>
+		<version>1.0</version>
+		<interface>
+			<name>ISileadFingerprint</name>
+			<instance>default</instance>
+		</interface>
+	</hal>
+</compatibility-matrix>

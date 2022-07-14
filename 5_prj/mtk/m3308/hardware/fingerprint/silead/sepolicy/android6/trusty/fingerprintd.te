@@ -1,0 +1,3 @@
+
+#add for fingerprint
+allow fingerprintd teetz_device:chr_file {open ioctl read write};

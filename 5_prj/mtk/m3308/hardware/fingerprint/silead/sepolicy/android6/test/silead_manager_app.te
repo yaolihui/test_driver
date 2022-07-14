@@ -1,0 +1,10 @@
+
+type silead_manager_app, domain;
+app_domain(silead_manager_app);
+net_domain(silead_manager_app);
+binder_service(silead_manager_app);
+
+allow silead_manager_app silead_fp_service:service_manager { add find };
+allow silead_manager_app activity_service:service_manager { find };
+allow untrusted_app silead_fp_service:service_manager { find };
+allow silead_manager_app fingerprintd:unix_stream_socket connectto;

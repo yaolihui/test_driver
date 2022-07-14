@@ -1,0 +1,9 @@
+# for fpc
+allow hal_fingerprint_default sysfs_fpc:file { open read write };
+allow hal_fingerprint_default sysfs_fpc:dir { open read search };
+allow hal_fingerprint_default property_socket:sock_file write;
+# allow hal_fingerprint_default vendor_default_prop:property_service set;
+allow hal_fingerprint_default sysfs:file write;
+
+allow hal_fingerprint_default fpc_hal_fingerprint_hwservice:hwservice_manager { find add };
+allow hal_fingerprint_default init:unix_stream_socket connectto;

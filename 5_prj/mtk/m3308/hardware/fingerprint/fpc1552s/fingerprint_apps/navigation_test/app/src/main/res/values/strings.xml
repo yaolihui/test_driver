@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">NavigationTest</string>
+    <string name="demo">Navigation Test Tool</string>
+    <string name="log">Logs</string>
+    <string name="test">Test mode</string>
+    <string name="settings">Settings</string>
+
+    <string name="testmodeHintUp">Number of up tests</string>
+    <string name="testmodeHintDown">Number of down tests</string>
+    <string name="testmodeHintLeft">Number of left tests</string>
+    <string name="testmodeHintRight">Number of right tests</string>
+    <string name="testmodeHintClick">Number of click tests</string>
+    <string name="testmodeHintDoubleClick">Number of double click tests</string>
+    <string name="testmodeHintHoldClick">Number of hold click tests</string>
+    <!--<string name="testmodeHintSoftPress">Number of soft press tests</string>-->
+    <string name="testmodeHintHardPress">Number of force press tests</string>
+    <string name="testmodeSetupInfo">Test Setup</string>
+    <string name="testmodeRandomCheckbox">Randomize test sequence</string>
+    <string name="testmodeForceEvaluation">Run force evaluation</string>
+    <string name="testmodeReturn">Return</string>
+    <string name="testmodeEndTest">End Test</string>
+    <string name="testmodeStartButton">Start</string>
+    <string name="testmodeStatusRate">Success rate:</string>
+    <string name="testmodeClear">Clear</string>
+    <string name="testmodeAdd1ToAll">Add 1 to all</string>
+    <string name="testmodeUp">Up</string>
+    <string name="testmodeRight">Right</string>
+    <string name="testmodeDown">Down</string>
+    <string name="testmodeLeft">Left</string>
+    <string name="testmodeClick">Click</string>
+    <string name="testmodeDoubleClick">Double click</string>
+    <string name="testmodeHoldClick">Hold click</string>
+    <string name="testmodeSoftPress">Soft press</string>
+    <string name="testmodeHardPress">Hard press</string>
+    <string name="testmodeRemainingTests">Remaining tests:</string>
+    <string name="testmodeTotalInputs">Total inputs:</string>
+    <string name="testmodeSuccessfulInputs">Successful inputs:</string>
+    <string name="testmodeFailedInputs">Failed inputs:</string>
+    <string name="testmodeTimeElapsed">Time elapsed:</string>
+    <string name="testmodeFailedToRegInput">Failed to register input</string>
+    <string name="testmodeShowLog">Show log</string>
+    <string name="testmodeScrollText">↓Scroll me↓</string>
+    <string name="testmodeImageDisplayerDesc">Displays the current event to test.</string>
+    <string name="testExitSummary">Exit</string>
+
+    <string name="logNoLogs">No logs to display</string>
+    <string name="logDeleteAllLogs">Delete All Logs</string>
+    <string name="logReturn">Return</string>
+    <string name="logDelete">Delete</string>
+
+    <string name="demoImageViewDesc">Displays the current incoming input event.</string>
+    <string name="demoSenseTouchSwitchTitle">Sense Touch</string>
+    <string name="demoHardPressSwitchTitle">Hard Press</string>
+    <string name="demoSoftPressSwitchTitle">Soft Press</string>
+    <string name="demoForceBarTitle">Active Force: </string>
+
+    <string name="settingsActionMenuTitle">Navigation</string>
+    <string name="settingsNavigationSwitchTitle">Enable Navigation</string>
+    <string name="settingsActiveConfigButtonTitle">Load Active Config</string>
+    <string name="settingsDefaultConfigButtonTitle">Load Default Config</string>
+    <string name="settingsSectionTitle">Navigation Config</string>
+    <string name="settingsSenseTouchMenuTitle">Sense Touch</string>
+    <string name="settingsHardPressThresholdTitle">Press Threshold</string>
+
+    <string name="dialogNavExtCreationFailure">Failed to initialize navigation extension module.</string>
+    <string name="dialogSenseTouchExtCreationFailure">Failed to create calibration module for sense touch.</string>
+    <string name="dialogUnableToFetchNavConfig">Failed to get active configuration.</string>
+
+    <string name="dialogError">Error</string>
+    <string name="dialogWarning">Warning</string>
+
+    <string name="defaultValueZero">0</string>
+    <string name="logListItemName">NAME</string>
+    <string name="logListItemValue">VALUE</string>
+</resources>

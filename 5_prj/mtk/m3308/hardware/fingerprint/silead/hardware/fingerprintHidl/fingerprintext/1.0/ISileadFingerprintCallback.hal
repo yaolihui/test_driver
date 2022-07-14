@@ -1,0 +1,5 @@
+package vendor.silead.hardware.fingerprintext@1.0;
+
+interface ISileadFingerprintCallback {
+    oneway onCmdResponse(int32_t cmdId, vec<uint8_t> result);
+};

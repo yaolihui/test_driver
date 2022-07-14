@@ -1,0 +1,13 @@
+include ':app'
+
+File fingerprintExtension = new File('../../fingerprint_extension/api')
+if (fingerprintExtension.exists()) {
+    include ':fingerprint_extension'
+    project(':fingerprint_extension').projectDir = fingerprintExtension
+}
+
+File fmi = new File('../../fingerprint_libs/fmi/lib')
+if (fmi.exists()) {
+    include ':fmi'
+    project(':fmi').projectDir = fmi
+}

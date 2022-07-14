@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        archivesBaseName = "SensorTestTool"
+        minSdkVersion 26
+        targetSdkVersion 28
+        multiDexEnabled false
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../systemkeystore.keystore")
+            storePassword "fpcstore"
+            keyAlias "fingerprint"
+            keyPassword "fpc201608"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
+
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lintOptions {
+        // Don't abort if Lint finds an error, otherwise the Jenkins build
+        // will be marked as failed, and Jenkins won't analyse the Lint output
+        abortOnError false
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+configurations.all {
+    // Check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+
+    if (findProject(":fingerprint_extension") != null) {
+        implementation project(":fingerprint_extension")
+    }
+
+    if (findProject(":fmi") != null) {
+        api project(':fmi')
+    }
+
+    compileOnly files(System.getProperty("user.dir") + '../../../fingerprint_extension/api/generated/android.hidl.base-V1.0.jar');
+    compileOnly files(System.getProperty("user.dir") + '../../../fingerprint_extension/api/generated/com.fingerprints.extension-V1.0.jar');
+
+    api(name: 'xmltools-release', ext: 'aar')
+    api(name: 'interpolation_1.4-release', ext: 'aar')
+    api 'com.google.code.gson:gson:2.8.2'
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+}

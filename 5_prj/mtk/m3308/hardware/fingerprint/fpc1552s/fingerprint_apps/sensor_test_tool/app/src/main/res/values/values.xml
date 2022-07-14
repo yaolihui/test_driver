@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="testcase_manual_sleeptime_ms">1000</integer>
+    <integer name="testcase_manual_vibrate_ms">50</integer>
+    <integer name="lightspot_color_alpha">255</integer>
+    <integer name="lightspot_color_red">255</integer>
+    <integer name="lightspot_color_green">255</integer>
+    <integer name="lightspot_color_blue">255</integer>
+</resources>

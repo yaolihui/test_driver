@@ -1,0 +1,108 @@
+/**
+* Chipone fpsensor GPIO define. begjin.
+**/
+
+&odm {
+ 	silead_fp: silead_fp@ {
+ 	   compatible = "sil,silead_fp-pins";
+    };
+};
+
+/* SILEAD_FINGERPRINT start */
+&spi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	spi-max-frequency = <4000000>;
+	status = "okay";
+
+	silead_fp@0 {
+	    compatible = "mediatek,fingerprint";
+	    reg = <0>;
+	    spi-id = <0>;
+	    spi-irq = <160>;
+	    spi-reg = <0x11010000>;
+	    spi-max-frequency = <8000000>;
+	    status = "okay";
+    };
+};
+
+
+&pio {
+    silfp_default: silfpdefault {
+    };
+
+    silfp_rst_high: state_reset_high {
+        pins_cmd_dat {
+        pinmux = <PINMUX_GPIO21__FUNC_GPIO21>;
+        slew-rate = <1>;
+        output-high;
+        };
+    };
+
+    silfp_rst_low: state_reset_low {
+        pins_cmd_dat {
+            pinmux = <PINMUX_GPIO21__FUNC_GPIO21>;
+            slew-rate = <1>;
+            output-low;
+        };
+    };
+
+    silfp_irq: fp_eint@18 {
+        pins_cmd_dat {
+            pinmux = <PINMUX_GPIO18__FUNC_GPIO18>;
+            slew-rate = <0>;
+            bias-pull-down = <00>;
+        };
+    };
+
+    silfp_irq_low: state_irq_low {
+        pins_cmd_dat {
+            pinmux = <PINMUX_GPIO18__FUNC_GPIO18>;
+            slew-rate = <1>;
+            output-low;
+        };
+    };
+};
+
+&pio {
+    fingerprint_pins_default: fp_default {
+        pins_cmd_dat {
+            pinmux = <PINMUX_GPIO24__FUNC_SPI0_CSB>;
+            slew-rate = <1>;
+            bias-pull-up;
+        };
+
+        pins_cmd2_dat {
+            pinmux = <PINMUX_GPIO23__FUNC_SPI0_CLK>;
+            slew-rate = <1>;
+            bias-pull-down;
+        };
+
+        pins_cmd3_dat {
+            pinmux = <PINMUX_GPIO26__FUNC_SPI0_MI>;
+            slew-rate = <0>;
+            bias-pull-down;
+        };
+
+        pins_cmd4_dat {
+            pinmux = <PINMUX_GPIO25__FUNC_SPI0_MO>;
+            slew-rate = <1>;
+            bias-pull-down;
+        };
+    };
+};
+
+&silead_fp {
+	pinctrl-names = "default", "rst-low", "rst-high",
+	                "irq-init", "spi-default", "irq-low";
+	pinctrl-0 = <&silfp_default>;
+	pinctrl-1 = <&silfp_rst_low>;
+	pinctrl-2 = <&silfp_rst_high>;
+	pinctrl-3 = <&silfp_irq>;
+	pinctrl-4 = <&fingerprint_pins_default>;
+	pinctrl-5 = <&silfp_irq_low>;
+
+	interrupt-parent = <&pio>;
+	interrupts = <18 IRQ_TYPE_EDGE_RISING 18 0>;
+	status = "okay";
+};

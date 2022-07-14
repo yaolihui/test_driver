@@ -1,0 +1,7 @@
+include ':app'
+
+File fingerprintExtension = new File('../../fingerprint_extension/api_legacy')
+if (fingerprintExtension.exists()) {
+    include ':fingerprint_extension'
+    project(':fingerprint_extension').projectDir = fingerprintExtension
+}

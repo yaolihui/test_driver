@@ -1,0 +1,77 @@
+cc_prebuilt_library_shared {
+    name: "fpsensor_fingerprint.default",
+    proprietary: true,
+    relative_install_path: "hw",
+    vendor: true,
+    target: {
+        android_arm: {
+            srcs: ["ca_lib/lib32/fpsensor_fingerprint.default.so"],
+        },
+        android_arm64: {
+            srcs: ["ca_lib/lib64/fpsensor_fingerprint.default.so"],
+        },
+    },
+    strip: {
+        none:true,
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libfp_ext_svc2",
+    proprietary: true,
+    target: {
+        android_arm: {
+            srcs: ["factory_lib/lib32/libfp_ext_svc2.so"],
+        },
+        android_arm64: {
+            srcs: ["factory_lib/lib64/libfp_ext_svc2.so"],
+        },
+    },
+    strip: {
+        none:true,
+    },
+    vendor: true,
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+
+cc_prebuilt_library_shared {
+    name: "vendor.fpsensor.hardware.fpsensorhidlsvc@2.0",
+    proprietary: true,
+    target: {
+        android_arm: {
+            srcs: ["factory_lib/lib32/vendor.fpsensor.hardware.fpsensorhidlsvc@2.0.so"],
+        },
+        android_arm64: {
+            srcs: ["factory_lib/lib64/vendor.fpsensor.hardware.fpsensorhidlsvc@2.0.so"],
+        },
+    },
+    strip: {
+        none:true,
+    },
+    vendor: true,
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libchiponeic_fingerprint_factory",
+    proprietary: true,
+    vendor: true,
+    target: {
+        android_arm: {
+            srcs: ["factory_lib/lib32/libchiponeic_fingerprint_factory.so"],
+        },
+        android_arm64: {
+            srcs: ["factory_lib/lib64/libchiponeic_fingerprint_factory.so"],
+        },
+    },
+    strip: {
+        none:true,
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}

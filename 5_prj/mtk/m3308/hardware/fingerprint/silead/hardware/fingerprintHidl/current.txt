@@ -1,0 +1,7 @@
+# Do not change this file except to add new interfaces. Changing
+# pre-existing interfaces will fail VTS and break framework-only OTAs
+
+# HALs released in Android O
+
+5df47b9671356c9daafe5254e757804133df21569fe50cf76cfd592af6277a56 vendor.silead.hardware.fingerprintext@1.0::ISileadFingerprint
+0841000f0842a7465221304a97caf89c2ec612544fc04648d0d16e72cd94ead4 vendor.silead.hardware.fingerprintext@1.0::ISileadFingerprintCallback

@@ -1,0 +1,8 @@
+# ==============================================
+# MTK Policy Rule
+# ==============================================
+
+type fp_drv_info, fs_type, sysfs_type;
+
+# for fpc
+type sysfs_fpc, fs_type, sysfs_type;

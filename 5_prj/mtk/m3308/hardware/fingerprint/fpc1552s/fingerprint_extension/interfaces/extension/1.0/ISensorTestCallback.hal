@@ -1,0 +1,17 @@
+/**
+* Copyright (c) 2017 Fingerprint Cards AB <tech@fingerprints.com>
+* All rights are reserved.
+* Proprietary and confidential.
+* Unauthorized copying of this file, via any medium is strictly prohibited.
+* Any use is subject to an appropriate license granted by Fingerprint Cards AB.
+*/
+
+package com.fingerprints.extension@1.0;
+
+interface ISensorTestCallback {
+    oneway onResult(SensorTestResult result);
+    onResultInit(uint32_t resultCode, uint32_t errorCode, bool imageFetched) generates (uint32_t result);
+    onResultTransfer(uint8_t type, string input) generates (uint32_t result);
+    onResultTransferImg(vec<uint8_t> input) generates (uint32_t result);
+    oneway onResultFinish();
+};

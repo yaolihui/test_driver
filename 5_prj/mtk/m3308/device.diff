@@ -1,0 +1,91 @@
+From 760e5af9b9fbeda52645472079ea79188e5fdd0c Mon Sep 17 00:00:00 2001
+From: lihui.yao <lihui.yao@chino-e.com>
+Date: Thu, 09 Jun 2022 19:10:52 +0800
+Subject: [PATCH] <lihui.yao><Romanee><REQ><ROM-18><add silead selinux|rc|manifest|product>
+
+Change-Id: Ifeea0a561efb4d8bbffd3635e39ed0f7e7ce0262
+---
+
+diff --git a/mediatek/mt6833/init.mt6833.rc b/mediatek/mt6833/init.mt6833.rc
+index 6b815f1..5c2deaf 100644
+--- a/mediatek/mt6833/init.mt6833.rc
++++ b/mediatek/mt6833/init.mt6833.rc
+@@ -731,6 +731,9 @@
+     chmod 0664 sys/kernel/debug/ext_dev_io/MT6362.0-09/reg
+     chmod 0664 sys/kernel/debug/ext_dev_io/MT6362.0-09/size
+ 
++	#silead
++	mkdir /data/vendor/silead	0770	system	system
++
+ # End of adding by MTK drivers
+ # -----------------------
+ on zygote-start
+diff --git a/mediatek/mt6833/ueventd.mt6833.rc b/mediatek/mt6833/ueventd.mt6833.rc
+index 2577324..dc3e99b 100644
+--- a/mediatek/mt6833/ueventd.mt6833.rc
++++ b/mediatek/mt6833/ueventd.mt6833.rc
+@@ -95,6 +95,12 @@
+ # DRM node
+ /dev/dri/card0            0660   system     system
+ 
++#silead uevent.fingerprint.
++/dev/spidev1.0	0660	system	system
++/dev/spidev0.0	0660	system	system
++/dev/silead_fp	0660	system	system
++/dev/silead_stub	0660	system	system
++
+ # add the read write right of ttyUSB*
+ /dev/bus/usb/*     	  0660   root       usb
+ /dev/ttyUSB0              0660   radio      radio
+diff --git a/mediatek/system/common/device.mk b/mediatek/system/common/device.mk
+index ea1f30e..e9ef98b 100755
+--- a/mediatek/system/common/device.mk
++++ b/mediatek/system/common/device.mk
+@@ -4092,4 +4092,5 @@
+ # yaolihui 20220602 add fingerprint
+ ifneq (,$(filter $(strip $(ODM_TARGET_PROJECT)), Romanee))
+ DEVICE_PRODUCT_COMPATIBILITY_MATRIX_FILE += vendor/mediatek/proprietary/hardware/fingerprint/fpsensor/fpsensor_factory_manifest_fwk.xml
++DEVICE_PRODUCT_COMPATIBILITY_MATRIX_FILE += vendor/mediatek/proprietary/hardware/fingerprint/silead/silead_factory_manifest_fwk.xml
+ endif
+diff --git a/mediatek/vendor/common/device.mk b/mediatek/vendor/common/device.mk
+index dfb91a4..055e1c0 100644
+--- a/mediatek/vendor/common/device.mk
++++ b/mediatek/vendor/common/device.mk
+@@ -4643,4 +4643,5 @@
+ # yaolihui 20220602 add fingerprint
+ ifneq (,$(filter $(strip $(ODM_TARGET_PROJECT)), Romanee))
+ DEVICE_MANIFEST_FILE += vendor/mediatek/proprietary/hardware/fingerprint/fpsensor/fpsensor_factory_manifest.xml
++DEVICE_MANIFEST_FILE += vendor/mediatek/proprietary/hardware/fingerprint/silead/silead_factory_manifest.xml
+ endif
+diff --git a/odm/Romanee/BoardConfig.mk b/odm/Romanee/BoardConfig.mk
+index 6ffbf0b..1beca07 100755
+--- a/odm/Romanee/BoardConfig.mk
++++ b/odm/Romanee/BoardConfig.mk
+@@ -42,4 +42,4 @@
+ 
+ #add by shangfei for fpsensor sepolicy
+ -include vendor/mediatek/proprietary/hardware/fingerprint/fpsensor/sepolicy.mk
+-
++-include vendor/mediatek/proprietary/hardware/fingerprint/silead/products/sepolicy.mk
+diff --git a/odm/Romanee/device.mk b/odm/Romanee/device.mk
+index 49574ba..7383664 100755
+--- a/odm/Romanee/device.mk
++++ b/odm/Romanee/device.mk
+@@ -199,10 +199,14 @@
+ # zn wangpeng add
+ PRODUCT_PROPERTY_OVERRIDES += service.adb.tcp.port=5555
+ 
+-# zn yaolihui add fingerprint start
++# zn yaolihui add fpsensor start
+ PRODUCT_PACKAGES += fpsensor_fingerprint.default
+ PRODUCT_PACKAGES += android.hardware.biometrics.fingerprint@2.1-service
+ PRODUCT_PACKAGES += libfp_ext_svc2
+ PRODUCT_PACKAGES += libchiponeic_fingerprint_factory
+ PRODUCT_PACKAGES += vendor.fpsensor.hardware.fpsensorhidlsvc@2.0
+-# zn yaolihui add fingerprint end
++# zn yaolihui add siliad start
++PRODUCT_PACKAGES += fingerprint.silead.default
++PRODUCT_PACKAGES += libsl_fp_impl
++$(call inherit-product, vendor/mediatek/proprietary/hardware/fingerprint/silead/products/fingerprint.mk)
++# zn yaolihui add fingerprint end
+\ No newline at end of file

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fpc_color_raspberry_light">#C53C5E</color>
+    <color name="fpc_color_raspberry_dark">#942D46</color>
+    <color name="fpc_color_raspberry_dark2">#621E2F</color>
+    <color name="fpc_color_light_gray">#EAEAEA</color>
+    <color name="fpc_color_medium_gray">#808285</color>
+    <color name="fpc_color_dark_gray">#96999E</color>
+    <color name="fpc_color_blue">#005781</color>
+    <color name="fpc_color_error">#FF0000</color>
+</resources>
