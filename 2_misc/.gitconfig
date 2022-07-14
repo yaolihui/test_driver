@@ -4,7 +4,7 @@
 	insteadof = http://github.com
 
 [credential]
-	helper = store --file  ~/e/.git-credentials
+	helper = store --file  ~/c/Users/Administrator/.git-credentials
 
 [http]
 	sslVerify = false
@@ -21,6 +21,4 @@
 	rs = reset
 	
 [core]
-	autocrlf = true
-	fscache = true
-	symlinks = false
+	editor = vim
