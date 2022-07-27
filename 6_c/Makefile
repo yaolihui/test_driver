@@ -10,7 +10,7 @@ test:
 	rm -rf a.out
 
 	gcc method.c  && ./a.out
-	rm -rf a.out
+#	rm -rf a.out
 	
 all: test
 	echo all
