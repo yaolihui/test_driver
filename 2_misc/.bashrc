@@ -124,6 +124,6 @@ alias mk='make -j8'
 alias mkarm='make -j6 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 alias reposync='repo sync -c -j6 --no-tags --no-clone-bundle'
 
-/mnt/c/Windows/System32/cmd.exe /Q /C "wsl.exe --mount \\\\.\\PHYSICALDRIVE1" > /dev/null 2>&1
+/mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1 > /dev/null 2>&1
 
 # echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
