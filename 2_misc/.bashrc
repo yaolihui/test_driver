@@ -124,10 +124,6 @@ alias mk='make -j8'
 alias mkarm='make -j6 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
 alias reposync='repo sync -c -j6 --no-tags --no-clone-bundle'
 
-#export USE_CCACHE=true
-#export CCACHE_MASK=002
-#export CCACHE_DIR=~/.ccache/ccache
-#export CCACHE_EXEC=/usr/bin/ccache
-#/usr/bin/ccache -M 1G
-#/usr/bin/ccache -s
+/mnt/c/Windows/System32/cmd.exe /Q /C "wsl.exe --mount \\\\.\\PHYSICALDRIVE1" > /dev/null 2>&1
+
 # echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
