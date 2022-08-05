@@ -1,0 +1,4 @@
+[wsl2]
+memory=32G
+localhostForwarding=true
+kernel=C:\\bzImage
