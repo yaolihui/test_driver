@@ -11,6 +11,7 @@ ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
+#https://tool.chinaz.com/dns
 20.205.243.166	github.com
 199.232.69.194	github.global.ssl.fastly.net
 185.199.108.153 assets-cdn.github.com
