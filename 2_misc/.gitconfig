@@ -1,17 +1,23 @@
-[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/"]
-	insteadof = https://android.googlesource.com
-[url "https://hub.fastgit.org"]
-	insteadof = http://github.com
+[url "ssh://lihui.yao@gerritnj.globalwiko.com:29418"]
+	insteadof = ssh://lihui.yao@wknj-gerritnj.wikophone.com:29418
+	insteadof = http://lihui.yao@wknj-gerritnj.wikophone.com:9090
 
-[credential]
-	helper = store --file  ~/c/Users/Administrator/.git-credentials
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/"]
+    insteadof = https://android.googlesource.com
+
+[url "https://ghproxy.com/https://github.com"]
+    insteadof = https://github.com
+    insteadof = http://github.com
 
 [http]
-	sslVerify = false
-	sslcainfo = C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt
+	sslverify = false
+[credential]
+        helper = store --file  /mnt/c/Users/Administrator/.git-credentials
 [user]
-	email = yaolihui888@163.com
-	name = yaolihui
+#	email = lihui.yao@chino-e.com
+#	name = lihui.yao
+    email = yaolihui888@163.com
+    name = yaolihui
 [alias]
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit 
 	st = status
@@ -19,6 +25,7 @@
 	ci = commit
 	br = branch
 	rs = reset
-	
+[color]
+	ui = auto
 [core]
 	editor = vim
