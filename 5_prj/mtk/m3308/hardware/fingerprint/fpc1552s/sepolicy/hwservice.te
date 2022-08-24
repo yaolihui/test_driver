@@ -1,1 +1,0 @@
-type fpc_hal_fingerprint_hwservice, hwservice_manager_type, protected_hwservice;

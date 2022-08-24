@@ -1,4 +1,0 @@
-hidl_package_root {
-    name: "vendor.silead.hardware",
-    path: "vendor/mediatek/proprietary/hardware/fingerprint/silead/hardware/fingerprintHidl",
-}

@@ -1,7 +1,0 @@
-include ':app'
-
-File fingerprintExtension = new File('../../fingerprint_extension/api')
-if (fingerprintExtension.exists()) {
-    include ':fingerprint_extension'
-    project(':fingerprint_extension').projectDir = fingerprintExtension
-}

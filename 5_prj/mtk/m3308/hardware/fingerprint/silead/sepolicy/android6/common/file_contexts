@@ -1,8 +1,0 @@
-
-/dev/spidev.*                 u:object_r:silead_fpd_device:s0
-/dev/silead_fp                u:object_r:silead_fpd_device:s0
-/dev/silead_s.*                u:object_r:silead_fpd_device:s0
-
-/data/system/silead(/.*)? u:object_r:silead_fpd_data_file:s0
-/persist/silead(/.*)? u:object_r:silead_fpd_data_file:s0
-

@@ -1,3 +1,0 @@
-include ':app'
-include ':fingerprint_extension'
-project(':fingerprint_extension').projectDir = file('../fingerprint_extension/api_legacy')

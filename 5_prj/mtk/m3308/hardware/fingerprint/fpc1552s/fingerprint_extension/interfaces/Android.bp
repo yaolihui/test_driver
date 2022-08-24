@@ -1,4 +1,0 @@
-hidl_package_root {
-     name: "com.fingerprints",
-     path: "vendor/mediatek/proprietary/hardware/fingerprint/fpc1552s/fingerprint_extension/interfaces",
-}

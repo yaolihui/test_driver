@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">ImageTool</string>
-    <string name="touch_sensor_message">Please touch fingerprint sensor</string>
-    <string name="dialog_closing_app_title">Closing App</string>
-    <string name="dialog_closing_app_message">Could not get FingerprintExtension Service</string>
-    <string name="dialog_closing_app_ok">OK</string>
-</resources>

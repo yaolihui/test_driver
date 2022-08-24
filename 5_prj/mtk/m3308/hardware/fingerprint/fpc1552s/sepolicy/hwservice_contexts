@@ -1,2 +1,0 @@
-com.fingerprints.extension::IFingerprintEngineering             u:object_r:fpc_hal_fingerprint_hwservice:s0
-com.fingerprints.extension::IFingerprintSensorTest              u:object_r:fpc_hal_fingerprint_hwservice:s0
