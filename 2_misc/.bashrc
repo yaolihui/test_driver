@@ -117,9 +117,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-/mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1  > /dev/null 2>&1
+if [ -e /mnt/c ] && [ ! -e /mnt/wsl/PHYSICALDRIVE1 ]; then /mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1  > /dev/null 2>&1; fi
 
 export PATH=~/bin:$PATH
+
 export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
 export luxi=luxi@192.168.88.240 #LX147258
 export windows_host=`cat /etc/resolv.conf|grep nameserver|awk '{print $2}'`
