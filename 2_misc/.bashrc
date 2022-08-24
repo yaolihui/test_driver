@@ -57,7 +57,8 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;33m\]\w\[\033[36m\]`__git_ps1`\[\033[0m\]\n\$ '
+#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@ hello:\[\033[01;33m\]\w\[\033[36m\]`__git_ps1`\[\033[0m\]\n\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -72,6 +73,7 @@ xterm*|rxvt*)
     ;;
 esac
 
+# enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
@@ -115,15 +117,16 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export LS_COLORS='no=00:fi=00:di=01;33:ln=01;36:pi=40;33:so=01;35:bd=40;33;01:cd=40;33;01:or=01;05;0;0:mi=01;05;37;41:ex=01;35:'
-alias hs='history'
-alias cd-='cd -'
-alias cd..='cd ..'
-alias cd...='cd ../../'
-alias mk='make -j8'
-alias mkarm='make -j6 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-'
-alias reposync='repo sync -c -j6 --no-tags --no-clone-bundle'
+/mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1  > /dev/null 2>&1
 
-/mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1 > /dev/null 2>&1
+export PATH=~/bin:$PATH
+export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
+export luxi=luxi@192.168.88.240 #LX147258
+export windows_host=`cat /etc/resolv.conf|grep nameserver|awk '{print $2}'`
+export ADB_SERVER_SOCKET=tcp:$windows_host:5037
 
-# echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
+#echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
+#alias showusb='usbip list -r $HOSTNAME.local'
+#alias mountusb='sudo usbip attach -r $HOSTNAME.local -b 1-6'
+
+
