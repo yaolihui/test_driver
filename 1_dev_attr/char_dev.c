@@ -6,7 +6,7 @@ char mchar[10] = "test";
 
 int test_open(struct inode * i, struct file * f)
 {
-	printk("%s \n", __func__);
+	printk("%s, major=%d, minor=%d \n", __func__, imajor(i), iminor(i));
 	return 0;
 }
 

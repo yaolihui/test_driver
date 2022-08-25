@@ -35,10 +35,10 @@ DEVICE_ATTR(test, 0660, test_show, test_store);
 
 int enter(void)
 {
-	printk("\n %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
+	printk(KERN_CRIT "\n %s:%s:%d\n ", __FILE__, __FUNCTION__, __LINE__);
 	
 	dno = reg_cdev(MY_MAJOR);
-	printk("%s:reg_cdev:dno=%d\n ", __func__, dno);
+	printk(KERN_WARNING "%s:reg_cdev:dno=%d\n ", __func__, dno);
 
 
 	cls = class_create(THIS_MODULE, "1_class");
