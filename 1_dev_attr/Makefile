@@ -24,9 +24,9 @@ else
 
 #kobject_create_and_add-objs := 		kobject_create_and_add.o
 sysfs_create-objs := 	sysfs_create_file.o 	char_dev.o
-device_create-objs := 	device_create_file.o 	char_dev.o
-add_group-objs := 		device_add_group.o		char_dev.o
-add_groups-objs := 		device_add_groups.o		char_dev.o 
+device_create-objs := 	device_create_file.o
+add_group-objs := 		device_add_group.o
+add_groups-objs := 		device_add_groups.o
 
 obj-m := sysfs_create.o device_create.o add_group.o add_groups.o kobject_create_and_add.o
 
