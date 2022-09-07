@@ -7,12 +7,12 @@ public class CountWords {
 	private static boolean needPool = true;
 
 	private static Hashtable<String, Integer> table = new Hashtable<String, Integer>();
-	private static ThreadPoolExecutor pool = new ThreadPoolExecutor(100, 1000, 100, TimeUnit.MILLISECONDS, 
+	private static ThreadPoolExecutor pool = new ThreadPoolExecutor(10, 100, 100, TimeUnit.MILLISECONDS, 
 													new LinkedBlockingDeque<Runnable>(), 
 													Executors.defaultThreadFactory(), 
 													new ThreadPoolExecutor.CallerRunsPolicy()){
 														protected void terminated() {
-															printResult();
+															printSortedResult();
 															System.out.println("total time:" + (System.currentTimeMillis() - s) + "ms");
 														}
 													};
@@ -67,7 +67,7 @@ public class CountWords {
 		}
 	}
 
-	private static void printResult() {
+	private static void printSortedResult() {
 		List<String> list = new ArrayList<String>(table.keySet());
 		Collections.sort(list, (arg0, arg1)->{
 			return table.get(arg1) - table.get(arg0);
@@ -119,7 +119,7 @@ public class CountWords {
 		if (needPool) {
 			pool.shutdown();
 		} else {
-			printResult();
+			printSortedResult();
 			System.out.println("total time:" + (System.currentTimeMillis() - s) + "ms");
 		}
 	}

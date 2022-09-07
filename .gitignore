@@ -10,3 +10,4 @@
 *.order
 a.out
 *.S
+*.class
