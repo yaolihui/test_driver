@@ -17,6 +17,25 @@ public class CountWords {
                                                         }
                                                     };
 
+    private static boolean isFakeWord(String word) {
+        char[] chars = word.toCharArray();
+        int length = word.length();
+        
+        if ('x' == chars[0]) {
+            return true;
+        }
+
+        if (length >= 3) { 
+            for (int i = 0; i <= length - 3; i++) {
+                if ((chars[i] == chars[i+1] && chars[i] == chars[i+2])/*aaa*/
+                || (i <= length - 4 && chars[i] == chars[i+1] && chars[i+2] == chars[i+3])/*abab*/) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private static boolean isWord(String word) {
         char[] chars = word.toCharArray();
         for (char c : chars) {
@@ -29,7 +48,8 @@ public class CountWords {
     }
 
     private static boolean isSuitedWord(String word) {
-        return word.length() > 2 && word.length() < 16;
+        int length = word.length();
+        return length > 3 && length < 16;
     }
 
     private static final String REGEX = " |[0-9]|\r|\t|@|:|=|-|_|,|#|;|\'|`|\"|“|”|/|\\^|\\.|\\*|\\(|\\)|\\<|\\>|\\[|\\]|\\+|\\|\\!|\\{|\\}|\\!|\\|\\?|\\\\";
@@ -40,13 +60,12 @@ public class CountWords {
         try {
             br =new BufferedReader(new InputStreamReader(new FileInputStream(f)));
             while((str = br.readLine()) != null) {
-                
                 String[] wds = str.split(REGEX);
                 if (null != wds) {
                     for (String wd: wds) {
                         String w = wd.trim().toLowerCase();
                         //System.out.println(w);
-                        if (isSuitedWord(w) && isWord(w)) {
+                        if (isSuitedWord(w) && isWord(w) && !isFakeWord(w)) {
                             Integer count = table.get(w);
                             //System.out.println("count:" + count);
                             if (null == count) {
@@ -59,13 +78,13 @@ public class CountWords {
                 }
             }
         } catch (Exception e) {
-            System.out.println("e:" + e);
+             e.printStackTrace();
         } finally {
             if (null != br) {
                 try {
                     br.close();
                 } catch (Exception e1) {
-                    System.out.println("e:" + e1);
+                    e1.printStackTrace();
                 } finally {
                     br = null;
                 }
@@ -74,14 +93,22 @@ public class CountWords {
     }
 
     private static void printSortedResult() {
-        List<String> list = new ArrayList<String>(table.keySet());
+        LinkedList<String> list = new LinkedList<String>(table.keySet());
+
         Collections.sort(list, (arg0, arg1)->{
-            return table.get(arg1) - table.get(arg0);
+            return arg0.compareTo(arg1);
         });
+
+        Collections.sort(list, (arg0, arg1)->{
+            return (table.get(arg1) - table.get(arg0));
+        });
+
         for(String k: list) {
             System.out.println(k + "\t\t\t" + table.get(k));
         }
-        System.out.println("==================================\ntotal words:" + list.size());
+
+        System.out.println("-------------------------------------");
+        System.out.println("total words:" + list.size());
     }
 
     private static void traverse(File file) {
