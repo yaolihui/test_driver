@@ -112,9 +112,9 @@ public class CountWords {
 
 		for (int i = 0; i < list.size(); i++){
 			if (!dicts.contains(list.get(i))) {
-				System.out.println("removed:" + list.get(i));
+				//System.out.println("removed:" + list.get(i));
 				list.remove(i);
-				i--;
+				//i--;
 			}
 		}
 
