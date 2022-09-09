@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 
 public class CountWords {
 	private static final boolean THREAD_POOL = true;
-
+	private static TreeSet<String> dicts = new TreeSet<String>();
 	private static Hashtable<String, Integer> table = new Hashtable<String, Integer>();
 	private static ThreadPoolExecutor pool =
 		new ThreadPoolExecutor(100/*corePoolSize*/, 1000/*maximumPoolSize*/, 100/*keepAliveTime*/, TimeUnit.MILLISECONDS/*unit*/, 
@@ -13,7 +13,7 @@ public class CountWords {
 								new ThreadPoolExecutor.CallerRunsPolicy()){
 									protected void terminated() {
 										printSortedResult();
-										System.out.println("total time:" + (System.currentTimeMillis() - s) + "ms");
+										System.out.println("total time: " + (System.currentTimeMillis() - s) + "ms");
 									}
 								};
 
@@ -51,20 +51,20 @@ public class CountWords {
 		return length > 3 && length < 16;
 	}
 
-	private static final String REGEX = " |[0-9]|\r|\t|@|:|=|-|_|,|#|;|\'|`|\"|“|”|/|\\^|\\.|\\*|\\(|\\)|\\<|\\>|\\[|\\]|\\+|\\|\\!|\\{|\\}|\\!|\\|\\?|\\\\";
-	private static void readFile(File f) {
+	private static final String REGEX = "\\W|\\d|_";
+	private static void readFile(File file, boolean isInitDict) {
 		//System.out.println("read file:" + f.getPath());
 		String str = null;
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			while((str = br.readLine()) != null) {
 				String[] wds = str.split(REGEX);
 				if (null != wds) {
 					for (String wd: wds) {
 						String w = wd.trim().toLowerCase();
 						//System.out.println(w);
-						if (isSuitedWord(w) && isWord(w) && !isFakeWord(w)) {
+						if (!isInitDict && isSuitedWord(w) && isWord(w) && !isFakeWord(w)) {
 							Integer count = table.get(w);
 							//System.out.println("count:" + count);
 							if (null == count) {
@@ -72,6 +72,9 @@ public class CountWords {
 							} else {
 								table.put(w, ++count);
 							}
+						} else if (isInitDict) {
+							//System.out.println(w);
+							dicts.add(w);
 						}
 					}
 				}
@@ -96,7 +99,7 @@ public class CountWords {
 	}
 
 	private static void readFile2(File f) {
-		Runnable r = () -> readFile(f);
+		Runnable r = () -> readFile(f, false);
 		if (THREAD_POOL) {
 			pool.execute(r);
 		} else {
@@ -105,7 +108,15 @@ public class CountWords {
 	}
 
 	private static void printSortedResult() {
-		LinkedList<String> list = new LinkedList<String>(table.keySet());
+		ArrayList<String> list = new ArrayList<String>(table.keySet());
+
+		for (int i = 0; i < list.size(); i++){
+			if (!dicts.contains(list.get(i))) {
+				System.out.println("removed:" + list.get(i));
+				list.remove(i);
+				i--;
+			}
+		}
 
 		Collections.sort(list, (arg0, arg1)->{
 			return arg0.compareTo(arg1);
@@ -116,7 +127,7 @@ public class CountWords {
 		});
 
 		for(String k: list) {
-			System.out.println(k + "\t\t\t" + table.get(k));
+			//System.out.println(k + "\t\t\t" + table.get(k));
 		}
 
 		System.out.println("--------------------------");
@@ -133,10 +144,16 @@ public class CountWords {
 		return true || false;
 	}
 
-	private static final String DIR="/home/yaolihui/d/WSL2-Linux-Kernel/Documentation";
+	private static void initDicts(File file){
+		readFile(file, true);
+	}
+
+	private static final String DICT_FILE = "dicts.txt";
+	private static final String DIR="/home/yaolihui/d/collins3.txt";
 	private static long s = System.currentTimeMillis();
 	public static void main(String[] args) {
 		//System.out.println("hello world!");
+		initDicts(new File(DICT_FILE));
 		traverse(new File(DIR));
 
 		if (THREAD_POOL) {
@@ -146,4 +163,6 @@ public class CountWords {
 			System.out.println("total time:" + (System.currentTimeMillis() - s) + "ms");
 		}
 	}
+	
+
 }
