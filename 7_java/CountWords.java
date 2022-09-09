@@ -127,7 +127,7 @@ public class CountWords {
 		});
 
 		for(String k: list) {
-			//System.out.println(k + "\t\t\t" + table.get(k));
+			System.out.println(k + "\t\t\t" + table.get(k));
 		}
 
 		System.out.println("--------------------------");
