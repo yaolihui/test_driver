@@ -126,11 +126,11 @@ public class CountWords {
 		Collections.sort(words, (arg0, arg1)->{
 			return arg0.compareTo(arg1);
 		});
-/*
+
 		Collections.sort(words, (arg0, arg1)->{
 			return (map.get(arg1) - map.get(arg0));
 		});
-*/
+
 		for(String k: words) {
 			System.out.println(k + "\t\t\t" + map.get(k));
 		}
