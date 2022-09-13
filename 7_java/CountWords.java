@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 public class CountWords {
 	private static final boolean THREAD_POOL = true;
 	private static TreeSet<String> dicts = new TreeSet<String>();
-	private static Hashtable<String, Integer> table = new Hashtable<String, Integer>();
+	private static HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private static ThreadPoolExecutor pool =
 		new ThreadPoolExecutor(100/*corePoolSize*/, 1000/*maximumPoolSize*/, 100/*keepAliveTime*/, TimeUnit.MILLISECONDS/*unit*/, 
 								new LinkedBlockingDeque<Runnable>(), 
@@ -65,12 +65,14 @@ public class CountWords {
 						String w = wd.trim().toLowerCase();
 						//System.out.println(w);
 						if (!isInitDict && isSuitedWord(w) && isWord(w) && !isFakeWord(w)) {
-							Integer count = table.get(w);
-							//System.out.println("count:" + count);
-							if (null == count) {
-								table.put(w, new Integer(1));
-							} else {
-								table.put(w, ++count);
+							synchronized(map){
+								Integer count = map.get(w);
+								//System.out.println("count:" + count);
+								if (null == count) {
+									map.put(w, new Integer(1));
+								} else {
+									map.put(w, ++count);
+								}
 							}
 						} else if (isInitDict) {
 							//System.out.println(w);
@@ -117,20 +119,20 @@ public class CountWords {
 	}
 
 	private static void printSortedResult() {
-		ArrayList<String> words = new ArrayList<String>(table.keySet());
+		ArrayList<String> words = new ArrayList<String>(map.keySet());
 
 		showInDicts(words);
 
 		Collections.sort(words, (arg0, arg1)->{
 			return arg0.compareTo(arg1);
 		});
-
+/*
 		Collections.sort(words, (arg0, arg1)->{
-			return (table.get(arg1) - table.get(arg0));
+			return (map.get(arg1) - map.get(arg0));
 		});
-
+*/
 		for(String k: words) {
-			System.out.println(k + "\t\t\t" + table.get(k));
+			System.out.println(k + "\t\t\t" + map.get(k));
 		}
 
 		System.out.println("--------------------------");
