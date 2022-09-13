@@ -132,10 +132,12 @@ public class CountWords {
 		});
 
 		for(String k: words) {
-			System.out.println(k + "\t\t\t" + map.get(k));
+			System.out.print(k);
+			int length = k.length();
+			for (int i = length; i < 20; i += 4) System.out.print("\t");
+			System.out.println(map.get(k) + "\t");
 		}
-
-		System.out.println("--------------------------");
+		System.out.println("---------------------");
 		System.out.println("total words:" + words.size());
 	}
 
@@ -153,12 +155,12 @@ public class CountWords {
 		readFile(file, true);
 	}
 
-	private static final String DICT_FILE = "dicts6.txt";
+	private static final String DICT = "dicts6.txt";
 	private static final String DIR="/home/yaolihui/d/WSL2-Linux-Kernel/Documentation";
 	private static long s = System.currentTimeMillis();
 	public static void main(String[] args) {
 		//System.out.println("hello world!");
-		initDicts(new File(DICT_FILE));
+		initDicts(new File(DICT));
 		traverse(new File(DIR));
 
 		if (THREAD_POOL) {
