@@ -107,31 +107,34 @@ public class CountWords {
 		}
 	}
 
-	private static void printSortedResult() {
-		ArrayList<String> list = new ArrayList<String>(table.keySet());
-
+	private static void showInDicts(List list){
 		for (int i = 0; i < list.size(); i++){
 			if (!dicts.contains(list.get(i))) {
-				//System.out.println("removed:" + list.get(i));
 				list.remove(i);
-				//i--;
+				i--;
 			}
 		}
+	}
 
-		Collections.sort(list, (arg0, arg1)->{
+	private static void printSortedResult() {
+		ArrayList<String> words = new ArrayList<String>(table.keySet());
+
+		showInDicts(words);
+
+		Collections.sort(words, (arg0, arg1)->{
 			return arg0.compareTo(arg1);
 		});
 
-		Collections.sort(list, (arg0, arg1)->{
+		Collections.sort(words, (arg0, arg1)->{
 			return (table.get(arg1) - table.get(arg0));
 		});
 
-		for(String k: list) {
+		for(String k: words) {
 			System.out.println(k + "\t\t\t" + table.get(k));
 		}
 
 		System.out.println("--------------------------");
-		System.out.println("total words:" + list.size());
+		System.out.println("total words:" + words.size());
 	}
 
 	private static boolean traverse(File file) {
@@ -148,8 +151,8 @@ public class CountWords {
 		readFile(file, true);
 	}
 
-	private static final String DICT_FILE = "dicts.txt";
-	private static final String DIR="/home/yaolihui/d/collins3.txt";
+	private static final String DICT_FILE = "dicts6.txt";
+	private static final String DIR="/home/yaolihui/d/WSL2-Linux-Kernel/Documentation";
 	private static long s = System.currentTimeMillis();
 	public static void main(String[] args) {
 		//System.out.println("hello world!");
