@@ -10,13 +10,13 @@ public class TestConsumer {
 		
 		ArrayList<String> list = new ArrayList<String>();
 		
-		Consumer<ArrayList> c1 = new Consumer<ArrayList>(){ 
-			public void accept(ArrayList t){
+		Consumer<ArrayList<String>> c1 = new Consumer<ArrayList<String>>(){ 
+			public void accept(ArrayList<String> t){
 				t.add("111");
 			}
 		};		
-		Consumer<ArrayList> c2 = t -> t.add("111");		
-		Consumer<ArrayList> c3 = t -> System.out.println(t.size());
+		Consumer<ArrayList<String>> c2 = t -> t.add("111");		
+		Consumer<ArrayList<String>> c3 = t -> System.out.println(t.size());
 		
 		System.out.println("------------------");
 		
