@@ -39,6 +39,9 @@ public class TestGenericsType {
 		List list =(List) mg.<String, Integer, Collection>collect(arg);
 		
 		list.stream().forEach(e -> System.out.println(e));
+		System.out.println("------------------------------");
+		list.stream().anyMatch(e -> {System.out.println(e); return false;});
+		System.out.println("------------------------------");
 	}
 	
 }
