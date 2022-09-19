@@ -22,25 +22,25 @@ static const struct mtk_pin_desc mtk_pins_mt6833[] = {
 		},
 	},
 	{
+		.number = 1,
+		.name = "pin1",
+		.funcs = (struct mtk_func_desc[]) {
+			{.name = "func110", .muxval = 110}, 
+			{.muxval = 120, .name = "func120"}, 
+		},
+	},
+	{
 		.number = 2,
 		.name = "pin2",
 		.funcs = (struct mtk_func_desc[]) {
-			{.name = "func210", .muxval = 210}, 
-			{.muxval = 220, .name = "func220"}, 
+			{210, "func210" }, 
 		},
 	},
 	{
 		.number = 3,
 		.name = "pin3",
-		.funcs = (struct mtk_func_desc[]) {
+		.funcs = /*(struct mtk_func_desc[])  ::Segmentation fault:: */ {
 			{310, "func310" }, 
-		},
-	},
-	{
-		.number = 4,
-		.name = "pin4",
-		.funcs = /*(struct mtk_func_desc[])  Segmentation fault */ {
-			{410, "func410" }, 
 		},
 	},
 	{
@@ -50,17 +50,16 @@ static const struct mtk_pin_desc mtk_pins_mt6833[] = {
 
 int main(void)
 {
-	printf("Hello world!\n");
+	printf("\nHello world!\n");
 	
 	int length = ARRAY_SIZE(mtk_pins_mt6833);
 	int size = sizeof(mtk_pins_mt6833);
 	printf("lenth = %d, size = %d\n", length, size);
 	
-	printf("pin_name = %s,\t func_name = %s\n", mtk_pins_mt6833[0].name,  mtk_pins_mt6833[0].funcs[1].name);
-	printf("pin_number = %d,\t\t func_name = %s\n", mtk_pins_mt6833[1].number,  mtk_pins_mt6833[1].funcs[0].name);
-	printf("pin_number = %d,\t\t func_muxval = %d\n", mtk_pins_mt6833[1].number,  mtk_pins_mt6833[1].funcs[1].muxval);
-	printf("func_muxval = %d,\t func_name = %s\n", mtk_pins_mt6833[2].funcs[0].muxval, mtk_pins_mt6833[2].funcs[0].name);
-	printf("func_muxval = %d,\t func_name = %s\n", mtk_pins_mt6833[3].funcs[0].muxval, mtk_pins_mt6833[3].funcs[0].name);
+	printf("pin_number=%d, pin_name=%s, func_name=%s\n", mtk_pins_mt6833[0].number, mtk_pins_mt6833[0].name,  mtk_pins_mt6833[0].funcs[1].name);
+	printf("pin_number=%d, func_name=%s, func_muxval=%d\n", mtk_pins_mt6833[1].number,  mtk_pins_mt6833[1].funcs[0].name,  mtk_pins_mt6833[1].funcs[1].muxval);
+	printf("pin_number=%d, func_muxval=%d, func_name=%s\n", mtk_pins_mt6833[2].number, mtk_pins_mt6833[2].funcs[0].muxval, mtk_pins_mt6833[2].funcs[0].name);
+	printf("pin_number=%d\n", mtk_pins_mt6833[3].number);
 	return 0;
 }
   
