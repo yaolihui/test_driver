@@ -1,3 +1,5 @@
+https://www.kernel.org/doc/Documentation/pinctrl.txt
+
 PINCTRL (PIN CONTROL) subsystem
 This document outlines the pin control subsystem in Linux
 
@@ -935,6 +937,51 @@ retval = pinctrl_select_state(pinctrl, pins_sleep);
 And your machine configuration may look like this:
 --------------------------------------------------
 
+#define PIN_CONF_PACKED(p, a) ((a << 8) | ((unsigned long) p & 0xffUL))
+#define PIN_MAP_MUX_GROUP(dev, state, pinctrl, grp, func)		\
+	{								\
+		.dev_name = dev,					\
+		.name = state,						\
+		.type = PIN_MAP_TYPE_MUX_GROUP,				\
+		.ctrl_dev_name = pinctrl,				\
+		.data.mux = {						\
+			.group = grp,					\
+			.function = func,				\
+		},							\
+	}
+#define PIN_MAP_CONFIGS_PIN(dev, state, pinctrl, pin, cfgs)		\
+	{								\
+		.dev_name = dev,					\
+		.name = state,						\
+		.type = PIN_MAP_TYPE_CONFIGS_PIN,			\
+		.ctrl_dev_name = pinctrl,				\
+		.data.configs = {					\
+			.group_or_pin = pin,				\
+			.configs = cfgs,				\
+			.num_configs = ARRAY_SIZE(cfgs),		\
+		},							\
+	}
+struct pinctrl_map_mux {
+	const char *group;
+	const char *function;
+};
+struct pinctrl_map_configs {
+	const char *group_or_pin;
+	unsigned long *configs;
+	unsigned num_configs;
+}
+struct pinctrl_map {
+	const char *dev_name;
+	const char *name;
+	enum pinctrl_map_type type;
+	const char *ctrl_dev_name;
+	union {
+		struct pinctrl_map_mux mux;
+		struct pinctrl_map_configs configs;
+	} data;
+};
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 static unsigned long uart_default_mode[] = {
     PIN_CONF_PACKED(PIN_CONFIG_DRIVE_PUSH_PULL, 0),
 };
@@ -948,6 +995,7 @@ static struct pinctrl_map pinmap[] __initdata = {
                       "u0_group", "u0"),
     PIN_MAP_CONFIGS_PIN("uart", PINCTRL_STATE_DEFAULT, "pinctrl-foo",
                         "UART_TX_PIN", uart_default_mode),
+
     PIN_MAP_MUX_GROUP("uart", PINCTRL_STATE_SLEEP, "pinctrl-foo",
                       "u0_group", "gpio-mode"),
     PIN_MAP_CONFIGS_PIN("uart", PINCTRL_STATE_SLEEP, "pinctrl-foo",

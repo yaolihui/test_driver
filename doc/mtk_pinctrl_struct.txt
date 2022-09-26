@@ -1,0 +1,211 @@
+#define MTK_EINT_FUNCTION(_eintmux, _eintnum)
+	{
+		.eint_m = _eintmux,
+		.eint_n = _eintnum,
+	}
+
+#define MTK_PIN(_number, _name, _eint, _drv_n, ...) {
+		.number = _number,
+		.name = _name,
+		.eint = _eint,
+		.drv_n = _drv_n,
+		.funcs = (struct mtk_func_desc[]){
+			__VA_ARGS__, { } },
+	}
+
+#define MTK_FUNCTION(_val, _name)
+	{
+		.muxval = _val,
+		.name = _name,
+	}
+
+struct mtk_func_desc {
+	const char *name;
+	u8 muxval;
+};
+
+struct mtk_pin_desc {
+	unsigned int number;
+	const char *name;
+	struct mtk_eint_desc eint;
+	u8 drv_n;
+	struct mtk_func_desc *funcs;
+};
+
+struct mtk_pinctrl *hw;
+hw->soc = soc;
+
+struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
+③	struct pinctrl_dev		*pctrl;  { 					// kernel-4.19/drivers/pinctrl/core.h
+		struct list_head node;
+①		struct pinctrl_desc *desc;  { 					// kernel-4.19/include/linux/pinctrl/pinctrl.h
+				const char *name;
+②				const struct pinctrl_pin_desc *pins; {	// kernel-4.19/include/linux/pinctrl/pinctrl.h
+					unsigned number;
+					const char *name;
+					void *drv_data;
+				};
+				unsigned int npins;
+				const struct pinctrl_ops *	pctlops; {	// kernel-4.19/include/linux/pinctrl/pinctrl.h
+					int (*get_groups_count) (struct pinctrl_dev *pctldev);
+					const char *(*get_group_name) (struct pinctrl_dev *pctldev, unsigned selector);
+					int (*get_group_pins) (struct pinctrl_dev *pctldev, unsigned selector, const unsigned **pins, unsigned *num_pins);
+					void (*pin_dbg_show) (struct pinctrl_dev *pctldev, struct seq_file *s, unsigned offset);
+					int (*dt_node_to_map) (struct pinctrl_dev *pctldev, struct device_node *np_config, struct pinctrl_map **map, unsigned *num_maps);
+					void (*dt_free_map) (struct pinctrl_dev *pctldev, struct pinctrl_map *map, unsigned num_maps);
+				}
+				const struct pinmux_ops *	pmxops; {	// kernel-4.19/include/linux/pinctrl/pinmux.h
+					int (*request) (struct pinctrl_dev *pctldev, unsigned offset);
+					int (*free) (struct pinctrl_dev *pctldev, unsigned offset);
+					int (*get_functions_count) (struct pinctrl_dev *pctldev);
+					const char *(*get_function_name) (struct pinctrl_dev *pctldev, unsigned selector);
+					int (*get_function_groups) (struct pinctrl_dev *pctldev, unsigned selector, const char * const **groups, unsigned *num_groups);
+					int (*set_mux) (struct pinctrl_dev *pctldev, unsigned func_selector, unsigned group_selector);
+					int (*gpio_request_enable) (struct pinctrl_dev *pctldev, struct pinctrl_gpio_range *range, unsigned offset);
+					void (*gpio_disable_free) (struct pinctrl_dev *pctldev, struct pinctrl_gpio_range *range, unsigned offset);
+					int (*gpio_set_direction) (struct pinctrl_dev *pctldev, struct pinctrl_gpio_range *range, unsigned offset, bool input);
+					bool strict;
+				}
+				const struct pinconf_ops *	confops; {	// kernel-4.19/include/linux/pinctrl/pinconf.h
+					struct pinconf_ops {
+					bool is_generic;
+					int (*pin_config_get) (struct pinctrl_dev *pctldev, unsigned pin, unsigned long *config);
+					int (*pin_config_set) (struct pinctrl_dev *pctldev, unsigned pin, unsigned long *configs, unsigned num_configs);
+					int (*pin_config_group_get) (struct pinctrl_dev *pctldev, unsigned selector, unsigned long *config);
+					int (*pin_config_group_set) (struct pinctrl_dev *pctldev, unsigned selector unsigned long *configs, unsigned num_configs);
+					int (*pin_config_dbg_parse_modify) (struct pinctrl_dev *pctldev, const char *arg, unsigned long *config);
+					void (*pin_config_dbg_show) (struct pinctrl_dev *pctldev, struct seq_file *s, unsigned offset);
+					void (*pin_config_group_dbg_show) (struct pinctrl_dev *pctldev, struct seq_file *s, unsigned selector);
+					void (*pin_config_config_dbg_show) (struct pinctrl_dev *pctldev, struct seq_file *s unsigned long config);
+				}
+				struct module *owner;
+				unsigned int num_custom_params;
+				const struct pinconf_generic_params *custom_params;
+				const struct pin_config_item *custom_conf_items;y
+		};
+		struct radix_tree_root pin_desc_tree;{			// kernel-4.19/include/linux/radix-tree.h
+			spinlock_t		xa_lock;
+			gfp_t			gfp_mask;
+			struct radix_tree_node	__rcu *rnode;
+		};
+		struct radix_tree_root pin_group_tree;
+		unsigned int num_groups;
+		struct radix_tree_root pin_function_tree;
+		unsigned int num_functions;
+		struct list_head gpio_ranges;
+		struct device *dev;
+		struct module *owner;
+		void *driver_data;
+		struct pinctrl *p; {
+			struct list_head node;
+			struct device *dev;
+			struct list_head states;
+			struct pinctrl_state *state;{
+				struct list_head node;
+				const char *name;						//  pinctrl_lookup_state(p, "name");
+				struct list_head settings;
+			};
+			struct list_head dt_maps;
+			struct kref users;
+		};
+		struct pinctrl_state *hog_default;
+		struct pinctrl_state *hog_sleep;
+		struct mutex mutex;
+		struct dentry *device_root;
+	}
+	void __iomem			**base;
+	u8				nbase;
+	struct device			*dev;
+	struct gpio_chip		chip;
+〇	const struct mtk_pin_soc        *soc; {		// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
+		const struct mtk_pin_reg_calc	*reg_cal;
+		const struct mtk_pin_desc	*pins;  {	// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
+			unsigned int number;
+			const char *name;
+			struct mtk_eint_desc eint;
+			u8 drv_n;
+		★	struct mtk_func_desc *funcs;{		// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
+				const char *name;
+				u8 muxval;
+			};									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-mt6833.h
+		}
+		unsigned int				npins;
+		const struct group_desc		*grps;
+		unsigned int				ngrps;
+		const struct function_desc	*funcs;
+		unsigned int				nfuncs;
+		const struct mtk_eint_regs	*eint_regs;
+		const struct mtk_eint_hw	*eint_hw;
+		u8							gpio_m;
+		bool						ies_present;
+		bool						race_free_access;
+		const char * const			*base_names;
+		unsigned int				nbase_names;
+		const struct mtk_eh_pin_pinmux	*eh_pin_pinmux;
+		int (*bias_disable_set)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc);
+		int (*bias_disable_get)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, int *res);
+		int (*bias_set)			(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, bool pullup);
+		int (*bias_get)			(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, bool pullup, int *res);
+		int (*bias_set_combo)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, u32 pullup,  u32 arg);
+		int (*bias_get_combo)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, u32 *pullup, u32 *arg);
+		int (*drive_set)		(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, u32 arg);
+		int (*drive_get)		(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, int *val);
+		int (*adv_pull_set)		(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, bool pullup, u32 arg);
+		int (*adv_pull_get)		(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, bool pullup, u32 *val);
+		int (*adv_drive_set)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, u32 arg);
+		int (*adv_drive_get)	(struct mtk_pinctrl *hw, const struct mtk_pin_desc *desc, u32 *val);
+		void				*driver_data;
+	};
+	struct mtk_eint		*eint;
+	struct mtk_pinctrl_group	*groups;{
+		const char		*name;
+		unsigned long	config;
+		unsigned		pin;
+	};
+	const char			**grp_names;
+};
+/** pinctrl_dev 初始化过程 **/
+〇kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mt6833.c			// .compatible = "mediatek,mt6833-pinctrl"
+static int mt6833_pinctrl_probe(struct platform_device *pdev)
+
+①kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c
+int mtk_paris_pinctrl_probe(struct platform_device *pdev, const struct mtk_pin_soc *soc)
+
+②kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c
+err = devm_pinctrl_register_and_init(&pdev->dev/*struct device*/, &mtk_desc/*struct pinctrl_desc*/, hw/*void *driver_data*/, &hw->pctrl/*struct pinctrl_dev*/);
+
+③kernel-4.19/drivers/pinctrl/core.c
+int devm_pinctrl_register_and_init(struct device *dev, struct pinctrl_desc *pctldesc, void *driver_data, struct pinctrl_dev **pctldev)
+int pinctrl_register_and_init(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data, struct pinctrl_dev **pctldev)
+static struct pinctrl_dev *pinctrl_init_controller(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data)
+static int pinctrl_register_pins(struct pinctrl_dev *pctldev, const struct pinctrl_pin_desc *pins, unsigned num_descs)
+static int pinctrl_register_one_pin(struct pinctrl_dev *pctldev, const struct pinctrl_pin_desc *pin）
+
+④kernel-4.19/include/linux/radix-tree.h
+static inline int radix_tree_insert(struct radix_tree_root *root,unsigned long index, void *entry)
+
+/** pinctrl_lookup_state(p, "name");中state->name的初始化过程 初始化过程 **/
+struct pinctrl_dev *pinctrl_register(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data)
+	pctldev = pinctrl_init_controller(pctldesc, dev, driver_data);
+	error = pinctrl_enable(pctldev);
+int pinctrl_enable(struct pinctrl_dev *pctldev)
+	error = pinctrl_claim_hogs(pctldev);
+static int pinctrl_claim_hogs(struct pinctrl_dev *pctldev)
+	pctldev->p = create_pinctrl(pctldev->dev, pctldev);
+static struct pinctrl *create_pinctrl(struct device *dev, struct pinctrl_dev *pctldev)
+	ret = pinctrl_dt_to_map(p, pctldev);				// mapping 映射"pinctrl-%d", "pinctrl-names"
+	ret = add_setting(p, pctldev, map); in create_pinctrl()
+static int add_setting(struct pinctrl *p, struct pinctrl_dev *pctldev, const struct pinctrl_map *map)
+	state = create_state(p, map->name);
+static struct pinctrl_state *create_state(struct pinctrl *p, const char *name)
+	state->name = name;
+	list_add_tail(&state->node, &p->states);
+
+/** mapping **/
+kernel-4.19/drivers/pinctrl/devicetree.c
+int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
+	ret = dt_to_map_one_config(p, pctldev, statename, np_config);
+static int dt_to_map_one_config(struct pinctrl *p, struct pinctrl_dev *hog_pctldev, const char *statename, struct device_node *np_config)
+	ret = ops->dt_node_to_map(pctldev, np_config, &map, &num_maps); // kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c  // .dt_node_to_map = mtk_pctrl_dt_node_to_map,
+	
+	
