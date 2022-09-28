@@ -1,0 +1,221 @@
+驱动加载过程
+先看几个宏：
+xref/kernel-4.19/include/linux/module.h#87
+87  #define module_init(x)	__initcall(x);
+
+xref/kernel-4.19/include/linux/init.h#199
+199  #define __define_initcall(fn, id) ___define_initcall(fn, id, .initcall##id)
+215  #define pure_initcall(fn)			__define_initcall(fn, 0)
+217  #define core_initcall(fn)			__define_initcall(fn, 1)
+218  #define core_initcall_sync(fn)		__define_initcall(fn, 1s)
+219  #define postcore_initcall(fn)		__define_initcall(fn, 2)
+220  #define postcore_initcall_sync(fn)	__define_initcall(fn, 2s)
+221  #define arch_initcall(fn)			__define_initcall(fn, 3)
+222  #define arch_initcall_sync(fn)		__define_initcall(fn, 3s)
+223  #define subsys_initcall(fn)		__define_initcall(fn, 4)
+224  #define subsys_initcall_sync(fn)	__define_initcall(fn, 4s)
+225  #define fs_initcall(fn)			__define_initcall(fn, 5)
+226  #define fs_initcall_sync(fn)		__define_initcall(fn, 5s)
+227  #define rootfs_initcall(fn)		__define_initcall(fn, rootfs)
+228  #define device_initcall(fn)		__define_initcall(fn, 6)
+229  #define device_initcall_sync(fn)	__define_initcall(fn, 6s)
+230  #define late_initcall(fn)			__define_initcall(fn, 7)
+231  #define late_initcall_sync(fn)	__define_initcall(fn, 7s)
+233  #define __initcall(fn) 			device_initcall(fn)
+
+从上述宏定义中可以指知道，我们通常使用的module_init的装载优先级是6。系统根据优先级的顺序装载所有的驱动程序，数值越小，优先级越高。每个宏的具体含义参考末尾附录部分。
+当bootloader装载并进入kernel后，执行的第一个方法是start_kernel，一直到module_init中注册的方法发生。调用的过程如如下：
+xref/kernel-4.19/init/main.c#530
+530  asmlinkage __visible void __init start_kernel(void)
+736  	rest_init();
+396  static noinline void __ref rest_init(void)
+407  	pid = kernel_thread(kernel_init, NULL, CLONE_FS);
+1058  static int __ref kernel_init(void *unused)
+1062  	kernel_init_freeable();
+1112  static noinline void __init kernel_init_freeable(void)
+1145  	do_basic_setup();
+970  static void __init do_basic_setup(void)
+978  	do_initcalls();
+955  static void __init do_initcalls(void)
+960  	do_initcall_level(level);
+939  static void __init do_initcall_level(int level)	// level = 6
+951 	for (fn = initcall_levels[level]; fn < initcall_levels[level+1]; fn++)
+952  		do_one_initcall(initcall_from_entry(fn));	// 查找fn方法在内存中的地址
+874  int __init_or_module do_one_initcall(initcall_t fn)
+884  	ret = fn();
+
+上述fn就是module_init(fn)中的入参。
+接下来看看fn的地址是如何确定的？查看上面initcall_from_entry(fn)方法的定义：
+915  static initcall_entry_t *initcall_levels[] __initdata = {
+916  	__initcall0_start,
+917  	__initcall1_start,
+918  	__initcall2_start,
+919  	__initcall3_start,
+920  	__initcall4_start,
+921  	__initcall5_start,
+922  	__initcall6_start,
+923  	__initcall7_start,
+924  	__initcall_end,
+925  };
+
+122  static inline initcall_t initcall_from_entry(initcall_entry_t *entry)
+123  {
+124  	return offset_to_ptr(entry);
+125  }
+
+xref/kernel-4.19/include/linux/compiler.h#372
+368  /**
+369   * offset_to_ptr - convert a relative memory offset to an absolute pointer
+370   * @off:	the address of the 32-bit offset value
+371   */
+372  static inline void *offset_to_ptr(const int *off)
+373  {
+374  	return (void *)((unsigned long)off + *off);
+375  }
+上述过程是内核启动过程中查找fn在内存中的绝对地址的过程。
+那么fn的绝对地址是如何确定的？
+在执行make命令时，先将源码编译成.o，然后由ld链接器再根据链接描述文件lds，对多个.o文件进行组装。
+xref/kernel-4.19/arch/x86/kernel/vmlinux.lds#82
+.init.data : AT(ADDR(.init.data) - 0xffffffff80000000) { KEEP(*(SORT(___kentry+*))) *(.init.data init.data.*) *(.meminit.data*) *(.init.rodata .init.rodata.*) . = ALIGN(8); __start_ftrace_events = .; KEEP(*(_ftrace_events)) __stop_ftrace_events = .; __start_ftrace_eval_maps = .; KEEP(*(_ftrace_eval_map)) __stop_ftrace_eval_maps = .; . = ALIGN(8); __start_kprobe_blacklist = .; KEEP(*(_kprobe_blacklist)) __stop_kprobe_blacklist = .; . = ALIGN(32); __start_error_injection_whitelist = .; KEEP(*(_error_injection_whitelist)) __stop_error_injection_whitelist = .; *(.meminit.rodata) . = ALIGN(8); __clk_of_table = .; KEEP(*(__clk_of_table)) KEEP(*(__clk_of_table_end)) . = ALIGN(8); __cpu_method_of_table = .; KEEP(*(__cpu_method_of_table)) KEEP(*(__cpu_method_of_table_end)) . = ALIGN(8); __cpuidle_method_of_table = .; KEEP(*(__cpuidle_method_of_table)) KEEP(*(__cpuidle_method_of_table_end)) . = ALIGN(32); __dtb_start = .; KEEP(*(.dtb.init.rodata)) __dtb_end = .; . = ALIGN(8); __irqchip_acpi_probe_table = .; KEEP(*(__irqchip_acpi_probe_table)) __irqchip_acpi_probe_table_end = .; . = ALIGN(8); __timer_acpi_probe_table = .; KEEP(*(__timer_acpi_probe_table)) __timer_acpi_probe_table_end = .; . = ALIGN(8); __earlycon_table = .; KEEP(*(__earlycon_table)) __earlycon_table_end = .; . = ALIGN(16); __setup_start = .; KEEP(*(.init.setup)) __setup_end = .; __initcall_start = .; KEEP(*(.initcallearly.init)) __initcall0_start = .; KEEP(*(.initcall0.init)) KEEP(*(.initcall0s.init)) __initcall1_start = .; KEEP(*(.initcall1.init)) KEEP(*(.initcall1s.init)) __initcall2_start = .; KEEP(*(.initcall2.init)) KEEP(*(.initcall2s.init)) __initcall3_start = .; KEEP(*(.initcall3.init)) KEEP(*(.initcall3s.init)) __initcall4_start = .; KEEP(*(.initcall4.init)) KEEP(*(.initcall4s.init)) __initcall5_start = .; KEEP(*(.initcall5.init)) KEEP(*(.initcall5s.init)) __initcallrootfs_start = .; KEEP(*(.initcallrootfs.init)) KEEP(*(.initcallrootfss.init)) __initcall6_start = .; KEEP(*(.initcall6.init)) KEEP(*(.initcall6s.init)) __initcall7_start = .; KEEP(*(.initcall7.init)) KEEP(*(.initcall7s.init)) __initcall_end = .; __con_initcall_start = .; KEEP(*(.con_initcall.init)) __con_initcall_end = .; __security_initcall_start = .; KEEP(*(.security_initcall.init)) __security_initcall_end = .; . = ALIGN(4); __initramfs_start = .; KEEP(*(.init.ramfs)) . = ALIGN(8); KEEP(*(.init.ramfs.info)) }
+编译log显示链接过程如下：
+... ld -m elf_x86_64 -z noreloc-overflow -pie --no-dynamic-linker   -T arch/x86/boot/compressed/vmlinux.lds arch/x86/boot/compressed/head_64.o arch/x86/boot/compressed/misc.o arch/x86/boot/compressed/string.o arch/x86/boot/compressed/cmdline.o arch/x86/boot/compressed/error.o arch/x86/boot/compressed/piggy.o arch/x86/boot/compressed/cpuflags.o arch/x86/boot/compressed/early_serial_console.o arch/x86/boot/compressed/kaslr.o arch/x86/boot/compressed/kaslr_64.o arch/x86/boot/compressed/mem_encrypt.o arch/x86/boot/compressed/pgtable_64.o arch/x86/boot/compressed/eboot.o arch/x86/boot/compressed/efi_stub_64.o drivers/firmware/efi/libstub/lib.a arch/x86/boot/compressed/efi_thunk_64.o 		-o arch/x86/boot/compressed/vmlinux
+lds文件相当于ELF文件的组织框架，将如下宏展开后就将fn这个符号填充到了上面.initcall6.init这个位置。
+#define ___define_initcall(fn, id, __sec) static initcall_t __initcall_##fn##id __used  \
+	__attribute__((__section__(#__sec ".init"))) = fn;
+#define __define_initcall(fn, id) ___define_initcall(fn, id, .initcall##id)
+#define device_initcall(fn)		__define_initcall(fn, 6)
+上面__section__(#__sec ".init")的展开结果就是：
+__section__(.initcall6.init) = fn
+附注：同一等级的优先级的驱动，加载顺序是链接过程决定的，结果是不确定的，我们无法去手动设置谁先谁后。由此也可以得出一个推论，上述的modulue_init在动态加载方式下用postcore_initcall等替换也是可以的，若是静态加载驱动的方式，则须确保调用到的外部方法已经在内核中初始化成功。比如：
+xref/kernel-4.19/drivers/spi/spi.c#3621
+postcore_initcall(spi_init);
+上述是module_init的外部调用过程。
+驱动内部加载过程
+驱动更常见的写法如下，以spidev为例：
+static struct spi_driver spidev_spi_driver = {
+	.driver = {
+		.name =		"spidev",
+		.of_match_table = of_match_ptr(spidev_dt_ids),
+		},
+	.probe =	spidev_probe,
+	.remove = spidev_remove,
+};
+
+static int __init spidev_init(void)
+{
+	...
+	status = spi_register_driver(&spidev_spi_driver);
+	...
+	return status;
+}
+
+static void __exit spidev_exit(void)
+{
+	spi_unregister_driver(&spidev_spi_driver);
+	...
+}
+module_init(spidev_init);
+module_exit(spidev_exit);
+
+上面是目前基于“总线设备驱动模型”的通用写法。将设配的的差异化部分提取成配置文件dts。共通部分的逻辑抽取成了平台化代码，开发人员无需赘写。
+Kernel在开机过程中将解析dts（dtbo）文件并组装成内存对象，kernel又提供了完备的以of_xxx为前缀的方法来读取这些dts对象。当dts中配置的compatible字段和上面struct spi_driver结构体中定义的字符匹配时会自动调用在.probe中被赋值的方法。
+上述是基于“总线设备驱动模型”当下绝大多数驱动的写作模板，不同的设备在各自的xxx_init方法中调用xxx_register_driver(xxx_driver)进行驱动注册，最终进入probe方法进行各自和硬件特性相关的操作。
+xxx = uart|spi|i2c|isa|pci|acpi|pnp|tty|ecard|parport|vio|serio
+那么probe方法是如何调到的？
+xref/kernel-4.19/drivers/spi/spidev.c#844
+844 status = spi_register_driver(&spidev_spi_driver);
+xref/kernel-4.19/include/linux/spi/spi.h#281
+281 #define spi_register_driver(driver) __spi_register_driver(THIS_MODULE, driver)
+xref/kernel-4.19/drivers/spi/spi.c
+401  int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
+405  	sdrv->driver.probe = spi_drv_probe;
+409  	return driver_register(&sdrv->driver);
+146  int driver_register(struct device_driver *drv)
+170  	ret = bus_add_driver(drv);
+xref/kernel-4.19/drivers/base/bus.c
+639  int bus_add_driver(struct device_driver *drv)
+672  	error = driver_attach(drv);
+xref/kernel-4.19/drivers/base/dd.c
+920  int driver_attach(struct device_driver *drv)
+922  	return bus_for_each_dev(drv->bus, NULL, drv, __driver_attach);
+2    static int __driver_attach(struct device *dev, void *data)
+887  	ret = driver_match_device(drv, dev);				// 匹配方法： .match = spi_match_device
+903  	driver_probe_device(drv, dev);
+649  int driver_probe_device(struct device_driver *drv, struct device *dev)
+667  	ret = really_probe(dev, drv);
+448  static int really_probe(struct device *dev, struct device_driver *drv)
+510  	ret = drv->probe(dev);						// probe = spi_drv_probe
+xref/kernel-4.19/drivers/spi/spi.c#343
+43  static int spi_drv_probe(struct device *dev)
+366  	ret = sdrv->probe(spi);												// .probe =	spidev_probe //spi.c#405
+至此就调用到了驱动中自定义的xxx_probe方法。
+关于probe方法的调用，其过程有两个方向：上面从驱动查找设备的方向，下面是从设备查找驱动的方向：
+spi_new_device
+xref/kernel-4.19/drivers/spi/spi.c#596
+596  struct spi_device *spi_new_device(struct spi_controller *ctlr, struct spi_board_info *chip)
+634  	status = spi_add_device(proxy);
+518  int spi_add_device(struct spi_device *spi)
+569  	status = device_add(&spi->dev);
+......
+platform_device_register 
+xref/kernel-4.19/drivers/base/platform.c#475 	
+475  int platform_device_register(struct platform_device *pdev)
+479  	return platform_device_add(pdev);
+361  int platform_device_add(struct platform_device *pdev)
+420  	ret = device_add(&pdev->dev);
+......
+input_register_device
+xref/kernel-4.19/drivers/input/input.c#2092
+2092  int input_register_device(struct input_dev *dev)
+2148  	error = device_add(&dev->dev);
+......
+
+xref/kernel-4.19/drivers/base/core.c#2068
+2068  int device_add(struct device *dev)
+2170  	bus_probe_device(dev);
+xref/kernel-4.19/drivers/base/bus.c#515
+515  void bus_probe_device(struct device *dev)
+524  	device_initial_probe(dev);
+xref/kernel-4.19/drivers/base/dd.c#867
+867  void device_initial_probe(struct device *dev)
+869  	__device_attach(dev, true);
+793  static int __device_attach(struct device *dev, bool allow_async)
+822  	ret = bus_for_each_drv(dev->bus, NULL, &data, __device_attach_driver);
+727  static int __device_attach_driver(struct device_driver *drv, void *_data)
+734  	ret = driver_match_device(drv, dev);
+754  	return driver_probe_device(drv, dev);
+649  int driver_probe_device(struct device_driver *drv, struct device *dev)
+667  	ret = really_probe(dev, drv);
+448  static int really_probe(struct device *dev, struct device_driver *drv)
+510  	ret = drv->probe(dev);	
+
+无论是从驱动找设备还是从设备找驱动，总会调用相应总线的match函数来匹配driver和device,如.match = xxx_match_device。具体可参考每个总线的match函数，但大致的匹配过程是一样的，以platform_driver为例如下：
+① 先用dts中的 compatible 属性和platform_driver中的driver.of_match_table 来匹配
+② 再用 platform_driver.id_table 中的 name 和 platform_device.name来匹配
+③ 最后用platform_device.name和 platform_driver 中的 driver.name来匹配
+大多数情况下我们会在dts中配置外接设备的 compatible 属性，并在自己模块的驱动中填写driver.of_match_table，所以通常第①步就会匹配成功。
+接下来就是probe方法对硬件的各种操作，比如芯片的上下电等。
+
+
+附录：
+初始化等级	对应的初始化设备或驱动的函数	备注
+early_initcall	migration_init和spawn_ksoftirqd等	主要是register_cpu_notifier
+pure_initcall	init_cpufreq_transition_notifier_list	
+core_initcall	netlink_proto_init、cpuidle_init、xxx_gpio_init、filelock_init、pm_init、sock_init、wakelocks_init等	主要是一些关键部分的初始化，像gpio、通信、电源管理等部分
+core_initcall_sync		
+postcore_initcall	backlight_class_init、dma_sysclass_init、i2c_init、kobject_uevent_init、pci_driver_init、spi_init、tty_class_init等	主要是一些总线的节点的创建和链表初始化等（总线驱动的加载在后面）
+postcore_initcall_sync		
+arch_initcall	xxx_init_device、xxx_devices_setup、customize_machine、platform_init等	主要是板级设备的加载（i2c、spi、usb、串口等以及一些外设的加载）
+arch_initcall_sync		
+subsys_initcall	blk_ioc_ini、xxx_dma_init、xxx_i2c_init_driver、usb_init、xxx_spi_init等	块设备驱动、以及主要的bus总线驱动
+subsys_initcall_sync		
+fs_initcall	inet_init、alignment_init、chr_dev_init、tracer_alloc_buffers等	
+fs_initcall_sync		
+rootfs_initcall	populate_rootfs、default_rootfs	Rootfs相关初始化
+device_initcall	一般的外设驱动的加载函数	module_init = device_initcall，外设驱动
+device_initcall_sync		
+late_initcall	late_resume_init 等	
+late_initcall_sync		
+ 
+
+
