@@ -36,9 +36,9 @@ struct mtk_pinctrl *hw;
 hw->soc = soc;
 
 struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
-③	struct pinctrl_dev		*pctrl;  { 					// kernel-4.19/drivers/pinctrl/core.h
+③	struct pinctrl_dev		*pctrl; {					// kernel-4.19/drivers/pinctrl/core.h
 		struct list_head node;
-①		struct pinctrl_desc *desc;  { 					// kernel-4.19/include/linux/pinctrl/pinctrl.h
+①		struct pinctrl_desc *desc; {					// kernel-4.19/include/linux/pinctrl/pinctrl.h
 				const char *name;
 ②				const struct pinctrl_pin_desc *pins; {	// kernel-4.19/include/linux/pinctrl/pinctrl.h
 					unsigned number;
@@ -46,7 +46,7 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 					void *drv_data;
 				};
 				unsigned int npins;
-				const struct pinctrl_ops *			pctlops; {	// kernel-4.19/include/linux/pinctrl/pinctrl.h
+				const struct pinctrl_ops *	pctlops; {	// kernel-4.19/include/linux/pinctrl/pinctrl.h	（取出某组的引脚）
 					int			(*get_groups_count)	(struct pinctrl_dev *pctldev);
 					const char *(*get_group_name)	(struct pinctrl_dev *pctldev, unsigned selector);
 					int			(*get_group_pins)	(struct pinctrl_dev *pctldev, unsigned selector, const unsigned **pins, unsigned *num_pins);
@@ -54,7 +54,7 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 				🔗	int			(*dt_node_to_map)	(struct pinctrl_dev *pctldev, struct device_node *np_config, struct pinctrl_map **map, unsigned *num_maps);
 					void		(*dt_free_map)		(struct pinctrl_dev *pctldev, struct pinctrl_map *map, unsigned num_maps);
 				}
-				const struct pinmux_ops *	pmxops; {	// kernel-4.19/include/linux/pinctrl/pinmux.h
+				const struct pinmux_ops *	pmxops; {	// kernel-4.19/include/linux/pinctrl/pinmux.h	（set_mux函数。即把 IO 复用为某个功能）
 					int			(*request) 				(struct pinctrl_dev *pctldev, unsigned offset);
 					int			(*free)					(struct pinctrl_dev *pctldev, unsigned offset);
 					int			(*get_functions_count)	(struct pinctrl_dev *pctldev);
@@ -66,7 +66,7 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 					int			(*gpio_set_direction)	(struct pinctrl_dev *pctldev, struct pinctrl_gpio_range *range, unsigned offset, bool input);
 					bool		strict;
 				}
-				const struct pinconf_ops *	confops; {	// kernel-4.19/include/linux/pinctrl/pinconf.h
+				const struct pinconf_ops *	confops; {	// kernel-4.19/include/linux/pinctrl/pinconf.h	（配置 电气属性，如上下拉，输出强度）
 					struct pinconf_ops {
 					bool is_generic;
 					int			(*pin_config_get)				(struct pinctrl_dev *pctldev, unsigned pin, unsigned long *config);
@@ -87,10 +87,20 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 				};
 				const struct pin_config_item *custom_conf_items;
 		};
-		struct radix_tree_root pin_desc_tree;{			// kernel-4.19/include/linux/radix-tree.h
+④		struct radix_tree_root pin_desc_tree;{			// kernel-4.19/include/linux/radix-tree.h
 			spinlock_t		xa_lock;
 			gfp_t			gfp_mask;
-			struct radix_tree_node	__rcu *rnode;
+			struct radix_tree_node	__rcu *rnode;		/* 每个节点类型 struct pin_desc {
+																			struct pinctrl_dev *pctldev;
+																			const char *name;
+																			bool dynamic_name;
+																			void *drv_data;
+																			unsigned mux_usecount;
+																			const char *mux_owner;
+																			const struct pinctrl_setting_mux *mux_setting;
+																			const char *gpio_owner;
+																		};
+														*/
 		};
 		struct radix_tree_root pin_group_tree;
 		unsigned int num_groups;
@@ -100,16 +110,26 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 		struct device *dev;
 		struct module *owner;
 		void *driver_data;
-		struct pinctrl *p; {
+		struct pinctrl *p; {							// fpsensor:fpsensor {compatible = "mediatek,mt6765-spi";  pinctrl-names ="spi_default", ...; pinctrl-%d =<&spi_cs_mode_set>, ...;};
 			struct list_head node;
-			struct device *dev;
+			struct device *dev; {
+				...
+				struct dev_pin_info	*pins;{
+					struct pinctrl *p;					// 自定义状态
+					struct pinctrl_state *default_state;
+					struct pinctrl_state *init_state;
+					struct pinctrl_state *sleep_state;
+					struct pinctrl_state *idle_state;
+				};
+				...
+			}
 			struct list_head states;
-			struct pinctrl_state *state;{
+			struct pinctrl_state *state;{ 				// pinctrl-0 = <&state_0_node_a>, pinctrl-0对应一个状态，会得到一个pinctrl_state,
 				struct list_head node;
 				const char *name;						// pinctrl_lookup_state(p, "name");
 				struct list_head settings;
 			};
-			struct list_head dt_maps;					// struct pinctrl_map
+			struct list_head dt_maps;					// struct pinctrl_map, <&state_0_node_a>节点被解析为一系列的pinctrl_map
 			struct kref users;
 		};
 		struct pinctrl_state *hog_default;
@@ -171,34 +191,34 @@ struct mtk_pinctrl {									// kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mtk
 /** pinctrl_dev 初始化过程 **/
 〇kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mt6833.c			// .compatible = "mediatek,mt6833-pinctrl"
 static int mt6833_pinctrl_probe(struct platform_device *pdev)
-
 ①kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c
 int mtk_paris_pinctrl_probe(struct platform_device *pdev, const struct mtk_pin_soc *soc)
-
 ②kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c
 err = devm_pinctrl_register_and_init(&pdev->dev/*struct device*/, &mtk_desc/*struct pinctrl_desc*/, hw/*void *driver_data*/, &hw->pctrl/*struct pinctrl_dev*/);
-
 ③kernel-4.19/drivers/pinctrl/core.c
 int devm_pinctrl_register_and_init(struct device *dev, struct pinctrl_desc *pctldesc, void *driver_data, struct pinctrl_dev **pctldev)
 int pinctrl_register_and_init(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data, struct pinctrl_dev **pctldev)
 static struct pinctrl_dev *pinctrl_init_controller(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data)
 static int pinctrl_register_pins(struct pinctrl_dev *pctldev, const struct pinctrl_pin_desc *pins, unsigned num_descs)
 static int pinctrl_register_one_pin(struct pinctrl_dev *pctldev, const struct pinctrl_pin_desc *pin）
-
 ④kernel-4.19/include/linux/radix-tree.h
 static inline int radix_tree_insert(struct radix_tree_root *root,unsigned long index, void *entry)
 
 /** pinctrl_lookup_state(p, "name");中state->name的初始化过程 初始化过程 **/
-struct pinctrl_dev *pinctrl_register(struct pinctrl_desc *pctldesc, struct device *dev, void *driver_data)
-	pctldev = pinctrl_init_controller(pctldesc, dev, driver_data);
-	error = pinctrl_enable(pctldev);
+//kernel-4.19/drivers/pinctrl/mediatek/pinctrl-mt6765.c			// compatible = "mediatek,mt6765-spi"
+static int mt6765_pinctrl_probe(struct platform_device *pdev)
+	return mtk_paris_pinctrl_probe(pdev, &mt6765_data);
+//kernel-4.19/drivers/pinctrl/mediatek/pinctrl-paris.c
+int mtk_paris_pinctrl_probe(struct platform_device *pdev, const struct mtk_pin_soc *soc)
+	err = pinctrl_enable(hw->pctrl);
+//kernel-4.19/drivers/pinctrl/core.c
 int pinctrl_enable(struct pinctrl_dev *pctldev)
 	error = pinctrl_claim_hogs(pctldev);
 static int pinctrl_claim_hogs(struct pinctrl_dev *pctldev)
 	pctldev->p = create_pinctrl(pctldev->dev, pctldev);
 static struct pinctrl *create_pinctrl(struct device *dev, struct pinctrl_dev *pctldev)
-	ret = pinctrl_dt_to_map(p, pctldev);				// mapping 映射"pinctrl-%d", "pinctrl-names"
-	ret = add_setting(p, pctldev, map); in create_pinctrl()
+	ret = pinctrl_dt_to_map(p, pctldev);						// mapping 映射"pinctrl-%d", "pinctrl-names"
+	ret = add_setting(p, pctldev, map);
 static int add_setting(struct pinctrl *p, struct pinctrl_dev *pctldev, const struct pinctrl_map *map)
 	state = create_state(p, map->name);
 static struct pinctrl_state *create_state(struct pinctrl *p, const char *name)
@@ -217,12 +237,72 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename, str
 int pinctrl_register_map(const struct pinctrl_map *maps, unsigned num_maps, bool dup)
 	list_add_tail(&maps_node->node, &pinctrl_maps);
 
-
 //kernel-4.19/drivers/pinctrl/pinconf-generic.c
 static void parse_dt_cfg(struct device_node *np, const struct pinconf_generic_params *params, unsigned int count, unsigned long *cfg, unsigned int *ncfg)
 在当前节点np中，查找所有符合params数组中包含项目的属性（26个），存入cfg数组，并返回存入的数量ncfg
 int pinconf_generic_parse_dt_config(struct device_node *np, struct pinctrl_dev *pctldev, unsigned long **configs, unsigned int *nconfigs)
 在当前节点np中，用parse_dt_cfg查找kernel默认的dt_params和自定义的pctldev->desc->num_custom_params，存入configs
 
-
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+kernel-4.19/drivers/base/devres.c
+struct devres_node {
+	struct list_head	entry;
+	dr_release_t		release;
+	const char			*name;
+	size_t				size;
+}
+struct devres {
+	struct devres_node		node;
+	/*
+	 * Some archs want to perform DMA into kmalloc caches
+	 * and need a guaranteed alignment larger than the alignment of a 64-bit integer.
+	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
+	 * buffer alignment as if it was allocated by plain kmalloc().
+	 */
+	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
+};
+static void add_dr(struct device *dev, struct devres_node *node)
+{
+	devres_log(dev, node, "ADD");
+	BUG_ON(!list_empty(&node->entry));
+	list_add_tail(&node->entry, &dev->devres_head);
+}
+void devres_add(struct device *dev, void *res)
+{
+	struct devres *dr = container_of(res, struct devres, data);					// 由data找到上级属性struct devres
+	unsigned long flags;
+	spin_lock_irqsave(&dev->devres_lock, flags);
+	add_dr(dev, &dr->node);														// 将data的平级属性node加入device
+	spin_unlock_irqrestore(&dev->devres_lock, flags);
+}
+EXPORT_SYMBOL_GPL(devres_add);
+static __always_inline struct devres * alloc_dr(dr_release_t release, size_t size, gfp_t gfp, int nid)
+	size_t tot_size;
+	struct devres *dr;
+	/* We must catch any near-SIZE_MAX cases that could overflow. */
+	if (unlikely(check_add_overflow(sizeof(struct devres), size, &tot_size)))	// 第1个参数sizeof(struct devres) + 第2个参数size，赋给第3个参数&tot_size，并检查是否溢出
+		return NULL;
+	dr = kmalloc_node_track_caller(tot_size, gfp, nid);							// tot_size为实际分配大小必须大于实体size大小
+	if (unlikely(!dr) return NULL;
+	memset(dr, 0, offsetof(struct devres, data));								// 结构体struct devres中date域清零
+	INIT_LIST_HEAD(&dr->node.entry);
+	dr->node.release = release;
+	return dr;
+}
+void * devm_kmalloc(struct device *dev, size_t size, gfp_t gfp)
+{
+	struct devres *dr;
+	/* use raw alloc_dr for kmalloc caller tracing */
+	dr = alloc_dr(devm_kmalloc_release, size, gfp, dev_to_node(dev));
+	if (unlikely(!dr))
+		return NULL;
+	/*
+	 * This is named devm_kzalloc_release for historical reasons
+	 * The initial implementation did not support kmalloc, only kzalloc
+	 */
+	set_node_dbginfo(&dr->node, "devm_kzalloc_release", size);
+	devres_add(dev, dr->data);
+	return dr->data;
+}
+EXPORT_SYMBOL_GPL(devm_kmalloc);
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
