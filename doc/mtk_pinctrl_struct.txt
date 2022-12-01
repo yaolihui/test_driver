@@ -1,3 +1,6 @@
+kernel-4.19\include\dt-bindings\mt6833-pinfunc.h
+pinmux = <PINMUX_GPIO21__FUNC_GPIO21>;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define MTK_EINT_FUNCTION(_eintmux, _eintnum)
 	{
 		.eint_m = _eintmux,
