@@ -120,6 +120,8 @@ fi
 if [ -e /mnt/c ] && [ ! -e /mnt/wsl/PHYSICALDRIVE1 ]; then /mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1  > /dev/null 2>&1; fi
 
 export PATH=~/bin:$PATH
+export CCACHE_EXEC=/usr/bin/ccache
+export USE_CCACHE=1
 
 export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
 export luxi=luxi@192.168.88.240 #LX147258
