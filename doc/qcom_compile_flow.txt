@@ -1,0 +1,128 @@
+build/envsetup.sh ==> /build/make/envsetup.sh
+    function lunch
+        function build_build_var_cache
+        {
+            build_dicts_script=`\builtin cd $T; build/soong/soong_ui.bash --dumpvars-mode \
+                                 --vars="${cached_vars[*]}" \
+                                 --abs-vars="${cached_abs_vars[*]}" \
+                                 --var-prefix=var_cache_ \
+                                 --abs-var-prefix=abs_var_cache_`
+        }
+
+lunch qssi-userdebug
+
+build/soong/soong_ui.bash
+    source ${TOP}/build/soong/scripts/microfactory.bash
+    soong_build_go soong_ui android/soong/cmd/soong_ui  # soong_ui 是通过编译 build/soong/cmd/soong_ui/main.go得来，soong/ui/build/build.go 是编译流程
+    # /mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/out/microfactory_Linux -b  /mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/out/microfactory_Linux -pkg-path "github.com/google/blueprint=/mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/build/blueprint" -trimpath "/mnt/wsl/PHYSICALDRIVE1/apollo/QSSI" -pkg-path "android/soong=/mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/build/soong" -pkg-path "github.com/golang/protobuf=/mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/external/golang-protobuf" -o /mnt/wsl/PHYSICALDRIVE1/apollo/QSSI/out/soong_ui android/soong/cmd/soong_ui
+①    exec "$(getoutdir)/soong_ui" "$@"
+build/soong/ui/build/Android.bp
+    pkgPath: "android/soong/ui/build",
+    srcs: ["finder.go",
+           "dumpvars.go",
+    ]
+build/soong/ui/build/finder.go
+    # dumpDir == out/.module_paths
+    err = dumpListToFile(ctx, config, androidProductsMks, filepath.Join(dumpDir, "AndroidProducts.mk.list"))
+
+
+out/soong_ui
+
+build/soong/soong_ui.bash
+    #getoutdir == out
+    #$@ == --dumpvar-mode TARGET_PRODUCT
+①   exec "$(getoutdir)/soong_ui" "$@"
+    #./out/soong_ui --dumpvars-mode --vars="2ND_TARGET_GCC_VERSION ANDROID_BUILD_PATHS COMMON_LUNCH_CHOICES HOST_PREBUILT_TAG PLATFORM_VERSION PRODUCT_OUT TARGET_ARCH TARGET_BOARD_PLATFORM TARGET_BUILD_VARIANT TARGET_DEVICE TARGET_GCC_VERSION TARGET_PLATFORM_VERSION TARGET_PRODUCT print report_config" --abs-vars="ANDROID_CLANG_PREBUILTS ANDROID_GCC_PREBUILTS ANDROID_JAVA_HOME ANDROID_JAVA_TOOLCHAIN ANDROID_PREBUILTS HOST_OUT HOST_OUT_TESTCASES PRODUCT_OUT SOONG_HOST_OUT TARGET_OUT_TESTCASES print" --var-prefix=var_cache_ --abs-var-prefix=abs_var_cache_
+ 
+build/soong/cmd/soong_ui/main.go
+    var commands []command = []command{
+        flag:         "--dumpvars-mode", 
+        run:          dumpVar,  
+    }
+    func dumpVar(ctx build.Context, config build.Config, args []string, _ string) {
+        varData, err := build.DumpMakeVars(ctx, config, nil, build.BannerVars)
+build/soong/ui/build/dumpvars.go
+    func DumpMakeVars(ctx Context, config Config, goals, vars []string) (map[string]string, error) {
+        ret, err = dumpMakeVars(ctx, config, goals, makeVars, false, tmpDir)
+    func dumpMakeVars(ctx Context, config Config, goals, vars []string, write_soong_vars bool, tmpDir string) (map[string]string, error) {
+        "-f", "build/make/core/config.mk",
+build/make/core/config.mk:316:
+    include $(BUILD_SYSTEM)/envsetup.mk
+build/make/core/envsetup.mk:312:
+    include $(BUILD_SYSTEM)/product_config.mk
+build/make/core/product_config.mk:112:
+    all_product_configs := $(get-all-product-makefiles)
+build/make/core/product.mk
+    define get-all-product-makefiles
+        $(call get-product-makefiles,$(_find-android-products-files))
+    endef
+    define _find-android-products-files
+        $(file <$(OUT_DIR)/.module_paths/AndroidProducts.mk.list) \
+          $(SRC_TARGET_DIR)/product/AndroidProducts.mk # SRC_TARGET_DIR == build/make/target
+    endef
+    define get-product-makefiles
+        $(foreach f,$(1), \
+            $(eval include $(f)) \ # 此处调用device/qcom/qssi/AndroidProducts.mk
+        )
+    endef
+
+device/qcom/qssi/AndroidProducts.mk
+PRODUCT_MAKEFILES := $(LOCAL_DIR)/qssi.mk
+
+build/make/core/product_config.mk:165:
+$(call import-products, $(current_product_makefile))  # current_product_makefile == device/qcom/qssi/qssi.mk
+all_product_configs := $(get-all-product-makefiles)
+$(foreach f, $(all_product_configs),\
+    $(eval _cpm_words := $(call _decode-product-name,$(f)))\
+    $(eval _cpm_word1 := $(word 1,$(_cpm_words)))\
+    $(eval _cpm_word2 := $(word 2,$(_cpm_words)))\
+    $(eval all_product_makefiles += $(_cpm_word2))\
+    $(eval all_named_products += $(_cpm_word1))\
+    $(if $(filter $(TARGET_PRODUCT),$(_cpm_word1)),\
+        $(eval current_product_makefile += $(_cpm_word2)),))
+current_product_makefile := $(strip $(current_product_makefile))
+
+
+./build.sh -j6 dist --qssi_only
+QSSI/build.sh
+    build_qssi_only
+        command "make $QSSI_ARGS"
+envsetup.sh
+    function make()
+        _wrap_build $(get_make_command "$@") "$@"
+    function get_make_command()
+        echo build/soong/soong_ui.bash --make-mode
+build/soong/cmd/soong_ui/main.go
+    var commands []command = []command{
+		flag:        "--build-mode",
+		run:         runMake,
+    }
+    func runMake(ctx build.Context, config build.Config, _ []string, logsDir string) {
+        build.Build(ctx, config)
+build/soong/ui/build/build.go
+    func Build(ctx Context, config Config) {
+        runKatiBuild(ctx, config)
+build\soong\ui\build\kati.go
+    func runKatiBuild(ctx Context, config Config) {
+		"-f", "build/make/core/main.mk",
+include build/make/core/main.mk
+    include build/make/core/config.mk
+    include $(SOONG_MAKEVARS_MK) # out/soong/make_vars-qssi.mk
+    include build/make/core/clang/config.mk
+    include cts/build/config.mk
+    include test/vts/tools/vts-tradefed/build/config.mk
+    include tools/tradefederation/build/suites/device-tests/config.mk
+    include tools/tradefederation/build/suites/general-tests/config.mk
+    include test/sts/tools/sts-tradefed/build/config.mk
+    include test/suite_harness/tools/cts-instant-tradefed/build/config.mk
+    include test/mts/tools/build/config.mk
+    include test/vts/tools/vts-core-tradefed/build/config.mk
+    include test/app_compat/csuite/tools/build/config.mk
+    Include the google-specific config
+    include vendor/google/build/config.mk
+    include build/make/core/definitions.mk
+    include build/make/core/dex_preopt.mk
+    include build/make/core/pdk_config.mk
+    $(foreach mk,$(subdir_makefiles),$(info [$(call inc_and_print,subdir_makefiles_inc)/$(subdir_makefiles_total)] including $(mk) ...)$(eval include $(mk)))
+    include build/make/core/pdk_fusion_modules.mk
+    include build/make/core/Makefile
