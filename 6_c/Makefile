@@ -1,9 +1,13 @@
 test:
 a=1
+
 test2:
+	echo $a #2
 a=2
+
 test:
 b=1
+
 test:
 	echo a=$a b=$b
 	gcc sizeof.c -w && ./a.out
@@ -16,4 +20,5 @@ test:
 #rm -rf a.out
 	
 all: test
+	$(warning a=$a b=$b)
 	echo all
