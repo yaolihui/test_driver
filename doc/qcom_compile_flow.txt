@@ -69,9 +69,7 @@ build/make/core/product.mk
 device/qcom/qssi/AndroidProducts.mk
 PRODUCT_MAKEFILES := $(LOCAL_DIR)/qssi.mk
 
-build/make/core/product_config.mk:165:
-$(call import-products, $(current_product_makefile))  # current_product_makefile == device/qcom/qssi/qssi.mk
-all_product_configs := $(get-all-product-makefiles)
+build/make/core/product_config.mk:125:
 $(foreach f, $(all_product_configs),\
     $(eval _cpm_words := $(call _decode-product-name,$(f)))\
     $(eval _cpm_word1 := $(word 1,$(_cpm_words)))\
@@ -82,6 +80,8 @@ $(foreach f, $(all_product_configs),\
         $(eval current_product_makefile += $(_cpm_word2)),))
 current_product_makefile := $(strip $(current_product_makefile))
 
+build/make/core/product_config.mk:169:
+$(call import-products, $(current_product_makefile))  # current_product_makefile == device/qcom/qssi/qssi.mk
 
 ./build.sh -j6 dist --qssi_only
 QSSI/build.sh
