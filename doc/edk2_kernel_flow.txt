@@ -1,0 +1,83 @@
+bootable/bootloader/edk2/QcomModulePkg/Include/Library/BootLinux.h
+#define KERNEL_32BIT_LOAD_OFFSET 0x8000
+#define KERNEL_64BIT_LOAD_OFFSET 0x80000 
+
+bootable/bootloader/edk2/QcomModulePkg/Library/BootLib/BootLinux.c
+BootLinux (BootInfo *Info)
+    Status = UpdateBootParams (&BootParamlistPtr);
+    ...
+    Status = UpdateCmdLine (BootParamlistPtr.CmdLine, FfbmStr, Recovery,
+    ...
+    Status = ShutdownUefiBootServices ();
+    LinuxKernel = (LINUX_KERNEL) (UINT64)BootParamlistPtr.KernelLoadAddr;
+    LinuxKernel ((UINT64)BootParamlistPtr.DeviceTreeLoadAddr, 0, 0, 0);
+...
+
+UpdateBootParams (BootParamlist *BootParamlistPtr)
+    if (QueryBootParams (&KernelLoadAddr, &KernelSizeReserved)) {
+        BootParamlistPtr->KernelLoadAddr = KernelLoadAddr;
+        if (BootParamlistPtr->BootingWith32BitKernel) {
+            BootParamlistPtr->KernelLoadAddr += KERNEL_32BIT_LOAD_OFFSET;
+        } else {
+            BootParamlistPtr->KernelLoadAddr += KERNEL_64BIT_LOAD_OFFSET;
+        }
+    ...
+
+QueryBootParams (UINT64 *KernelLoadAddr, UINT64 *KernelSizeReserved)
+    Status = gRT->GetVariable ((CHAR16 *)L"KernelBaseAddr", &gQcomTokenSpaceGuid,
+                            NULL, &DataSize, KernelLoadAddr);
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/Library/PlatformBdsLib/PlatformBdsLib.c
+UpdatePlatformVars(VOID)
+    Status  = GetMemRegionInfoByName("Kernel", &MemoryRegion);
+    ...
+    Status = gRT->SetVariable (L"KernelBaseAddr",
+                                 &gQcomTokenSpaceGuid,
+                                 EFI_VARIABLE_BOOTSERVICE_ACCESS,
+                                 DataSize,
+                                 &(MemoryRegion.MemBase));
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/Library/UefiConfigLib/UefiCfgLib.c
+GetMemRegionInfoByName (CHAR8* RegionName, MemRegionInfo* MemoryRegion)
+     return UefiCfgLibPtr->GetMemInfoByName (RegionName, MemoryRegion);
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/Library/UefiConfigLib/UefiCfgLibImpl.c
+UefiCfgLibType UefiCfgLib =
+{
+  .LibVersion         	= CURRENT_UEFI_CFG_LIB_VERSION,
+  .GetMemInfoByName   	= GetMemoryRegionInfoByName,
+
+GetMemoryRegionInfoByName ( CHAR8* RegionName, MemRegionInfo* MemoryRegion )
+    if (AsciiStriCmp (MemRegionTable[i].Name, RegionName) == 0){
+        CopyMem (MemoryRegion, &MemRegionTable[i], sizeof(MemRegionInfo));
+
+UefiCfgShLibInit (MemRegionInfo *MemRegions, UINTN MemRegCount,
+    MemRegionTable = MemRegions;
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/XBLCore/Sec.c
+InitSharedLibs (VOID)
+    ...
+    GetMemRegionCfgInfo(&MemRegions, &MemRegionsCnt);
+    ...
+    Status = UefiCfgShLibInit (MemRegions, MemRegionsCnt, ConfigTablePtr, ConfigCnt);
+
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/XBLCore/UefiPlatCfg.c
+#define UEFIPLATCFG_FILE "uefiplat.cfg"
+
+GetMemRegionCfgInfo ( MemRegionInfo** MemoryRegions, UINTN* NumMemoryRegions )
+    *MemoryRegions = mMemRegions;
+
+void ProcessMemoryMapTokens (UINT8* Section, UINTN SectionOffset, UINT8* TokenPtrArray[], UINTN MaxTokens)
+    AsciiStrCpy (mMemRegions[mNumMemRegions].Name, MemCfgName);
+    mMemRegions[mNumMemRegions].MemBase           = MemCfgMemBase;
+
+LoadAndParsePlatformCfg ( VOID )
+    Status = LoadFileFromFV0 (UEFIPLATCFG_FILE, &CfgBuffer, &FileSize);
+    ...
+    if (EnumCommaDelimSectionItems (MemParserDesc, (UINT8*)"MemoryMap",  ProcessMemoryMapTokens) < 0)
+
+vendor/qcom/nonhlos/BOOT.XF.4.2/boot_images/QcomPkg/SocPkg/StraitPkg/LAA/uefiplat.cfg
+[MemoryMap]
+0xA0000000, 0x05700000, "Kernel",            AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN
+...
