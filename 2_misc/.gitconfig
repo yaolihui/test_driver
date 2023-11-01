@@ -12,7 +12,7 @@
 [http]
 	sslverify = false
 [credential]
-        helper = store --file .git-credentials
+        helper = store --file ~/.git-credentials
 [user]
 #	email = lihui.yao@chino-e.com
 #	name = lihui.yao
