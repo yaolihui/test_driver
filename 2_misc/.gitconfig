@@ -2,7 +2,7 @@
 	insteadof = ssh://lihui.yao@wknj-gerritnj.wikophone.com:29418
 	insteadof = http://lihui.yao@wknj-gerritnj.wikophone.com:9090
 
-[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/"]
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"]
     insteadof = https://android.googlesource.com
 
 #[url "https://ghproxy.com/https://github.com"]
