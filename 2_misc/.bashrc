@@ -123,10 +123,10 @@ export PATH=~/bin:$PATH
 export CCACHE_EXEC=/usr/bin/ccache
 export USE_CCACHE=1
 
-export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
-export luxi=luxi@192.168.88.240 #LX147258
-export windows_host=`cat /etc/resolv.conf|grep nameserver|awk '{print $2}'`
-export ADB_SERVER_SOCKET=tcp:$windows_host:5037
+#export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
+#export luxi=luxi@192.168.88.240 #LX147258
+#export windows_host=`cat /etc/resolv.conf|grep nameserver|awk '{print $2}'`
+#export ADB_SERVER_SOCKET=tcp:$windows_host:5037
 
 #echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S)
 #alias showusb='usbip list -r $HOSTNAME.local'

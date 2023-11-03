@@ -5,9 +5,9 @@
 [url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"]
     insteadof = https://android.googlesource.com
 
-#[url "https://ghproxy.com/https://github.com"]
-#    insteadof = https://github.com
-#    insteadof = http://github.com
+[url "https://ghproxy.com/"]
+    insteadof = https://github.com
+    insteadof = http://github.com
 
 [http]
 	sslverify = false
