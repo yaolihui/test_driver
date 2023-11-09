@@ -1,4 +1,6 @@
 [wsl2]
-memory=32G
+memory=8G
 localhostForwarding=true
-kernel=C:\\bzImage
+#kernel=C:\\bzImage
+swap=16GB
+swapFile=C:\\Users\\Administrator\\swap.vhdx

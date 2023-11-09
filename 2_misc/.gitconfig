@@ -14,8 +14,6 @@
 [credential]
         helper = store --file ~/.git-credentials
 [user]
-#	email = lihui.yao@chino-e.com
-#	name = lihui.yao
     email = yaolihui888@163.com
     name = yaolihui
 [alias]
