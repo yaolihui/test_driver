@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://Z:/T_DST_AOSP/aosp/frameworks/base/services/java">
+      <sourceFolder url="file://Z:/T_DST_AOSP/aosp/frameworks/base/services/java" isTestSource="false" />
+    </content>
+    <content url="file://Z:/T_DST_AOSP/aosp/frameworks/base/services/core/java">
+      <sourceFolder url="file://Z:/T_DST_AOSP/aosp/frameworks/base/services/core/java" isTestSource="false" />
+    </content>
+    <content url="file://Z:/T_DST_AOSP/aosp/frameworks/base/core/java">
+      <sourceFolder url="file://Z:/T_DST_AOSP/aosp/frameworks/base/core/java" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
