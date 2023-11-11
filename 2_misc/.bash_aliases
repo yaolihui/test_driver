@@ -8,6 +8,6 @@ alias mka='_(){ cd ~/T_DST_AOSP/aosp; t=$(date +%s);\
         echo -e "\e[33m ~~~~~~~~~~~~~~~~~~~~\e[0m" &&\
         echo -e "\e[35m make -j20 $1 \e[0m"        &&\
         echo -e "\e[33m ~~~~~~~~~~~~~~~~~~~~\e[0m" &&\
-        make -j20 $1 && \
+        (make -j20 $1 |tee build.log);\
         echo -e "\e[32m ####################\e[0m" &&\
         echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S);};_'
