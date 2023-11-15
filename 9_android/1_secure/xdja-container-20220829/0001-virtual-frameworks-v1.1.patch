@@ -1,0 +1,469 @@
+From bc700f0a12934b6785ab5018631257ce50a00e67 Mon Sep 17 00:00:00 2001
+From: jianglin <pppaass@163.com>
+Date: Tue, 30 Aug 2022 02:12:35 +0800
+Subject: [PATCH] virtual-frameworks-v1.1
+
+---
+ .../android/app/SystemServiceRegistry.java    |  8 +--
+ .../java/com/android/server/CellsService.java | 11 ++--
+ .../server/display/DisplayManagerService.java |  7 +-
+ .../contexthub/ContextHubService.java         |  8 +--
+ ...droid_server_power_PowerManagerService.cpp |  6 +-
+ .../java/com/android/server/SystemServer.java |  9 +--
+ native/cmds/servicemanager/servicemanager.rc  |  1 -
+ native/libs/gui/ISurfaceComposer.cpp          | 10 ++-
+ native/libs/gui/LayerState.cpp                |  2 +
+ native/libs/gui/SurfaceComposerClient.cpp     |  9 ++-
+ native/libs/gui/include/gui/LayerState.h      |  1 +
+ .../surfaceflinger/SurfaceFlinger.cpp         | 65 +++++++++----------
+ .../services/surfaceflinger/SurfaceFlinger.h  |  1 +
+ 13 files changed, 77 insertions(+), 61 deletions(-)
+
+diff --git a/base/core/java/android/app/SystemServiceRegistry.java b/base/core/java/android/app/SystemServiceRegistry.java
+index c5ae75946..368b6cc3b 100644
+--- a/base/core/java/android/app/SystemServiceRegistry.java
++++ b/base/core/java/android/app/SystemServiceRegistry.java
+@@ -1686,7 +1686,7 @@ public final class SystemServiceRegistry {
+                 new StaticServiceFetcher<TServiceClass>() {
+                     @Override
+                     public TServiceClass createService() throws ServiceNotFoundException {
+-                        if(serviceName == Context.WIFI_SERVICE ||
++                        /*if(serviceName == Context.WIFI_SERVICE ||
+                            serviceName == Context.WIFI_P2P_SERVICE ||
+                            serviceName == Context.WIFI_AWARE_SERVICE ||
+                            serviceName == Context.WIFI_SCANNING_SERVICE ||
+@@ -1694,7 +1694,7 @@ public final class SystemServiceRegistry {
+                            serviceName == Context.WIFI_RTT_SERVICE){
+                             return serviceProducer.createService(
+                                     ServiceManager.getInitService(serviceName));
+-                        }
++                        }*/
+                         return serviceProducer.createService(
+                                 ServiceManager.getServiceOrThrow(serviceName));
+                     }});
+@@ -1753,7 +1753,7 @@ public final class SystemServiceRegistry {
+                     @Override
+                     public TServiceClass createService(ContextImpl ctx)
+                             throws ServiceNotFoundException {
+-                        if(serviceName == Context.WIFI_SERVICE ||
++                        /*if(serviceName == Context.WIFI_SERVICE ||
+                            serviceName == Context.WIFI_P2P_SERVICE ||
+                            serviceName == Context.WIFI_AWARE_SERVICE ||
+                            serviceName == Context.WIFI_SCANNING_SERVICE ||
+@@ -1762,7 +1762,7 @@ public final class SystemServiceRegistry {
+                             return serviceProducer.createService(
+                                     ctx.getOuterContext(),
+                                     ServiceManager.getInitService(serviceName));
+-                        }
++                        }*/
+                         return serviceProducer.createService(
+                                 ctx.getOuterContext(),
+                                 ServiceManager.getServiceOrThrow(serviceName));
+diff --git a/base/services/core/java/com/android/server/CellsService.java b/base/services/core/java/com/android/server/CellsService.java
+index b13b176a2..f18bd8e00 100755
+--- a/base/services/core/java/com/android/server/CellsService.java
++++ b/base/services/core/java/com/android/server/CellsService.java
+@@ -37,7 +37,6 @@ import android.net.TrafficStats;
+ import android.net.InetAddresses;
+ import android.net.IpPrefix;
+ import android.app.CellsPrivateServiceMgr;
+-
+ import android.provider.Settings;
+ 
+ import com.android.server.net.NetlinkTracker;
+@@ -85,7 +84,9 @@ public class CellsService extends ICellsService.Stub {
+ 
+     public  void systemReady(){
+         if(SystemProperties.get("ro.boot.vm","0").equals("1")){
+-            mCellsNetworkAgent = new CellsNetworkAgent(mContext,this);
++            if(SystemProperties.get("persist.sys.cells.netagent","").equals("")){
++                mCellsNetworkAgent = new CellsNetworkAgent(mContext,this);
++            }
+ 
+             Thread vmready = new Thread(new Runnable(){
+                 @Override
+@@ -93,14 +94,12 @@ public class CellsService extends ICellsService.Stub {
+                     CellsPrivateServiceMgr mCellsService = new CellsPrivateServiceMgr(mContext,
+                                 ServiceManager.getInitService("CellsPrivateService"));
+                     
+-                    SystemProperties.set("persist.sys.exit", "1");
+-
+                     do
+                     {
+-                        SystemClock.sleep(5000);
++                        SystemClock.sleep(3000);
+ 
+                         if("1".equals(SystemProperties.get("sys.boot_completed"))){
+-                            SystemClock.sleep(2000);
++                            SystemClock.sleep(500);
+                             mCellsService.vmSystemReady();
+                             return ;
+                         }
+diff --git a/base/services/core/java/com/android/server/display/DisplayManagerService.java b/base/services/core/java/com/android/server/display/DisplayManagerService.java
+index 499b11108..76e6a8adb 100644
+--- a/base/services/core/java/com/android/server/display/DisplayManagerService.java
++++ b/base/services/core/java/com/android/server/display/DisplayManagerService.java
+@@ -267,8 +267,11 @@ public final class DisplayManagerService extends SystemService {
+         @Override
+         public synchronized void requestDisplayState(int displayId, int state, float brightness,
+                 float sdrBrightness) {
+-            if(SystemProperties.get("persist.sys.exit","0").equals("1"))
+-            	return ;
++            if(SystemProperties.get("sys.boot_completed").equals("1"))
++            {
++                if(SystemProperties.get("persist.sys.exit","0").equals("1"))
++                    return ;
++            }
+ 
+             boolean allInactive = true;
+             boolean allOff = true;
+diff --git a/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java b/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+index 191a5f5e2..52d70fc00 100644
+--- a/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
++++ b/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+@@ -203,11 +203,11 @@ public class ContextHubService extends IContextHubService.Stub {
+ 
+         Pair<List<ContextHub>, List<String>> hubInfo;
+         try {
+-            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
++            //if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
+                 hubInfo = mContextHubWrapper.getHubs();
+-            } else{
+-                hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
+-            }
++            //} else{
++            //    hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
++            //}
+         } catch (RemoteException e) {
+             Log.e(TAG, "RemoteException while getting Context Hub info", e);
+             hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
+diff --git a/base/services/core/jni/com_android_server_power_PowerManagerService.cpp b/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
+index ae7ea3cd9..afcbe85df 100644
+--- a/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
++++ b/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
+@@ -193,8 +193,10 @@ void disableAutoSuspend() {
+     std::lock_guard<std::mutex> lock(gSuspendMutex);
+     if (!gSuspendBlocker) {
+         sp<ISystemSuspend> suspendHal = getSuspendHal();
+-        gSuspendBlocker = suspendHal->acquireWakeLock(WakeLockType::PARTIAL,
+-                "PowerManager.SuspendLockout");
++        if(suspendHal != nullptr){
++            gSuspendBlocker = suspendHal->acquireWakeLock(WakeLockType::PARTIAL,
++                    "PowerManager.SuspendLockout");
++        }
+     }
+ }
+ 
+diff --git a/base/services/java/com/android/server/SystemServer.java b/base/services/java/com/android/server/SystemServer.java
+index 7370772ec..244308f32 100644
+--- a/base/services/java/com/android/server/SystemServer.java
++++ b/base/services/java/com/android/server/SystemServer.java
+@@ -1507,14 +1507,12 @@ public final class SystemServer implements Dumpable {
+             // Start receiving calls from HIDL services. Start in in a separate thread
+             // because it need to connect to SensorManager. This has to start
+             // after PHASE_WAIT_FOR_SENSOR_SERVICE is done.
+-            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             SystemServerInitThreadPool.submit(() -> {
+                 TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
+                 traceLog.traceBegin(START_HIDL_SERVICES);
+                 startHidlServices();
+                 traceLog.traceEnd();
+             }, START_HIDL_SERVICES);
+-            }
+ 
+             if (!isWatch && enableVrService) {
+                 t.traceBegin("StartVrManagerService");
+@@ -1858,7 +1856,7 @@ public final class SystemServer implements Dumpable {
+             }
+             t.traceEnd();
+ 
+-            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
++            //if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_WIFI)) {
+                 // Wifi Service must be started first for wifi-related services.
+@@ -1895,7 +1893,7 @@ public final class SystemServer implements Dumpable {
+                         WIFI_P2P_SERVICE_CLASS, WIFI_APEX_SERVICE_JAR_PATH);
+                 t.traceEnd();
+             }
+-            }
++
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_LOWPAN)) {
+                 t.traceBegin("StartLowpan");
+@@ -1909,6 +1907,7 @@ public final class SystemServer implements Dumpable {
+                 mSystemServiceManager.startService(ETHERNET_SERVICE_CLASS);
+                 t.traceEnd();
+             }
++            //}
+ 
+             t.traceBegin("StartPacProxyService");
+             try {
+@@ -2814,7 +2813,6 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making VcnManagementService ready", e);
+             }
+             t.traceEnd();
+-            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
+             t.traceBegin("MakeNetworkPolicyServiceReady");
+             try {
+                 if (networkPolicyF != null) {
+@@ -2824,7 +2822,6 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making Network Policy Service ready", e);
+             }
+             t.traceEnd();
+-            }
+ 
+             // Wait for all packages to be prepared
+             mPackageManagerService.waitForAppDataPrepared();
+diff --git a/native/cmds/servicemanager/servicemanager.rc b/native/cmds/servicemanager/servicemanager.rc
+index d7607bed9..6d5070fa0 100644
+--- a/native/cmds/servicemanager/servicemanager.rc
++++ b/native/cmds/servicemanager/servicemanager.rc
+@@ -3,7 +3,6 @@ service servicemanager /system/bin/servicemanager
+     user system
+     group system readproc
+     critical
+-    onrestart restart cellsservice
+     onrestart restart apexd
+     onrestart restart audioserver
+     onrestart restart gatekeeperd
+diff --git a/native/libs/gui/ISurfaceComposer.cpp b/native/libs/gui/ISurfaceComposer.cpp
+index a9996acc2..8624b2597 100644
+--- a/native/libs/gui/ISurfaceComposer.cpp
++++ b/native/libs/gui/ISurfaceComposer.cpp
+@@ -75,6 +75,14 @@ public:
+                                  const std::vector<ListenerCallbacks>& listenerCallbacks,
+                                  uint64_t transactionId) override {
+         Parcel data, reply;
++
++        InputWindowCommands tmpcommands;
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++
++        tmpcommands = commands;
++        tmpcommands.systemname = systemname;
++
+         data.writeInterfaceToken(ISurfaceComposer::getInterfaceDescriptor());
+ 
+         SAFE_PARCEL(frameTimelineInfo.write, data);
+@@ -91,7 +99,7 @@ public:
+ 
+         SAFE_PARCEL(data.writeUint32, flags);
+         SAFE_PARCEL(data.writeStrongBinder, applyToken);
+-        SAFE_PARCEL(commands.write, data);
++        SAFE_PARCEL(tmpcommands.write, data);
+         SAFE_PARCEL(data.writeInt64, desiredPresentTime);
+         SAFE_PARCEL(data.writeBool, isAutoTimestamp);
+         SAFE_PARCEL(data.writeStrongBinder, uncacheBuffer.token.promote());
+diff --git a/native/libs/gui/LayerState.cpp b/native/libs/gui/LayerState.cpp
+index 77a883b33..5577672d3 100644
+--- a/native/libs/gui/LayerState.cpp
++++ b/native/libs/gui/LayerState.cpp
+@@ -635,12 +635,14 @@ void InputWindowCommands::clear() {
+ status_t InputWindowCommands::write(Parcel& output) const {
+     SAFE_PARCEL(output.writeParcelableVector, focusRequests);
+     SAFE_PARCEL(output.writeBool, syncInputWindows);
++    SAFE_PARCEL(output.writeString8, systemname);
+     return NO_ERROR;
+ }
+ 
+ status_t InputWindowCommands::read(const Parcel& input) {
+     SAFE_PARCEL(input.readParcelableVector, &focusRequests);
+     SAFE_PARCEL(input.readBool, &syncInputWindows);
++    systemname = input.readString8();
+     return NO_ERROR;
+ }
+ 
+diff --git a/native/libs/gui/SurfaceComposerClient.cpp b/native/libs/gui/SurfaceComposerClient.cpp
+index d464f04c5..25c0b110a 100644
+--- a/native/libs/gui/SurfaceComposerClient.cpp
++++ b/native/libs/gui/SurfaceComposerClient.cpp
+@@ -25,6 +25,7 @@
+ #include <utils/SortedVector.h>
+ #include <utils/String8.h>
+ #include <utils/threads.h>
++#include <cutils/properties.h>
+ 
+ #include <binder/IPCThreadState.h>
+ #include <binder/IServiceManager.h>
+@@ -707,7 +708,13 @@ status_t SurfaceComposerClient::Transaction::writeToParcel(Parcel* parcel) const
+         composerState.write(*parcel);
+     }
+ 
+-    mInputWindowCommands.write(*parcel);
++    InputWindowCommands tmpcommands;
++    char systemname[PROPERTY_VALUE_MAX]={0};
++    property_get("ro.boot.vm.name", systemname, "");
++
++    tmpcommands = mInputWindowCommands;
++    tmpcommands.systemname = systemname;
++    tmpcommands.write(*parcel);
+     return NO_ERROR;
+ }
+ 
+diff --git a/native/libs/gui/include/gui/LayerState.h b/native/libs/gui/include/gui/LayerState.h
+index 03e4aacdb..1be4af210 100644
+--- a/native/libs/gui/include/gui/LayerState.h
++++ b/native/libs/gui/include/gui/LayerState.h
+@@ -302,6 +302,7 @@ struct DisplayState {
+ struct InputWindowCommands {
+     std::vector<gui::FocusRequest> focusRequests;
+     bool syncInputWindows{false};
++    String8 systemname;
+ 
+     // Merges the passed in commands and returns true if there were any changes.
+     bool merge(const InputWindowCommands& other);
+diff --git a/native/services/surfaceflinger/SurfaceFlinger.cpp b/native/services/surfaceflinger/SurfaceFlinger.cpp
+index a3d0afa56..bd213f39c 100644
+--- a/native/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/native/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -383,6 +383,8 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory, SkipInitializationTag)
+     {
+         mWindowInfosListenerInvokers.push_back(new WindowInfosListenerInvoker(this));
+     }
++
++    mInputWindowCommandss = std::vector<InputWindowCommands>(CELLS_MAX_CONTEXT);
+     ALOGI("Using HWComposer service: %s", mHwcServiceName.c_str());
+ }
+ 
+@@ -3095,39 +3097,40 @@ void SurfaceFlinger::handleTransactionLocked(uint32_t transactionFlags) {
+ }
+ 
+ void SurfaceFlinger::updateInputFlinger() {
+-    int i = 0;
+     ATRACE_CALL();
+     if (!mInputFlinger) {
+         return;
+     }
+ 
++    bool syncInputWindows = false;
++    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        syncInputWindows |= mInputWindowCommandss[i].syncInputWindows;
++    }
++
+     if (mVisibleRegionsDirty || mInputInfoChanged) {
+         mInputInfoChanged = false;
+         notifyWindowInfos();
+-    } else if (mInputWindowCommands.syncInputWindows) {
++    } else if (syncInputWindows) {
+         // If the caller requested to sync input windows, but there are no
+         // changes to input windows, notify immediately.
+         windowInfosReported();
+     }
+ 
+-    for (const auto& focusRequest : mInputWindowCommands.focusRequests) {
+-        //mInputFlinger->setFocusedWindow(focusRequest);
+-        for(i = 0; i < CELLS_MAX_CONTEXT; i++){
+-            if(i == 0){
+-                mInputFlinger->setFocusedWindow(focusRequest);
+-            }
+-            else{
+-                const sp<IServiceManager> sm = OtherServiceManager(i);
+-                if (sm != nullptr){
+-                    sp<os::IInputFlinger>  mInputFlinger1 = interface_cast<os::IInputFlinger>(sm->getService( String16("inputflinger")));
+-                    if (mInputFlinger1 != nullptr) {
+-                        mInputFlinger1->setFocusedWindow(focusRequest);
+-                    }
++    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        for (const auto& focusRequest : mInputWindowCommandss[i].focusRequests)
++        {
++            const sp<IServiceManager> sm = OtherServiceManager(i);
++            if (sm != nullptr){
++                sp<os::IInputFlinger>  mInputFlinger1 = interface_cast<os::IInputFlinger>(sm->getService( String16("inputflinger")));
++                if (mInputFlinger1 != nullptr) {
++                    mInputFlinger1->setFocusedWindow(focusRequest);
+                 }
+             }
+         }
++        mInputWindowCommandss[i].clear();
+     }
+-    mInputWindowCommands.clear();
+ }
+ 
+ bool enablePerWindowInputRotation() {
+@@ -3137,9 +3140,7 @@ bool enablePerWindowInputRotation() {
+ }
+ 
+ void SurfaceFlinger::notifyWindowInfos() {
+-    //std::vector<WindowInfo> windowInfos;
+     std::vector<std::vector<WindowInfo>> windowInfos(CELLS_MAX_CONTEXT);
+-    int i = 0;
+ 
+     mDrawingState.traverseInReverseZOrder([&](Layer* layer) {
+         if (!layer->needsInputInfo()) return;
+@@ -3148,25 +3149,18 @@ void SurfaceFlinger::notifyWindowInfos() {
+                 : nullptr;
+         // When calculating the screen bounds we ignore the transparent region since it may
+         // result in an unwanted offset.
+-        //windowInfos.push_back(layer->fillInputInfo(display));
+-        if(layer->getSystemName() == ""){
+-            windowInfos[0].push_back(layer->fillInputInfo(display));
+-        }else{
+-            sscanf(layer->systemName(), "cell%d",&i);
+-            if(i > 0 && i < CELLS_MAX_CONTEXT){
+-                windowInfos[i].push_back(layer->fillInputInfo(display));
+-            }
++        int i = 0;
++        sscanf(layer->systemName(), "cell%d", &i);
++        if(i >= 0 && i < CELLS_MAX_CONTEXT){
++            windowInfos[i].push_back(layer->fillInputInfo(display));
+         }
+     });
+ 
+-    for(i = 0; i < CELLS_MAX_CONTEXT; i++)
++    for(int i = 0; i < CELLS_MAX_CONTEXT; i++)
+     {
+         mWindowInfosListenerInvokers[i]->windowInfosChanged(windowInfos[i],
+-                                                    mInputWindowCommands.syncInputWindows);
++                                                    mInputWindowCommandss[i].syncInputWindows);
+     }
+-
+-    //mWindowInfosListenerInvoker->windowInfosChanged(windowInfos,
+-    //                                                mInputWindowCommands.syncInputWindows);
+ }
+ 
+ void SurfaceFlinger::updateCursorAsync() {
+@@ -4318,7 +4312,10 @@ uint32_t SurfaceFlinger::setClientStateLocked(
+ }
+ 
+ uint32_t SurfaceFlinger::addInputWindowCommands(const InputWindowCommands& inputWindowCommands) {
+-    bool hasChanges = mInputWindowCommands.merge(inputWindowCommands);
++    int i = 0;
++    sscanf(inputWindowCommands.systemname.string(), "cell%d", &i);
++    //ALOGD("addInputWindowCommands = %d", i);
++    bool hasChanges = mInputWindowCommandss[i].merge(inputWindowCommands);
+     return hasChanges ? eTraversalNeeded : 0;
+ }
+ 
+@@ -7140,12 +7137,12 @@ status_t SurfaceFlinger::removeWindowInfosListenerX(
+ status_t SurfaceFlinger::enterSelf(){
+     invalidateHwcGeometry();
+     repaintEverything();
+-    ALOGD("SurfaceFlinger::enterSelf");
++    ALOGD("enterSelf");
+     return NO_ERROR;
+ }
+ 
+ status_t SurfaceFlinger::exitSelf(){
+-    ALOGD("SurfaceFlinger::exitSelf");
++    ALOGD("exitSelf");
+     return NO_ERROR;
+ }
+ 
+diff --git a/native/services/surfaceflinger/SurfaceFlinger.h b/native/services/surfaceflinger/SurfaceFlinger.h
+index 9397faf68..0d32fca74 100644
+--- a/native/services/surfaceflinger/SurfaceFlinger.h
++++ b/native/services/surfaceflinger/SurfaceFlinger.h
+@@ -1454,6 +1454,7 @@ private:
+     sp<os::IInputFlinger> mInputFlinger;
+     // Should only be accessed by the main thread.
+     InputWindowCommands mInputWindowCommands;
++    std::vector<InputWindowCommands> mInputWindowCommandss;
+ 
+     Hwc2::impl::PowerAdvisor mPowerAdvisor;
+ 
+-- 
+2.31.1
+
