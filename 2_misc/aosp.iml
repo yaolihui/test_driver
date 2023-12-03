@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/core/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/core/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/xdja/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/xdja/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/hardware/interfaces/biometrics/fingerprint/aidl">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/hardware/interfaces/biometrics/fingerprint/aidl" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
