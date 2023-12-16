@@ -1,0 +1,1704 @@
+From 2e9763ec7093eb5caa26d26a2f50e84ca90175dd Mon Sep 17 00:00:00 2001
+From: lxl <lxl@xdja.com>
+Date: Sat, 3 Sep 2022 10:48:18 +0800
+Subject: [PATCH 08/11] apply patch:xdja-container-20220829 from jianglin
+
+---
+ .../java/android/app/IContainerService.aidl   |   2 +-
+ .../android/app/SystemServiceRegistry.java    |   8 +-
+ .../java/com/android/server/CellsService.java |  11 +-
+ .../server/display/DisplayManagerService.java |   7 +-
+ .../contexthub/ContextHubService.java         |   8 +-
+ ...droid_server_power_PowerManagerService.cpp |   6 +-
+ .../java/com/android/server/SystemServer.java |   9 +-
+ .../com/android/server/ContainerService.java  |   2 +-
+ .../cmds/servicemanager/servicemanager.rc     |   1 -
+ .../native/libs/gui/ISurfaceComposer.cpp      |  10 +-
+ frameworks/native/libs/gui/LayerState.cpp     |   2 +
+ .../native/libs/gui/SurfaceComposerClient.cpp |   9 +-
+ .../native/libs/gui/include/gui/LayerState.h  |   1 +
+ .../surfaceflinger/SurfaceFlinger.cpp         |  65 +++++----
+ .../services/surfaceflinger/SurfaceFlinger.h  |   1 +
+ system/core/rootdir/cells/system/hw/init.rc   |   3 +-
+ system/core/rootdir/cells/system/wifi.rc      |  68 ++++-----
+ ...d.hardware.input.classifier@1.0-service.rc |  18 +--
+ .../rootdir/cells/vendor/hw/init.oriole.rc    |   4 +-
+ system/core/rootdir/init.rc                   |  11 ++
+ .../libhidl/transport/ServiceManagement.cpp   |   6 +-
+ system/netd/server/NetdNativeService.cpp      |   0
+ system/netd/server/NetdNativeService.h        |   0
+ system/netd/server/RouteController.cpp        |   2 -
+ vendor/cells/cells/celld.c                    |   8 +-
+ .../cellnet.c => cells/cellnet-rmnet.c}       |  41 +++++-
+ vendor/cells/cells/cellnet.c                  |  76 +++++++++-
+ vendor/cells/cells/cellnet.h                  |   1 +
+ vendor/cells/cells/nsexec.c                   |   7 +-
+ vendor/cells/cells/virtual_network.c          |   0
+ vendor/cells/cells_build.mk                   |   1 +
+ .../secure/view/SecureSwitchActivity.java     |   6 +-
+ vendor/cells/cellsservice/Android.mk          |  18 ++-
+ .../cellsservice/CellsPrivateService.cpp      | 130 ++++++++----------
+ .../cells/cellsservice/CellsPrivateService.h  |   1 +
+ .../cellsservice/ICellsPrivateService.cpp     |  24 ++++
+ .../cells/cellsservice/ICellsPrivateService.h |   2 +
+ vendor/cells/cellsservice/cellnet.h           |  21 ---
+ vendor/cells/cellsservice/cellsstart.cpp      |  75 ++++++++++
+ vendor/cells/cellsservice/cellssync.cpp       |   4 +-
+ vendor/cells/cellsservice/cswitch.cpp         |   2 +-
+ vendor/cells/cellsservice/main_cells.cpp      |  36 +++--
+ 42 files changed, 471 insertions(+), 236 deletions(-)
+ mode change 100644 => 100755 system/netd/server/NetdNativeService.cpp
+ mode change 100644 => 100755 system/netd/server/NetdNativeService.h
+ rename vendor/cells/{cellsservice/cellnet.c => cells/cellnet-rmnet.c} (89%)
+ mode change 100644 => 100755 vendor/cells/cells/virtual_network.c
+ delete mode 100755 vendor/cells/cellsservice/cellnet.h
+ create mode 100755 vendor/cells/cellsservice/cellsstart.cpp
+
+diff --git a/frameworks/base/core/java/android/app/IContainerService.aidl b/frameworks/base/core/java/android/app/IContainerService.aidl
+index 168f4040e8..6e90d2486f 100755
+--- a/frameworks/base/core/java/android/app/IContainerService.aidl
++++ b/frameworks/base/core/java/android/app/IContainerService.aidl
+@@ -32,6 +32,6 @@ interface IContainerService {
+ 	int tarCellsVm(@nullable String name);
+ 	int sendCellsVm(@nullable String path, @nullable String address);
+ 	int vmSystemReady();
+-	void onPeerNotified();
++        oneway void onPeerNotified();
+ }
+ 
+diff --git a/frameworks/base/core/java/android/app/SystemServiceRegistry.java b/frameworks/base/core/java/android/app/SystemServiceRegistry.java
+index 1143fce329..37cd13b41f 100755
+--- a/frameworks/base/core/java/android/app/SystemServiceRegistry.java
++++ b/frameworks/base/core/java/android/app/SystemServiceRegistry.java
+@@ -1696,7 +1696,7 @@ public final class SystemServiceRegistry {
+                 new StaticServiceFetcher<TServiceClass>() {
+                     @Override
+                     public TServiceClass createService() throws ServiceNotFoundException {
+-                        if(serviceName == Context.WIFI_SERVICE ||
++                        /*if(serviceName == Context.WIFI_SERVICE ||
+                            serviceName == Context.WIFI_P2P_SERVICE ||
+                            serviceName == Context.WIFI_AWARE_SERVICE ||
+                            serviceName == Context.WIFI_SCANNING_SERVICE ||
+@@ -1704,7 +1704,7 @@ public final class SystemServiceRegistry {
+                            serviceName == Context.WIFI_RTT_SERVICE){
+                             return serviceProducer.createService(
+                                     ServiceManager.getInitService(serviceName));
+-                        }
++                        }*/
+                         return serviceProducer.createService(
+                                 ServiceManager.getServiceOrThrow(serviceName));
+                     }});
+@@ -1763,7 +1763,7 @@ public final class SystemServiceRegistry {
+                     @Override
+                     public TServiceClass createService(ContextImpl ctx)
+                             throws ServiceNotFoundException {
+-                        if(serviceName == Context.WIFI_SERVICE ||
++                        /*if(serviceName == Context.WIFI_SERVICE ||
+                            serviceName == Context.WIFI_P2P_SERVICE ||
+                            serviceName == Context.WIFI_AWARE_SERVICE ||
+                            serviceName == Context.WIFI_SCANNING_SERVICE ||
+@@ -1772,7 +1772,7 @@ public final class SystemServiceRegistry {
+                             return serviceProducer.createService(
+                                     ctx.getOuterContext(),
+                                     ServiceManager.getInitService(serviceName));
+-                        }
++                        }*/
+                         return serviceProducer.createService(
+                                 ctx.getOuterContext(),
+                                 ServiceManager.getServiceOrThrow(serviceName));
+diff --git a/frameworks/base/services/core/java/com/android/server/CellsService.java b/frameworks/base/services/core/java/com/android/server/CellsService.java
+index b13b176a24..f18bd8e004 100755
+--- a/frameworks/base/services/core/java/com/android/server/CellsService.java
++++ b/frameworks/base/services/core/java/com/android/server/CellsService.java
+@@ -37,7 +37,6 @@ import android.net.TrafficStats;
+ import android.net.InetAddresses;
+ import android.net.IpPrefix;
+ import android.app.CellsPrivateServiceMgr;
+-
+ import android.provider.Settings;
+ 
+ import com.android.server.net.NetlinkTracker;
+@@ -85,7 +84,9 @@ public class CellsService extends ICellsService.Stub {
+ 
+     public  void systemReady(){
+         if(SystemProperties.get("ro.boot.vm","0").equals("1")){
+-            mCellsNetworkAgent = new CellsNetworkAgent(mContext,this);
++            if(SystemProperties.get("persist.sys.cells.netagent","").equals("")){
++                mCellsNetworkAgent = new CellsNetworkAgent(mContext,this);
++            }
+ 
+             Thread vmready = new Thread(new Runnable(){
+                 @Override
+@@ -93,14 +94,12 @@ public class CellsService extends ICellsService.Stub {
+                     CellsPrivateServiceMgr mCellsService = new CellsPrivateServiceMgr(mContext,
+                                 ServiceManager.getInitService("CellsPrivateService"));
+                     
+-                    SystemProperties.set("persist.sys.exit", "1");
+-
+                     do
+                     {
+-                        SystemClock.sleep(5000);
++                        SystemClock.sleep(3000);
+ 
+                         if("1".equals(SystemProperties.get("sys.boot_completed"))){
+-                            SystemClock.sleep(2000);
++                            SystemClock.sleep(500);
+                             mCellsService.vmSystemReady();
+                             return ;
+                         }
+diff --git a/frameworks/base/services/core/java/com/android/server/display/DisplayManagerService.java b/frameworks/base/services/core/java/com/android/server/display/DisplayManagerService.java
+index 499b111087..76e6a8adb7 100644
+--- a/frameworks/base/services/core/java/com/android/server/display/DisplayManagerService.java
++++ b/frameworks/base/services/core/java/com/android/server/display/DisplayManagerService.java
+@@ -267,8 +267,11 @@ public final class DisplayManagerService extends SystemService {
+         @Override
+         public synchronized void requestDisplayState(int displayId, int state, float brightness,
+                 float sdrBrightness) {
+-            if(SystemProperties.get("persist.sys.exit","0").equals("1"))
+-            	return ;
++            if(SystemProperties.get("sys.boot_completed").equals("1"))
++            {
++                if(SystemProperties.get("persist.sys.exit","0").equals("1"))
++                    return ;
++            }
+ 
+             boolean allInactive = true;
+             boolean allOff = true;
+diff --git a/frameworks/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java b/frameworks/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+index 191a5f5e2e..52d70fc009 100644
+--- a/frameworks/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
++++ b/frameworks/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+@@ -203,11 +203,11 @@ public class ContextHubService extends IContextHubService.Stub {
+ 
+         Pair<List<ContextHub>, List<String>> hubInfo;
+         try {
+-            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
++            //if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
+                 hubInfo = mContextHubWrapper.getHubs();
+-            } else{
+-                hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
+-            }
++            //} else{
++            //    hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
++            //}
+         } catch (RemoteException e) {
+             Log.e(TAG, "RemoteException while getting Context Hub info", e);
+             hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
+diff --git a/frameworks/base/services/core/jni/com_android_server_power_PowerManagerService.cpp b/frameworks/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
+index ae7ea3cd90..afcbe85df4 100644
+--- a/frameworks/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
++++ b/frameworks/base/services/core/jni/com_android_server_power_PowerManagerService.cpp
+@@ -193,8 +193,10 @@ void disableAutoSuspend() {
+     std::lock_guard<std::mutex> lock(gSuspendMutex);
+     if (!gSuspendBlocker) {
+         sp<ISystemSuspend> suspendHal = getSuspendHal();
+-        gSuspendBlocker = suspendHal->acquireWakeLock(WakeLockType::PARTIAL,
+-                "PowerManager.SuspendLockout");
++        if(suspendHal != nullptr){
++            gSuspendBlocker = suspendHal->acquireWakeLock(WakeLockType::PARTIAL,
++                    "PowerManager.SuspendLockout");
++        }
+     }
+ }
+ 
+diff --git a/frameworks/base/services/java/com/android/server/SystemServer.java b/frameworks/base/services/java/com/android/server/SystemServer.java
+index 24969fd93e..9d3fbee281 100755
+--- a/frameworks/base/services/java/com/android/server/SystemServer.java
++++ b/frameworks/base/services/java/com/android/server/SystemServer.java
+@@ -1510,14 +1510,12 @@ public final class SystemServer implements Dumpable {
+             // Start receiving calls from HIDL services. Start in in a separate thread
+             // because it need to connect to SensorManager. This has to start
+             // after PHASE_WAIT_FOR_SENSOR_SERVICE is done.
+-            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             SystemServerInitThreadPool.submit(() -> {
+                 TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
+                 traceLog.traceBegin(START_HIDL_SERVICES);
+                 startHidlServices();
+                 traceLog.traceEnd();
+             }, START_HIDL_SERVICES);
+-            }
+ 
+             if (!isWatch && enableVrService) {
+                 t.traceBegin("StartVrManagerService");
+@@ -1861,7 +1859,7 @@ public final class SystemServer implements Dumpable {
+             }
+             t.traceEnd();
+ 
+-            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
++            //if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_WIFI)) {
+                 // Wifi Service must be started first for wifi-related services.
+@@ -1898,7 +1896,7 @@ public final class SystemServer implements Dumpable {
+                         WIFI_P2P_SERVICE_CLASS, WIFI_APEX_SERVICE_JAR_PATH);
+                 t.traceEnd();
+             }
+-            }
++
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_LOWPAN)) {
+                 t.traceBegin("StartLowpan");
+@@ -1912,6 +1910,7 @@ public final class SystemServer implements Dumpable {
+                 mSystemServiceManager.startService(ETHERNET_SERVICE_CLASS);
+                 t.traceEnd();
+             }
++            //}
+ 
+             t.traceBegin("StartPacProxyService");
+             try {
+@@ -2826,7 +2825,6 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making VcnManagementService ready", e);
+             }
+             t.traceEnd();
+-            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
+             t.traceBegin("MakeNetworkPolicyServiceReady");
+             try {
+                 if (networkPolicyF != null) {
+@@ -2836,7 +2834,6 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making Network Policy Service ready", e);
+             }
+             t.traceEnd();
+-            }
+ 
+             // Wait for all packages to be prepared
+             mPackageManagerService.waitForAppDataPrepared();
+diff --git a/frameworks/base/services/xdja/com/android/server/ContainerService.java b/frameworks/base/services/xdja/com/android/server/ContainerService.java
+index 0770e7190f..712243a825 100755
+--- a/frameworks/base/services/xdja/com/android/server/ContainerService.java
++++ b/frameworks/base/services/xdja/com/android/server/ContainerService.java
+@@ -148,7 +148,7 @@ public class ContainerService extends IContainerService.Stub {
+         Parcel data = Parcel.obtain();
+         Parcel reply = Parcel.obtain();
+         try {
+-            Log.e(TAG,"switchCellsVm start ");
++            Log.e(TAG,"switchCellsVm start name:" + name);
+             data.writeInterfaceToken("CellsPrivateService");
+             data.writeString(name);
+             mChannel.transact(SWITCHCELLSVM, data, reply, 0);
+diff --git a/frameworks/native/cmds/servicemanager/servicemanager.rc b/frameworks/native/cmds/servicemanager/servicemanager.rc
+index d7607bed9e..6d5070fa04 100644
+--- a/frameworks/native/cmds/servicemanager/servicemanager.rc
++++ b/frameworks/native/cmds/servicemanager/servicemanager.rc
+@@ -3,7 +3,6 @@ service servicemanager /system/bin/servicemanager
+     user system
+     group system readproc
+     critical
+-    onrestart restart cellsservice
+     onrestart restart apexd
+     onrestart restart audioserver
+     onrestart restart gatekeeperd
+diff --git a/frameworks/native/libs/gui/ISurfaceComposer.cpp b/frameworks/native/libs/gui/ISurfaceComposer.cpp
+index a9996acc29..8624b25973 100644
+--- a/frameworks/native/libs/gui/ISurfaceComposer.cpp
++++ b/frameworks/native/libs/gui/ISurfaceComposer.cpp
+@@ -75,6 +75,14 @@ public:
+                                  const std::vector<ListenerCallbacks>& listenerCallbacks,
+                                  uint64_t transactionId) override {
+         Parcel data, reply;
++
++        InputWindowCommands tmpcommands;
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++
++        tmpcommands = commands;
++        tmpcommands.systemname = systemname;
++
+         data.writeInterfaceToken(ISurfaceComposer::getInterfaceDescriptor());
+ 
+         SAFE_PARCEL(frameTimelineInfo.write, data);
+@@ -91,7 +99,7 @@ public:
+ 
+         SAFE_PARCEL(data.writeUint32, flags);
+         SAFE_PARCEL(data.writeStrongBinder, applyToken);
+-        SAFE_PARCEL(commands.write, data);
++        SAFE_PARCEL(tmpcommands.write, data);
+         SAFE_PARCEL(data.writeInt64, desiredPresentTime);
+         SAFE_PARCEL(data.writeBool, isAutoTimestamp);
+         SAFE_PARCEL(data.writeStrongBinder, uncacheBuffer.token.promote());
+diff --git a/frameworks/native/libs/gui/LayerState.cpp b/frameworks/native/libs/gui/LayerState.cpp
+index 77a883b332..5577672d36 100644
+--- a/frameworks/native/libs/gui/LayerState.cpp
++++ b/frameworks/native/libs/gui/LayerState.cpp
+@@ -635,12 +635,14 @@ void InputWindowCommands::clear() {
+ status_t InputWindowCommands::write(Parcel& output) const {
+     SAFE_PARCEL(output.writeParcelableVector, focusRequests);
+     SAFE_PARCEL(output.writeBool, syncInputWindows);
++    SAFE_PARCEL(output.writeString8, systemname);
+     return NO_ERROR;
+ }
+ 
+ status_t InputWindowCommands::read(const Parcel& input) {
+     SAFE_PARCEL(input.readParcelableVector, &focusRequests);
+     SAFE_PARCEL(input.readBool, &syncInputWindows);
++    systemname = input.readString8();
+     return NO_ERROR;
+ }
+ 
+diff --git a/frameworks/native/libs/gui/SurfaceComposerClient.cpp b/frameworks/native/libs/gui/SurfaceComposerClient.cpp
+index d464f04c52..25c0b110a1 100644
+--- a/frameworks/native/libs/gui/SurfaceComposerClient.cpp
++++ b/frameworks/native/libs/gui/SurfaceComposerClient.cpp
+@@ -25,6 +25,7 @@
+ #include <utils/SortedVector.h>
+ #include <utils/String8.h>
+ #include <utils/threads.h>
++#include <cutils/properties.h>
+ 
+ #include <binder/IPCThreadState.h>
+ #include <binder/IServiceManager.h>
+@@ -707,7 +708,13 @@ status_t SurfaceComposerClient::Transaction::writeToParcel(Parcel* parcel) const
+         composerState.write(*parcel);
+     }
+ 
+-    mInputWindowCommands.write(*parcel);
++    InputWindowCommands tmpcommands;
++    char systemname[PROPERTY_VALUE_MAX]={0};
++    property_get("ro.boot.vm.name", systemname, "");
++
++    tmpcommands = mInputWindowCommands;
++    tmpcommands.systemname = systemname;
++    tmpcommands.write(*parcel);
+     return NO_ERROR;
+ }
+ 
+diff --git a/frameworks/native/libs/gui/include/gui/LayerState.h b/frameworks/native/libs/gui/include/gui/LayerState.h
+index 03e4aacdbe..1be4af210f 100644
+--- a/frameworks/native/libs/gui/include/gui/LayerState.h
++++ b/frameworks/native/libs/gui/include/gui/LayerState.h
+@@ -302,6 +302,7 @@ struct DisplayState {
+ struct InputWindowCommands {
+     std::vector<gui::FocusRequest> focusRequests;
+     bool syncInputWindows{false};
++    String8 systemname;
+ 
+     // Merges the passed in commands and returns true if there were any changes.
+     bool merge(const InputWindowCommands& other);
+diff --git a/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp b/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+index 156e770a1a..ad9a49b35c 100644
+--- a/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -383,6 +383,8 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory, SkipInitializationTag)
+     {
+         mWindowInfosListenerInvokers.push_back(new WindowInfosListenerInvoker(this));
+     }
++
++    mInputWindowCommandss = std::vector<InputWindowCommands>(CELLS_MAX_CONTEXT);
+     ALOGI("Using HWComposer service: %s", mHwcServiceName.c_str());
+ }
+ 
+@@ -3095,39 +3097,40 @@ void SurfaceFlinger::handleTransactionLocked(uint32_t transactionFlags) {
+ }
+ 
+ void SurfaceFlinger::updateInputFlinger() {
+-    int i = 0;
+     ATRACE_CALL();
+     if (!mInputFlinger) {
+         return;
+     }
+ 
++    bool syncInputWindows = false;
++    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        syncInputWindows |= mInputWindowCommandss[i].syncInputWindows;
++    }
++
+     if (mVisibleRegionsDirty || mInputInfoChanged) {
+         mInputInfoChanged = false;
+         notifyWindowInfos();
+-    } else if (mInputWindowCommands.syncInputWindows) {
++    } else if (syncInputWindows) {
+         // If the caller requested to sync input windows, but there are no
+         // changes to input windows, notify immediately.
+         windowInfosReported();
+     }
+ 
+-    for (const auto& focusRequest : mInputWindowCommands.focusRequests) {
+-        //mInputFlinger->setFocusedWindow(focusRequest);
+-        for(i = 0; i < CELLS_MAX_CONTEXT; i++){
+-            if(i == 0){
+-                mInputFlinger->setFocusedWindow(focusRequest);
+-            }
+-            else{
+-                const sp<IServiceManager> sm = OtherServiceManager(i);
+-                if (sm != nullptr){
+-                    sp<os::IInputFlinger>  mInputFlinger1 = interface_cast<os::IInputFlinger>(sm->getService( String16("inputflinger")));
+-                    if (mInputFlinger1 != nullptr) {
+-                        mInputFlinger1->setFocusedWindow(focusRequest);
+-                    }
++    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        for (const auto& focusRequest : mInputWindowCommandss[i].focusRequests)
++        {
++            const sp<IServiceManager> sm = OtherServiceManager(i);
++            if (sm != nullptr){
++                sp<os::IInputFlinger>  mInputFlinger1 = interface_cast<os::IInputFlinger>(sm->getService( String16("inputflinger")));
++                if (mInputFlinger1 != nullptr) {
++                    mInputFlinger1->setFocusedWindow(focusRequest);
+                 }
+             }
+         }
++        mInputWindowCommandss[i].clear();
+     }
+-    mInputWindowCommands.clear();
+ }
+ 
+ bool enablePerWindowInputRotation() {
+@@ -3137,9 +3140,7 @@ bool enablePerWindowInputRotation() {
+ }
+ 
+ void SurfaceFlinger::notifyWindowInfos() {
+-    //std::vector<WindowInfo> windowInfos;
+     std::vector<std::vector<WindowInfo>> windowInfos(CELLS_MAX_CONTEXT);
+-    int i = 0;
+ 
+     mDrawingState.traverseInReverseZOrder([&](Layer* layer) {
+         if (!layer->needsInputInfo()) return;
+@@ -3148,25 +3149,18 @@ void SurfaceFlinger::notifyWindowInfos() {
+                 : nullptr;
+         // When calculating the screen bounds we ignore the transparent region since it may
+         // result in an unwanted offset.
+-        //windowInfos.push_back(layer->fillInputInfo(display));
+-        if(layer->getSystemName() == ""){
+-            windowInfos[0].push_back(layer->fillInputInfo(display));
+-        }else{
+-            sscanf(layer->systemName(), "cell%d",&i);
+-            if(i > 0 && i < CELLS_MAX_CONTEXT){
+-                windowInfos[i].push_back(layer->fillInputInfo(display));
+-            }
++        int i = 0;
++        sscanf(layer->systemName(), "cell%d", &i);
++        if(i >= 0 && i < CELLS_MAX_CONTEXT){
++            windowInfos[i].push_back(layer->fillInputInfo(display));
+         }
+     });
+ 
+-    for(i = 0; i < CELLS_MAX_CONTEXT; i++)
++    for(int i = 0; i < CELLS_MAX_CONTEXT; i++)
+     {
+         mWindowInfosListenerInvokers[i]->windowInfosChanged(windowInfos[i],
+-                                                    mInputWindowCommands.syncInputWindows);
++                                                    mInputWindowCommandss[i].syncInputWindows);
+     }
+-
+-    //mWindowInfosListenerInvoker->windowInfosChanged(windowInfos,
+-    //                                                mInputWindowCommands.syncInputWindows);
+ }
+ 
+ void SurfaceFlinger::updateCursorAsync() {
+@@ -4318,7 +4312,10 @@ uint32_t SurfaceFlinger::setClientStateLocked(
+ }
+ 
+ uint32_t SurfaceFlinger::addInputWindowCommands(const InputWindowCommands& inputWindowCommands) {
+-    bool hasChanges = mInputWindowCommands.merge(inputWindowCommands);
++    int i = 0;
++    sscanf(inputWindowCommands.systemname.string(), "cell%d", &i);
++    //ALOGD("addInputWindowCommands = %d", i);
++    bool hasChanges = mInputWindowCommandss[i].merge(inputWindowCommands);
+     return hasChanges ? eTraversalNeeded : 0;
+ }
+ 
+@@ -7140,12 +7137,12 @@ status_t SurfaceFlinger::removeWindowInfosListenerX(
+ status_t SurfaceFlinger::enterSelf(){
+     invalidateHwcGeometry();
+     repaintEverything();
+-    ALOGD("SurfaceFlinger::enterSelf");
++    ALOGD("enterSelf");
+     return NO_ERROR;
+ }
+ 
+ status_t SurfaceFlinger::exitSelf(){
+-    ALOGD("SurfaceFlinger::exitSelf");
++    ALOGD("exitSelf");
+     return NO_ERROR;
+ }
+ 
+diff --git a/frameworks/native/services/surfaceflinger/SurfaceFlinger.h b/frameworks/native/services/surfaceflinger/SurfaceFlinger.h
+index 9397faf68b..0d32fca74c 100644
+--- a/frameworks/native/services/surfaceflinger/SurfaceFlinger.h
++++ b/frameworks/native/services/surfaceflinger/SurfaceFlinger.h
+@@ -1454,6 +1454,7 @@ private:
+     sp<os::IInputFlinger> mInputFlinger;
+     // Should only be accessed by the main thread.
+     InputWindowCommands mInputWindowCommands;
++    std::vector<InputWindowCommands> mInputWindowCommandss;
+ 
+     Hwc2::impl::PowerAdvisor mPowerAdvisor;
+ 
+diff --git a/system/core/rootdir/cells/system/hw/init.rc b/system/core/rootdir/cells/system/hw/init.rc
+index b5efe44de2..4773e26250 100644
+--- a/system/core/rootdir/cells/system/hw/init.rc
++++ b/system/core/rootdir/cells/system/hw/init.rc
+@@ -67,7 +67,8 @@ on early-init
+     start ueventd
+ 
+     setprop ro.boot.vm 1
+-    setprop persist.sys.exit 0
++    setprop persist.sys.exit 1
++    setprop persist.sys.cells.netagent ""
+     setprop persist.logd.logpersistd logcatd
+     # setprop system_init.startsensorservice 0
+     setprop persist.sys.sdcardfs force_off
+diff --git a/system/core/rootdir/cells/system/wifi.rc b/system/core/rootdir/cells/system/wifi.rc
+index 71567eddd9..eceee0ae09 100644
+--- a/system/core/rootdir/cells/system/wifi.rc
++++ b/system/core/rootdir/cells/system/wifi.rc
+@@ -29,54 +29,54 @@ on property:sys.boot_completed=1 && property:sys.wifitracing.started=0
+    # Create trace buffer, and set basic configuration.
+    mkdir /sys/kernel/debug/tracing/instances/wifi 711
+    restorecon_recursive /sys/kernel/debug/tracing/instances/wifi
+-#   write /sys/kernel/debug/tracing/instances/wifi/tracing_on 0
+-#   write /sys/kernel/debug/tracing/instances/wifi/buffer_size_kb 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/trace_options disable_on_free
++   write /sys/kernel/debug/tracing/instances/wifi/tracing_on 0
++   write /sys/kernel/debug/tracing/instances/wifi/buffer_size_kb 1
++   write /sys/kernel/debug/tracing/instances/wifi/trace_options disable_on_free
+ 
+    mkdir /sys/kernel/tracing/instances/wifi 711
+    restorecon_recursive /sys/kernel/tracing/instances/wifi
+-#   write /sys/kernel/tracing/instances/wifi/tracing_on 0
+-#   write /sys/kernel/tracing/instances/wifi/buffer_size_kb 1
+-#   write /sys/kernel/tracing/instances/wifi/trace_options disable_on_free
++   write /sys/kernel/tracing/instances/wifi/tracing_on 0
++   write /sys/kernel/tracing/instances/wifi/buffer_size_kb 1
++   write /sys/kernel/tracing/instances/wifi/trace_options disable_on_free
+ 
+    # Enable cfg80211 events for connection and key management events.
+    # - Events are not actually logged until WifiService writes "1" to
+    #   /sys/kernel/debug/tracing/instances/wifi/tracing_on.
+    # - WifiService is responsible for turning tracing off and on.
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/cfg80211_gtk_rekey_notify/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_add_key/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_assoc/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_auth/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_connect/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_default_key/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_default_mgmt_key/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_rekey_data/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/cfg80211_gtk_rekey_notify/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_add_key/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_assoc/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_auth/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_connect/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_default_key/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_default_mgmt_key/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/cfg80211/rdev_set_rekey_data/enable 1
+ 
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/cfg80211_gtk_rekey_notify/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_add_key/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_assoc/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_auth/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_connect/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_default_key/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_default_mgmt_key/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_rekey_data/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/cfg80211_gtk_rekey_notify/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_add_key/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_assoc/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_auth/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_connect/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_default_key/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_default_mgmt_key/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/cfg80211/rdev_set_rekey_data/enable 1
+ 
+    # Enable datapath events for Wifi.
+    # - Events are not actually logged until WifiService writes "1" to
+    #   /sys/kernel/debug/tracing/instances/wifi/tracing_on.
+    # - WifiService will ensure that tracing is turned back off,
+    #   when a connection attempt ends (whether in success or failure)
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/filter name==${wifi.interface:-wlan0}
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/net_dev_queue/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/net_dev_xmit/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/netif_rx/enable 1
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/netif_receive_skb/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/filter name==${wifi.interface:-wlan0}
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/net_dev_queue/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/net_dev_xmit/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/netif_rx/enable 1
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/netif_receive_skb/enable 1
+ 
+-#   write /sys/kernel/tracing/instances/wifi/events/net/filter name==${wifi.interface:-wlan0}
+-#   write /sys/kernel/tracing/instances/wifi/events/net/net_dev_queue/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/net/net_dev_xmit/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/net/netif_rx/enable 1
+-#   write /sys/kernel/tracing/instances/wifi/events/net/netif_receive_skb/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/net/filter name==${wifi.interface:-wlan0}
++   write /sys/kernel/tracing/instances/wifi/events/net/net_dev_queue/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/net/net_dev_xmit/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/net/netif_rx/enable 1
++   write /sys/kernel/tracing/instances/wifi/events/net/netif_receive_skb/enable 1
+ 
+    # Set DAC to allow system to enable/disable, and read wifi trace
+    # events.
+@@ -97,5 +97,5 @@ on property:sys.boot_completed=1 && property:sys.wifitracing.started=0
+ 
+ on property:sys.boot_completed=1 && property:wifi.interface=* && property:sys.wifitracing.started=1
+    # Override default value.
+-#   write /sys/kernel/debug/tracing/instances/wifi/events/net/filter name==${wifi.interface}
+-#   write /sys/kernel/tracing/instances/wifi/events/net/filter name==${wifi.interface}
++   write /sys/kernel/debug/tracing/instances/wifi/events/net/filter name==${wifi.interface}
++   write /sys/kernel/tracing/instances/wifi/events/net/filter name==${wifi.interface}
+diff --git a/system/core/rootdir/cells/vendor/android.hardware.input.classifier@1.0-service.rc b/system/core/rootdir/cells/vendor/android.hardware.input.classifier@1.0-service.rc
+index 77a5fab5a9..e6b70e5a3a 100644
+--- a/system/core/rootdir/cells/vendor/android.hardware.input.classifier@1.0-service.rc
++++ b/system/core/rootdir/cells/vendor/android.hardware.input.classifier@1.0-service.rc
+@@ -1,9 +1,9 @@
+-#service vendor.input.classifier-1-0 /vendor/bin/hw/android.hardware.input.classifier@1.0-service
+-#    # Must be specified if "disabled" is set. This HAL will only start if requested via getService
+-#    interface android.hardware.input.classifier@1.0::IInputClassifier default
+-#    class hal
+-#    user nobody
+-#    # will not be restarted if it exits until it is requested to be restarted
+-#    oneshot
+-#    # will only be started when requested
+-#    disabled
+\ No newline at end of file
++service vendor.input.classifier-1-0 /vendor/bin/hw/android.hardware.input.classifier@1.0-service
++    # Must be specified if "disabled" is set. This HAL will only start if requested via getService
++    interface android.hardware.input.classifier@1.0::IInputClassifier default
++    class hal
++    user nobody
++    # will not be restarted if it exits until it is requested to be restarted
++    oneshot
++    # will only be started when requested
++    disabled
+diff --git a/system/core/rootdir/cells/vendor/hw/init.oriole.rc b/system/core/rootdir/cells/vendor/hw/init.oriole.rc
+index 461922098b..d509c17091 100644
+--- a/system/core/rootdir/cells/vendor/hw/init.oriole.rc
++++ b/system/core/rootdir/cells/vendor/hw/init.oriole.rc
+@@ -10,10 +10,10 @@ on init
+ 
+ # Toggle glove_mode according to touch_sensitivity_mode
+ on property:persist.vendor.touch_sensitivity_mode=0 && property:sys.boot_completed=1
+-#   write /sys/class/spi_master/spi11/spi11.0/glove_mode 00
++    write /sys/class/spi_master/spi11/spi11.0/glove_mode 00
+ 
+ on property:persist.vendor.touch_sensitivity_mode=1 && property:sys.boot_completed=1
+-#   write /sys/class/spi_master/spi11/spi11.0/glove_mode 01
++    write /sys/class/spi_master/spi11/spi11.0/glove_mode 01
+ 
+ on late-init && property:ro.boot.hardware.revision=PROTO1.0
+     setprop vendor.thermal.config "thermal_info_config_WHI_A.json"
+diff --git a/system/core/rootdir/init.rc b/system/core/rootdir/init.rc
+index d28c730adc..a898c16d91 100644
+--- a/system/core/rootdir/init.rc
++++ b/system/core/rootdir/init.rc
+@@ -68,6 +68,8 @@ on early-init
+ 
+     setprop ro.boot.vm 0
+     setprop persist.sys.exit 0
++    setprop persist.sys.ui.exit 0
++    setprop persist.sys.iw.wlan ""
+     setprop persist.logd.logpersistd logcatd
+     setprop persist.sys.sdcardfs force_on
+ 
+@@ -1287,3 +1289,12 @@ service cellsservice /system/bin/cellsservice
+     user root
+     group root
+     seclabel  u:r:init:s0
++
++service cellsstart /system/bin/cellsstart
++    class main
++    disabled
++    oneshot
++    user root
++    group root
++    seclabel  u:r:init:s0
++
+diff --git a/system/libhidl/transport/ServiceManagement.cpp b/system/libhidl/transport/ServiceManagement.cpp
+index 14dcdebd30..4fc3f78b01 100644
+--- a/system/libhidl/transport/ServiceManagement.cpp
++++ b/system/libhidl/transport/ServiceManagement.cpp
+@@ -85,13 +85,13 @@ static bool getinithidlservice(const char* descriptor)
+         "android.hardware.keymaster",
+         "android.hardware.biometrics.fingerprint",
+         "android.hardware.thermal",
+-        "android.hardware.input.classifier",
++        //"android.hardware.input.classifier",
+         "android.hardware.audio",
+         "android.hardware.soundtrigger",
+         "android.hardware.secure_element",
+-        "android.frameworks.sensorservice",
+-        "vendor.samsung_slsi.telephony.hardware.radioExternal",
++        //"android.frameworks.sensorservice",
+         "android.hardware.radio",
++        "vendor.samsung_slsi.telephony.hardware.radioExternal",
+         NULL
+     };
+ 
+diff --git a/system/netd/server/NetdNativeService.cpp b/system/netd/server/NetdNativeService.cpp
+old mode 100644
+new mode 100755
+diff --git a/system/netd/server/NetdNativeService.h b/system/netd/server/NetdNativeService.h
+old mode 100644
+new mode 100755
+diff --git a/system/netd/server/RouteController.cpp b/system/netd/server/RouteController.cpp
+index e34953bbff..7b794f0a57 100644
+--- a/system/netd/server/RouteController.cpp
++++ b/system/netd/server/RouteController.cpp
+@@ -1149,8 +1149,6 @@ int RouteController::flushRoutes(const char* interface) {
+ }
+ 
+ int RouteController::Init(unsigned localNetId) {
+-    if(android::base::GetProperty("ro.boot.vm", "0") == std::string("1"))
+-        return 0;
+     if (int ret = flushRules()) {
+         return ret;
+     }
+diff --git a/vendor/cells/cells/celld.c b/vendor/cells/cells/celld.c
+index 588c0cee89..9365fcd546 100755
+--- a/vendor/cells/cells/celld.c
++++ b/vendor/cells/cells/celld.c
+@@ -1079,7 +1079,7 @@ static void *__monitor_start_state(void *arg)
+ {
+ 	char *root_path = NULL;
+ 	char buf[20];
+-	int ret, i = 0;
++	int ret;// i = 0;
+ 
+ 	struct cell_monitor_state *cms = (struct cell_monitor_state *)arg;
+ 	root_path = get_root_path(cms->name);
+@@ -1097,9 +1097,9 @@ static void *__monitor_start_state(void *arg)
+ 
+ 	__umount_rootmount(root_path);
+ 
+-	sleep(2);
+-	sscanf(cms->name, "cell%d",&i);
+-	if(i > 0)starttether(i);
++	//sleep(2);
++	//sscanf(cms->name, "cell%d",&i);
++	//if(i > 0)starttether(i);
+ 
+ 	finish_cell_startup(cms->name);
+ 
+diff --git a/vendor/cells/cellsservice/cellnet.c b/vendor/cells/cells/cellnet-rmnet.c
+similarity index 89%
+rename from vendor/cells/cellsservice/cellnet.c
+rename to vendor/cells/cells/cellnet-rmnet.c
+index 83c21d431b..1b2bff6969 100755
+--- a/vendor/cells/cellsservice/cellnet.c
++++ b/vendor/cells/cells/cellnet-rmnet.c
+@@ -12,7 +12,8 @@
+ #include <cutils/memory.h>
+ #include <cutils/misc.h>
+ 
+-#define INTERFACE "wlan0"
++#define INTERFACE "rmnet_data1"
++#define VMINTERFACE "rmnet_data1"
+ #define VETH0 "vm_wlan_%d_0"
+ #define VETH1 "vm_wlan_%d_1"
+ 
+@@ -91,6 +92,30 @@ void vethtons(int pid,int index)
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ }
+ 
++static int get_if_status(char *if_name)
++{
++    char buffer[BUFSIZ];
++    char cmd[100];
++    FILE *read_fp;
++    int chars_read;
++
++    memset( buffer, 0, BUFSIZ );
++    memset( cmd, 0, 100 );
++
++    sprintf(cmd, "ip link show | grep %s",if_name);
++    read_fp = popen(cmd, "r");
++    if ( read_fp != NULL )
++    {
++        chars_read = fread(buffer, sizeof(char), BUFSIZ-1, read_fp);
++        pclose(read_fp);
++        if (chars_read > 0){
++            return 1;
++        }
++    }
++
++    return 0;
++}
++
+ void rnameveth(int index)
+ {
+     int ret  = 0;
+@@ -103,21 +128,29 @@ void rnameveth(int index)
+     snprintf(vethaddr0, sizeof(vethaddr0), VETHIFACEADDR0, VETHIFACEADDRBASE + index);
+     snprintf(vethaddr1, sizeof(vethaddr1), VETHIFACEADDR1, VETHIFACEADDRBASE + index);
+ 
++    int num = 0;
++    while(0 == get_if_status(vethname1) && num < 5)
++    {
++        num++;
++        ALOGD("rnameveth num = %d", num);
++        sleep(1);
++    }
++
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ip link set %s name %s",vethname1 ,INTERFACE );
++    snprintf(cmd, sizeof(cmd), "ip link set %s name %s",vethname1 ,VMINTERFACE );
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ 
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up",INTERFACE,vethaddr1,VETHADDRMASK);
++    snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up",VMINTERFACE,vethaddr1,VETHADDRMASK);
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ 
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ip ro add default via %s dev %s",vethaddr0 ,INTERFACE);
++    snprintf(cmd, sizeof(cmd), "ip ro add default via %s dev %s",vethaddr0 ,VMINTERFACE);
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ }
+diff --git a/vendor/cells/cells/cellnet.c b/vendor/cells/cells/cellnet.c
+index e93e409790..51f8f57bef 100755
+--- a/vendor/cells/cells/cellnet.c
++++ b/vendor/cells/cells/cellnet.c
+@@ -11,8 +11,10 @@
+ #include <cutils/log.h>
+ #include <cutils/memory.h>
+ #include <cutils/misc.h>
++#include <cutils/properties.h>
+ 
+ #define INTERFACE "wlan0"
++#define VMINTERFACE "wlan0"
+ #define VETH0 "vm_wlan_%d_0"
+ #define VETH1 "vm_wlan_%d_1"
+ 
+@@ -40,6 +42,12 @@ void createveth(int index)
+ 
+     char cmd[256] = {0};
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        return;
++    }
++
+     snprintf(vethname0, sizeof(vethname0), VETH0, index);
+     snprintf(vethname1, sizeof(vethname1), VETH1, index);
+     snprintf(vethgateaddr, sizeof(vethgateaddr), VETHGATEADDR, VETHIFACEADDRBASE + index);
+@@ -82,6 +90,12 @@ void vethtons(int pid,int index)
+     char vethname1[24] = {0};
+     char cmd[256];
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        return;
++    }
++
+     snprintf(vethname1, sizeof(vethname1), VETH1, index);
+ 
+     errno = 0;
+@@ -123,6 +137,24 @@ void rnameveth(int index)
+     char vethaddr1[64] = {0};
+     char cmd[256];
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        int i=0;
++        sscanf(value, "cell%d", &i);
++        if(index == i)
++        {
++            int num = 0;
++            while(0 == get_if_status("wlan0") && num < 5)
++            {
++                num++;
++                ALOGD("wlan0 num = %d", num);
++                sleep(1);
++            }
++        }
++        return;
++    }
++
+     snprintf(vethname1, sizeof(vethname1), VETH1, index);
+     snprintf(vethaddr0, sizeof(vethaddr0), VETHIFACEADDR0, VETHIFACEADDRBASE + index);
+     snprintf(vethaddr1, sizeof(vethaddr1), VETHIFACEADDR1, VETHIFACEADDRBASE + index);
+@@ -137,19 +169,19 @@ void rnameveth(int index)
+ 
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ip link set %s name %s",vethname1 ,INTERFACE );
++    snprintf(cmd, sizeof(cmd), "ip link set %s name %s",vethname1 ,VMINTERFACE );
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ 
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up",INTERFACE,vethaddr1,VETHADDRMASK);
++    snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up",VMINTERFACE,vethaddr1,VETHADDRMASK);
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ 
+     errno = 0;
+     memset(cmd,0,sizeof(cmd));
+-    snprintf(cmd, sizeof(cmd), "ip ro add default via %s dev %s",vethaddr0 ,INTERFACE);
++    snprintf(cmd, sizeof(cmd), "ip ro add default via %s dev %s",vethaddr0 ,VMINTERFACE);
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ }
+@@ -163,6 +195,12 @@ void starttether(int index)
+ 
+     char cmd[256] = {0};
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        return;
++    }
++
+     snprintf(vethname0, sizeof(vethname0), VETH0, index);
+     snprintf(vethgateaddr, sizeof(vethgateaddr), VETHGATEADDR, VETHIFACEADDRBASE + index);
+     snprintf(vethaddr0, sizeof(vethaddr0), VETHIFACEADDR0, VETHIFACEADDRBASE + index);
+@@ -217,6 +255,12 @@ void stoptether(int index)
+ 
+     char cmd[256] = {0};
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        return;
++    }
++
+     snprintf(vethname0, sizeof(vethname0), VETH0, index);
+ 
+     errno = 0;
+@@ -247,6 +291,12 @@ void delveth(int index)
+ 
+     char cmd[256] = {0};
+ 
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") != 0){
++        return;
++    }
++
+     snprintf(vethname0, sizeof(vethname0), VETH0, index);
+     snprintf(vethgateaddr, sizeof(vethgateaddr), VETHGATEADDR, VETHIFACEADDRBASE + index);
+     snprintf(vethaddr0, sizeof(vethaddr0), VETHIFACEADDR0, VETHIFACEADDRBASE + index);
+@@ -275,3 +325,23 @@ void delveth(int index)
+     ret = system(cmd);
+     ALOGD("%s errno = %s",cmd,strerror(errno));
+ }
++
++#define WLAN_PHY "phy0" 
++
++void phytons(int pid,int index)
++{
++    int ret  = 0;
++    char cmd[256];
++
++    char value[PROPERTY_VALUE_MAX] = {0};
++    property_get("persist.sys.iw.wlan", value, "");
++    if(strcmp(value, "") == 0){
++        return;
++    }
++
++    errno = 0;
++    memset(cmd,0,sizeof(cmd));
++    snprintf(cmd, sizeof(cmd), "iw phy %s set netns %d", WLAN_PHY, pid);
++    ret = system(cmd);
++    ALOGD("%s index = %d errno = %s",cmd,index,strerror(errno));
++}
+diff --git a/vendor/cells/cells/cellnet.h b/vendor/cells/cells/cellnet.h
+index bcc4e67414..86163746d5 100755
+--- a/vendor/cells/cells/cellnet.h
++++ b/vendor/cells/cells/cellnet.h
+@@ -13,6 +13,7 @@ extern void rnameveth(int index);
+ extern void starttether(int index);
+ extern void stoptether(int index);
+ extern void delveth(int index);
++extern void phytons(int pid,int index);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/vendor/cells/cells/nsexec.c b/vendor/cells/cells/nsexec.c
+index ffb6ffc6e4..e68a60182f 100755
+--- a/vendor/cells/cells/nsexec.c
++++ b/vendor/cells/cells/nsexec.c
+@@ -753,8 +753,13 @@ int cell_nsexec(int sd, struct cell_args *cell_args,
+ 		sscanf(cell_args->cellname, "cell%d",&i);
+ 		if(i > 0){
+ 			createveth(i);
+-
+ 			vethtons(pid,i);
++
++			int index = 0;
++			char value[PROPERTY_VALUE_MAX] = {0};
++			property_get("persist.sys.iw.wlan", value, "");
++			sscanf(value, "cell%d", &index);
++			if(i == index) phytons(pid,i);
+ 		}
+ 	}
+ 
+diff --git a/vendor/cells/cells/virtual_network.c b/vendor/cells/cells/virtual_network.c
+old mode 100644
+new mode 100755
+diff --git a/vendor/cells/cells_build.mk b/vendor/cells/cells_build.mk
+index 99c08b1562..c39b84c3c8 100755
+--- a/vendor/cells/cells_build.mk
++++ b/vendor/cells/cells_build.mk
+@@ -6,5 +6,6 @@ PRODUCT_PACKAGES += \
+ 	cellssync \
+ 	cellsupdownvm \
+ 	cswitch \
++        cellsstart \
+ 	busybox \
+ 	virtualcamera
+diff --git a/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java b/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
+index 4bbef17bd5..e6b3f80f74 100755
+--- a/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
++++ b/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
+@@ -2,6 +2,8 @@ package com.cells.systemswitch.secure.view;
+ 
+ import android.util.Log;
+ import android.app.Activity;
++import android.app.ContainerManager;
++import android.content.Context;
+ import android.os.Bundle;
+ import android.view.View;
+ import android.view.WindowManager;
+@@ -28,10 +30,12 @@ import java.lang.RuntimeException;
+ 
+ public class SecureSwitchActivity extends Activity {
+ 	private static final String TAG = "SecureSwitchActivity";
++    private ContainerManager mContainerManager;
+ 
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		super.onCreate(savedInstanceState);
++        mContainerManager = (ContainerManager) getSystemService(Context.CONTAINER_SERVICE);
+ 
+ 		if(!SystemProperties.get("ro.boot.vm","1").equals("0")){
+ 			CellsPrivateServiceMgr mCellsService;
+@@ -41,8 +45,8 @@ public class SecureSwitchActivity extends Activity {
+ 			String name = (SystemProperties.get("ro.boot.vm.name","").equals("cell1")?"cell2":"cell1");
+ 			try{
+ 				disableAdapter();
+-				mCellsService.switchCellsVm("host");
+ 				//mCellsService.switchCellsVm(name);
++                mContainerManager.switchCellsVm(name);
+ 			}catch(RuntimeException e){
+ 				e.printStackTrace();
+ 			}
+diff --git a/vendor/cells/cellsservice/Android.mk b/vendor/cells/cellsservice/Android.mk
+index ae4b73406c..d60cb03456 100755
+--- a/vendor/cells/cellsservice/Android.mk
++++ b/vendor/cells/cellsservice/Android.mk
+@@ -12,7 +12,7 @@ LOCAL_SRC_FILES:= \
+ 	CellsPrivateService.cpp \
+ 	ICellsPrivateService.cpp \
+ 	main_cells.cpp \
+-	cellnet.c
++	../cells/cellnet.c
+ 
+ LOCAL_MODULE := cellsservice
+ LOCAL_MODULE_TAGS := optional
+@@ -52,7 +52,7 @@ include $(BUILD_EXECUTABLE)
+ 
+ 
+ 
+-#sync
++#down
+ include $(CLEAR_VARS)
+ 
+ LOCAL_SRC_FILES := \
+@@ -78,4 +78,18 @@ LOCAL_MODULE_TAGS := optional
+ LOCAL_MODULE_OWNER := cells
+ #LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT_SBIN)
+ LOCAL_SHARED_LIBRARIES := libm libcutils libc libbinder libutils liblog
++include $(BUILD_EXECUTABLE)
++
++#start
++include $(CLEAR_VARS)
++
++LOCAL_SRC_FILES := \
++	cellsstart.cpp \
++	ICellsPrivateService.cpp
++
++LOCAL_MODULE:= cellsstart
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE_OWNER := cells
++#LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT_SBIN)
++LOCAL_SHARED_LIBRARIES := libm libcutils libc libbinder libutils libgui libpowermanager liblog libbase
+ include $(BUILD_EXECUTABLE)
+\ No newline at end of file
+diff --git a/vendor/cells/cellsservice/CellsPrivateService.cpp b/vendor/cells/cellsservice/CellsPrivateService.cpp
+index 6b25664673..7f0b302b51 100755
+--- a/vendor/cells/cellsservice/CellsPrivateService.cpp
++++ b/vendor/cells/cellsservice/CellsPrivateService.cpp
+@@ -13,6 +13,7 @@
+ #include <cutils/log.h>
+ #include <cutils/properties.h>
+ #include "CellsPrivateService.h"
++#include "../cells/cellnet.h"
+ 
+ #include <binder/IServiceManager.h>
+ #include <gui/ISurfaceComposer.h>
+@@ -70,8 +71,6 @@ status_t CellsPrivateService::setProperty(const String16& name,const String16& v
+ 
+ status_t CellsPrivateService::startCellsVM(const String16& name)
+ {
+-    name;
+-
+     char cmd[200];
+     snprintf(cmd, sizeof(cmd), "cellc start %s",String8(name).string());
+     SYSTEMPRIVATE_LOGD("STARTCELLSVM cmd = %s", cmd);
+@@ -81,8 +80,6 @@ status_t CellsPrivateService::startCellsVM(const String16& name)
+ 
+ status_t CellsPrivateService::stopCellsVM(const String16& name)
+ {
+-    name;
+-
+     char cmd[200];
+     snprintf(cmd, sizeof(cmd), "cellc stop %s",String8(name).string());
+     SYSTEMPRIVATE_LOGD("STOPCELLSVM cmd = %s", cmd);
+@@ -92,8 +89,6 @@ status_t CellsPrivateService::stopCellsVM(const String16& name)
+ 
+ status_t CellsPrivateService::cellsSwitchVM(const String16& name)
+ {
+-    name;
+-
+     char cmd[200];
+     snprintf(cmd, sizeof(cmd), "cellc switch %s",String8(name).string());
+     SYSTEMPRIVATE_LOGD("CELLSSWITCHVM cmd = %s", cmd);
+@@ -102,10 +97,8 @@ status_t CellsPrivateService::cellsSwitchVM(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::cellsSwitchHOST(const String16& name)
++status_t CellsPrivateService::cellsSwitchHOST(const String16& /*name*/)
+ {
+-    name;
+-
+     char cmd[200];
+     snprintf(cmd, sizeof(cmd), "cellc switch host");
+     SYSTEMPRIVATE_LOGD("CELLSSWITCHHOST cmd = %s", cmd);
+@@ -114,10 +107,8 @@ status_t CellsPrivateService::cellsSwitchHOST(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-static void* gotosleep(void* o)
++static void* gotosleep(void* /*o*/)
+ {
+-    o;
+-
+     {
+         android::sp<android::IServiceManager> sm = android::defaultServiceManager();
+         android::sp<android::os::IPowerManager> mPowerManager = 
+@@ -147,8 +138,6 @@ static void create_gotosleep_pthread(void)
+ status_t CellsPrivateService::switchCellsVM(const String16& name)
+ {
+     int i = 0;
+-    char value[PROPERTY_VALUE_MAX];
+-    char pname[PATH_MAX];
+     char curname[PROPERTY_VALUE_MAX] = {0};
+ 
+     property_get("ro.boot.vm.name", curname, "");
+@@ -164,12 +153,17 @@ status_t CellsPrivateService::switchCellsVM(const String16& name)
+     }
+ 
+     if(strcmp(String8(name).string(), "host") != 0){
+-        memset(value,0,PROPERTY_VALUE_MAX);
+-        memset(pname,0,PATH_MAX);
+-        sprintf(pname, "persist.sys.%s.init",  String8(name).string());
+-        property_get(pname, value, "0");
+-        if((strcmp(value, "0") == 0))
++        if(strcmp(curname, "") == 0){
++            if(isVMSystemReady(name) == 0)
++                return 0;
++        }
++
++        android::sp<android::IServiceManager> sm = android::initdefaultServiceManager();
++        android::sp<android::ICellsPrivateService> mCellsPrivateService = 
++        android::interface_cast<android::ICellsPrivateService>(sm->checkService(android::String16("CellsPrivateService")));
++        if(mCellsPrivateService != NULL && mCellsPrivateService->isVMSystemReady(name) == 0){
+             return 0;
++        }
+     }
+ 
+     if(strcmp(curname, "") == 0){
+@@ -230,23 +224,12 @@ status_t CellsPrivateService::switchCellsVM(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::enterHost(const String16& name)
++status_t CellsPrivateService::enterHost(const String16& /*name*/)
+ {
+-    name;
+-
+     {
+         property_set("persist.sys.exit", "0");
+     }
+ 
+-    {
+-        android::sp<android::IServiceManager> sm = android::defaultServiceManager();
+-        android::sp<android::ISurfaceComposer> mComposer = 
+-            android::interface_cast<android::ISurfaceComposer>(sm->checkService(android::String16("SurfaceFlinger")));
+-        if(mComposer != NULL){
+-            mComposer->enterSelf();
+-        }
+-    }
+-
+     {
+         android::sp<android::IServiceManager> sm = android::defaultServiceManager();
+         android::sp<android::os::IPowerManager> mPowerManager = 
+@@ -259,6 +242,15 @@ status_t CellsPrivateService::enterHost(const String16& name)
+         }
+     }
+ 
++    {
++        android::sp<android::IServiceManager> sm = android::defaultServiceManager();
++        android::sp<android::ISurfaceComposer> mComposer = 
++            android::interface_cast<android::ISurfaceComposer>(sm->checkService(android::String16("SurfaceFlinger")));
++        if(mComposer != NULL){
++            mComposer->enterSelf();
++        }
++    }
++
+     {
+         property_set("ctl.restart", "adbd");
+     }
+@@ -275,10 +267,8 @@ status_t CellsPrivateService::enterHost(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::exitHost(const String16& name)
++status_t CellsPrivateService::exitHost(const String16& /*name*/)
+ {
+-    name;
+-
+     {
+         property_set("persist.sys.exit", "1");
+     }
+@@ -315,10 +305,8 @@ static void write_vm_exit(bool bexit){
+     }
+ }
+ 
+-status_t CellsPrivateService::enterCell(const String16& name)
++status_t CellsPrivateService::enterCell(const String16& /*name*/)
+ {
+-    name;
+-
+     {
+         write_vm_exit(false);
+         property_set("persist.sys.exit", "0");
+@@ -329,7 +317,10 @@ status_t CellsPrivateService::enterCell(const String16& name)
+         android::sp<android::os::IPowerManager> mPowerManager = 
+             android::interface_cast<android::os::IPowerManager>(sm->checkService(android::String16("power")));
+         if(mPowerManager != NULL){
+-            mPowerManager->goToSleep(long(ns2ms(systemTime())),android::os::IPowerManager::GO_TO_SLEEP_REASON_POWER_BUTTON,0);
++            mPowerManager->wakeUp(long(ns2ms(systemTime())),WAKE_REASON_POWER_BUTTON,
++                            android::String16("enter_self"),android::String16("CellsPrivateService"));
++        }else{
++            SYSTEMPRIVATE_LOGD("mPowerManager = 0");
+         }
+     }
+ 
+@@ -342,18 +333,6 @@ status_t CellsPrivateService::enterCell(const String16& name)
+         }
+     }
+ 
+-    {
+-        android::sp<android::IServiceManager> sm = android::defaultServiceManager();
+-        android::sp<android::os::IPowerManager> mPowerManager = 
+-            android::interface_cast<android::os::IPowerManager>(sm->checkService(android::String16("power")));
+-        if(mPowerManager != NULL){
+-            mPowerManager->wakeUp(long(ns2ms(systemTime())),WAKE_REASON_POWER_BUTTON,
+-                            android::String16("enter_self"),android::String16("CellsPrivateService"));
+-        }else{
+-            SYSTEMPRIVATE_LOGD("mPowerManager = 0");
+-        }
+-    }
+-
+     {
+         property_set("ctl.restart", "adbd");
+     }
+@@ -366,10 +345,8 @@ status_t CellsPrivateService::enterCell(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::exitCell(const String16& name)
++status_t CellsPrivateService::exitCell(const String16& /*name*/)
+ {
+-    name;
+-
+     {
+         write_vm_exit(true);
+         property_set("persist.sys.exit", "1");
+@@ -396,39 +373,28 @@ status_t CellsPrivateService::exitCell(const String16& name)
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::uploadCellsVM(const String16& name)
++status_t CellsPrivateService::uploadCellsVM(const String16& /*name*/)
+ {
+-    name;
+-
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::downloadCellsVM(const String16& name)
++status_t CellsPrivateService::downloadCellsVM(const String16& /*name*/)
+ {
+-    name;
+-
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::untarCellsVM(const String16& name)
++status_t CellsPrivateService::untarCellsVM(const String16& /*name*/)
+ {
+-    name;
+-
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::tarCellsVM(const String16& name)
++status_t CellsPrivateService::tarCellsVM(const String16& /*name*/)
+ {
+-    name;
+-
+     return NO_ERROR;
+ }
+ 
+-status_t CellsPrivateService::sendCellsVM(const String16& path, const String16& address)
++status_t CellsPrivateService::sendCellsVM(const String16& /*path*/, const String16& /*address*/)
+ {
+-    path;
+-    address;
+-
+     return NO_ERROR;
+ }
+ 
+@@ -480,16 +446,40 @@ status_t CellsPrivateService::cfgNetProxy(int32_t sysid, const String16& ifName,
+ status_t CellsPrivateService::vmSystemReady(const String16& name)
+ {
+     char pname[PATH_MAX] = {0};
++    int i = 0;
+ 
+     sprintf(pname, "persist.sys.%s.init",  String8(name).string());
+     property_set(pname, "1");
+ 
+     property_set("ctl.restart", "adbd");
+ 
+-    chown("/dev/sg1", 1000, 1000);
++    sscanf(String8(name).string(), "cell%d",&i);
++    starttether(i);
++
++    //chown("/dev/sg1", 1000, 1000);
+ 
+     SYSTEMPRIVATE_LOGD("SYSTEMREADY name = %s", String8(name).string());
+     return NO_ERROR;
+ }
+ 
++status_t CellsPrivateService::isVMSystemReady(const String16& name)
++{
++    char pname[PATH_MAX] = {0};
++    char value[PROPERTY_VALUE_MAX] = {0};
++
++    status_t ret = 0;
++    if(strcmp(String8(name).string(), "host") == 0){
++        ret = 1;
++    }
++
++    sprintf(pname, "persist.sys.%s.init",  String8(name).string());
++    property_get(pname, value, "0");
++    if(strcmp(String8(value).string(), "1") == 0){
++        ret = 1;
++    }
++
++    SYSTEMPRIVATE_LOGD("ISVMSYSTEMREADY name = %s ret = %d", String8(name).string(), ret);
++    return ret;
++}
++
+ };
+diff --git a/vendor/cells/cellsservice/CellsPrivateService.h b/vendor/cells/cellsservice/CellsPrivateService.h
+index edcf3b5c9b..4045623192 100755
+--- a/vendor/cells/cellsservice/CellsPrivateService.h
++++ b/vendor/cells/cellsservice/CellsPrivateService.h
+@@ -39,6 +39,7 @@ public:
+     virtual status_t vmSystemReady(const String16& name);
+     virtual status_t sendCellsVM(const String16& path, const String16& address);
+     virtual status_t cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop);
++	virtual status_t isVMSystemReady(const String16& name);
+ 
+     int isInCellstar();
+     void setCellstaring();
+diff --git a/vendor/cells/cellsservice/ICellsPrivateService.cpp b/vendor/cells/cellsservice/ICellsPrivateService.cpp
+index 1a6ff6eb35..0a075ebf37 100755
+--- a/vendor/cells/cellsservice/ICellsPrivateService.cpp
++++ b/vendor/cells/cellsservice/ICellsPrivateService.cpp
+@@ -264,6 +264,20 @@ public:
+         result = reply.readInt32();
+         return result;
+     }
++	
++	virtual status_t isVMSystemReady(const String16& name)
++    {
++        Parcel data, reply;
++        data.writeInterfaceToken(ICellsPrivateService::getInterfaceDescriptor());
++        data.writeString16(name);
++        status_t result = remote()->transact(ISVMACTIVE, data, &reply);
++        if (result != NO_ERROR) {
++            ALOGE("isVMSystemReady VM err!\n");
++            return result;
++        }
++        result = reply.readInt32();
++        return result;
++    }
+ };
+ 
+ IMPLEMENT_META_INTERFACE(CellsPrivateService, "CellsPrivateService");
+@@ -445,6 +459,16 @@ status_t BnCellsPrivateService::onTransact(uint32_t code, const Parcel& data, Pa
+             reply->writeInt32(result);
+             return NO_ERROR;
+         }
++        break;
++		case ISVMACTIVE:
++        {
++            CHECK_INTERFACE(ICellsPrivateService, data, reply);
++            String16 name = data.readString16();
++
++            status_t result = isVMSystemReady(name);
++            reply->writeInt32(result);
++            return NO_ERROR;
++        }
+         break;
+     }
+     return BBinder::onTransact(code, data, reply, flags);
+diff --git a/vendor/cells/cellsservice/ICellsPrivateService.h b/vendor/cells/cellsservice/ICellsPrivateService.h
+index acc20322bf..34bd314f29 100755
+--- a/vendor/cells/cellsservice/ICellsPrivateService.h
++++ b/vendor/cells/cellsservice/ICellsPrivateService.h
+@@ -32,6 +32,7 @@ protected:
+         EXITHOST = IBinder::FIRST_CALL_TRANSACTION + 14,
+         SENDCELLSVM = IBinder::FIRST_CALL_TRANSACTION + 15,
+         CFG_NET_PROXY = IBinder::FIRST_CALL_TRANSACTION + 16,
++		ISVMACTIVE = IBinder::FIRST_CALL_TRANSACTION + 17,
+     };
+ 
+ public:
+@@ -54,6 +55,7 @@ public:
+     virtual status_t vmSystemReady(const String16& name) = 0;
+     virtual status_t sendCellsVM(const String16& path, const String16& address) = 0;
+     virtual status_t cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop) = 0;
++	virtual status_t isVMSystemReady(const String16& name) = 0;
+ };
+ 
+ class BnCellsPrivateService : public BnInterface<ICellsPrivateService>
+diff --git a/vendor/cells/cellsservice/cellnet.h b/vendor/cells/cellsservice/cellnet.h
+deleted file mode 100755
+index bcc4e67414..0000000000
+--- a/vendor/cells/cellsservice/cellnet.h
++++ /dev/null
+@@ -1,21 +0,0 @@
+-
+-#ifndef __CELLNET_H
+-#define __CELLNET_H
+-
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
+-
+-extern void init_cell_net();
+-extern void createveth(int index);
+-extern void vethtons(int pid,int index);
+-extern void rnameveth(int index);
+-extern void starttether(int index);
+-extern void stoptether(int index);
+-extern void delveth(int index);
+-
+-#ifdef __cplusplus
+-}
+-#endif
+-
+-#endif /* __CELLNET_H */
+diff --git a/vendor/cells/cellsservice/cellsstart.cpp b/vendor/cells/cellsservice/cellsstart.cpp
+new file mode 100755
+index 0000000000..956a791750
+--- /dev/null
++++ b/vendor/cells/cellsservice/cellsstart.cpp
+@@ -0,0 +1,75 @@
++#define LOG_TAG "CELLSSTART"
++#include <stdio.h>
++#include <sys/socket.h>
++#include <stdlib.h>
++#include <string.h>
++#include <strings.h>
++#include <unistd.h>
++#include <netinet/in.h>
++#include <netdb.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <sys/select.h>
++#include <sys/stat.h>
++#include <sys/time.h>
++#include <sys/types.h>
++#include <cutils/log.h>
++#include <cutils/properties.h>
++#include <binder/BinderService.h>
++#include <android-base/properties.h>
++#include "ICellsPrivateService.h"
++
++using namespace android;
++
++int main(int /*argc*/, char** /*argv*/)
++{
++	property_set("persist.sys.ui.exit", "1");
++	property_set("persist.sys.iw.wlan", "cell1");
++
++	const sp<IServiceManager> sm = defaultServiceManager();
++	sp<ICellsPrivateService> pCellsPrivateService = NULL;
++	if (sm != NULL)
++	{
++		sp<IBinder> binder = sm->checkService(String16("CellsPrivateService"));
++        while(binder == NULL){
++            sleep(1);
++
++            binder = sm->checkService(String16("CellsPrivateService"));
++        }
++
++        pCellsPrivateService = interface_cast<ICellsPrivateService>(binder);
++        if(pCellsPrivateService == NULL){
++            ALOGE("could not get service CellsPrivateService");
++            return 0;
++        }
++	}
++
++	sleep(1);
++
++	if(android::base::GetProperty("persist.sys.cell1.init", "0") == std::string("0"))
++	{
++		ALOGD("Start cell1");
++		pCellsPrivateService->startCellsVM(android::String16("cell1"));
++		ALOGD("Started cell1");
++	}
++
++	property_set("persist.sys.active", "cell1");
++
++	if(android::base::GetProperty("persist.sys.cell2.init", "0") == std::string("0"))
++	{
++		ALOGD("Start cell2");
++		pCellsPrivateService->startCellsVM(android::String16("cell2"));
++		ALOGD("Started cell2");
++	}
++
++	while(android::base::GetProperty("persist.sys.cell1.init", "0") == std::string("0"))
++	{
++		sleep(3);
++	}
++
++	ALOGD("Switch cell1");
++	pCellsPrivateService->switchCellsVM(android::String16("cell1"));
++	ALOGD("Switched cell1");
++
++    return 0;
++}
+diff --git a/vendor/cells/cellsservice/cellssync.cpp b/vendor/cells/cellsservice/cellssync.cpp
+index 752fa0fa9b..14bc56d186 100755
+--- a/vendor/cells/cellsservice/cellssync.cpp
++++ b/vendor/cells/cellsservice/cellssync.cpp
+@@ -8,7 +8,7 @@ using namespace android;
+ 
+ int main(int argc, char** argv)
+ {
+-    /*const sp<IServiceManager> sm = initdefaultServiceManager();
++    const sp<IServiceManager> sm = initdefaultServiceManager();
+     if (sm != NULL) {
+         sp<IBinder> binder = sm->checkService(String16("CellsPrivateService"));
+         if (binder != NULL) {
+@@ -26,7 +26,7 @@ int main(int argc, char** argv)
+                 pCellsPrivateService->setProperty(android::String16(argv[1]),android::String16(argv[2]));
+             }
+         }
+-    }*/
++    }
+ 
+     return 0;
+ }
+diff --git a/vendor/cells/cellsservice/cswitch.cpp b/vendor/cells/cellsservice/cswitch.cpp
+index 5d0d3ef1cb..bc23476900 100755
+--- a/vendor/cells/cellsservice/cswitch.cpp
++++ b/vendor/cells/cellsservice/cswitch.cpp
+@@ -8,7 +8,7 @@ using namespace android;
+ 
+ int main(int argc, char** argv)
+ {
+-   const sp<IServiceManager> sm = defaultServiceManager();
++    const sp<IServiceManager> sm = defaultServiceManager();
+     if (sm != NULL) {
+         sp<IBinder> binder = sm->checkService(String16("CellsPrivateService"));
+         if (binder != NULL) {
+diff --git a/vendor/cells/cellsservice/main_cells.cpp b/vendor/cells/cellsservice/main_cells.cpp
+index af007c3a5c..b93b66e6e8 100755
+--- a/vendor/cells/cellsservice/main_cells.cpp
++++ b/vendor/cells/cellsservice/main_cells.cpp
+@@ -7,11 +7,11 @@
+ #include <binder/BinderService.h>
+ #include <CellsPrivateService.h>
+ 
+-#include "cellnet.h"
++#include "../cells/cellnet.h"
+ 
+ using namespace android;
+ 
+-/*static int get_vm_index()
++static int get_vm_index()
+ {
+ 	int index = 0;
+ 	char value[PROPERTY_VALUE_MAX] = {0};
+@@ -20,7 +20,7 @@ using namespace android;
+ 
+ 	ALOGD("VM Index = %d", index);
+ 	return index;
+-}*/
++}
+ 
+ int main(int /*argc*/, char** /*argv*/)
+ {
+@@ -32,18 +32,28 @@ int main(int /*argc*/, char** /*argv*/)
+ 		//property_set("persist.sys.exit", "0");
+ 		//property_set("persist.sys.active", "");
+ 
+-		property_set("ctl.stop", "vendor.adsprpcd");
+-		property_set("ctl.stop", "vendor.sensors");
++		//property_set("ctl.stop", "vendor.qcrild");
++		//property_set("ctl.stop", "vendor.qcrild2");
++		//property_set("ctl.stop", "vendor.qcrild3");
++		//property_set("ctl.stop", "vendor.adsprpcd");
++		//property_set("ctl.stop", "vendor.sensors");
++
++		property_set("ctl.start", "cellsstart");
+ 	}else{
+-		property_set("ctl.stop", "vendor.adsprpcd");
+-		property_set("ctl.stop", "vendor.sensors");
+-		property_set("ctl.stop", "adbd");
++		//property_set("ctl.stop", "vendor.qcrild");
++		//property_set("ctl.stop", "vendor.qcrild2");
++		//property_set("ctl.stop", "vendor.qcrild3");
++		//property_set("ctl.stop", "vendor.adsprpcd");
++		//property_set("ctl.stop", "vendor.sensors");
++		//property_set("ctl.stop", "adbd");
+ 		//property_set("persist.sys.exit", "1");
+-
+-		/*int i = get_vm_index();
+-		if(i > 0){
+-			rnameveth(i);
+-		}*/
++		
++		int i = get_vm_index();
++		if(i == 1){
++			property_set("persist.sys.cells.netagent", "cell1");
++		}else if (i == 2){
++			property_set("persist.sys.cells.netagent", "cell2");
++		}
+ 	}
+ 
+ 	CellsPrivateService::publishAndJoinThreadPool(true);
+-- 
+2.17.1
+

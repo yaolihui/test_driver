@@ -1,0 +1,84 @@
+From ab7433117bdbe40be92fe36695b8019ac83e7315 Mon Sep 17 00:00:00 2001
+From: tanshuai <tanshuai@xdja.com>
+Date: Sat, 27 Aug 2022 14:23:26 +0800
+Subject: [PATCH 06/11] update Ril: kill phone
+
+---
+ .../native/services/surfaceflinger/SurfaceFlinger.cpp    | 2 +-
+ .../java/com/android/internal/telephony/RILRequest.java  | 9 +++++----
+ system/libhidl/transport/ServiceManagement.cpp           | 1 +
+ .../systemswitch/secure/view/SecureSwitchActivity.java   | 1 +
+ 4 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp b/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+index a3d0afa56e..156e770a1a 100644
+--- a/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -739,7 +739,7 @@ void SurfaceFlinger::bootFinished() {
+     // stop boot animation
+     // formerly we would just kill the process, but we now ask it to exit so it
+     // can choose where to stop the animation.
+-    property_set("service.bootanim.exit", "1");
++    //property_set("service.bootanim.exit", "1");
+ 
+     const int LOGTAG_SF_STOP_BOOTANIM = 60110;
+     LOG_EVENT_LONG(LOGTAG_SF_STOP_BOOTANIM,
+diff --git a/frameworks/opt/telephony/src/java/com/android/internal/telephony/RILRequest.java b/frameworks/opt/telephony/src/java/com/android/internal/telephony/RILRequest.java
+index e261f87e57..544d19007d 100644
+--- a/frameworks/opt/telephony/src/java/com/android/internal/telephony/RILRequest.java
++++ b/frameworks/opt/telephony/src/java/com/android/internal/telephony/RILRequest.java
+@@ -44,7 +44,7 @@ public class RILRequest {
+     private static RILRequest sPool = null;
+     private static int sPoolSize = 0;
+     private static final int MAX_POOL_SIZE = 4;
+-    private static final int MAX_SERIAL_NUM = Integer.MAX_VALUE >> 1; //BIT(31) mark as sysid
++    private static final int MAX_SERIAL_NUM = Integer.MAX_VALUE >> 2; //BIT(31) mark as sysid
+     private static final String sCellName = SystemProperties.get("ro.boot.vm.name", "none");
+     private static int mSysId = -1;
+ 
+@@ -106,14 +106,15 @@ public class RILRequest {
+             } else if ("cell2".equals(sCellName)) {
+                 mSysId = 1;
+             } else {
+-                Rlog.e(LOG_TAG, "CellName " + sCellName + " Error!");
+-                throw new NullPointerException("sCellName is " + sCellName);
++                //Rlog.e(LOG_TAG, "CellName " + sCellName + " Error!");
++                //throw new NullPointerException("sCellName is " + sCellName);
++                mSysId = 2;
+             }
+         }
+ 
+         // Increment serial number. Wrap to 0 when reaching Integer.MAX_VALUE.
+         rr.mSerial = sNextSerial.getAndUpdate(n -> ((n + 1) % MAX_SERIAL_NUM));
+-        rr.mSerial |= (mSysId << 31);
++        rr.mSerial |= (mSysId << 30);
+         rr.mRequest = request;
+         rr.mResult = result;
+ 
+diff --git a/system/libhidl/transport/ServiceManagement.cpp b/system/libhidl/transport/ServiceManagement.cpp
+index 916ffc3850..14dcdebd30 100644
+--- a/system/libhidl/transport/ServiceManagement.cpp
++++ b/system/libhidl/transport/ServiceManagement.cpp
+@@ -91,6 +91,7 @@ static bool getinithidlservice(const char* descriptor)
+         "android.hardware.secure_element",
+         "android.frameworks.sensorservice",
+         "vendor.samsung_slsi.telephony.hardware.radioExternal",
++        "android.hardware.radio",
+         NULL
+     };
+ 
+diff --git a/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java b/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
+index cdfe90ac52..4bbef17bd5 100755
+--- a/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
++++ b/vendor/cells/cellsapp/src/com/cells/systemswitch/secure/view/SecureSwitchActivity.java
+@@ -42,6 +42,7 @@ public class SecureSwitchActivity extends Activity {
+ 			try{
+ 				disableAdapter();
+ 				mCellsService.switchCellsVm("host");
++				//mCellsService.switchCellsVm(name);
+ 			}catch(RuntimeException e){
+ 				e.printStackTrace();
+ 			}
+-- 
+2.17.1
+

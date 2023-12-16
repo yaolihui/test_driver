@@ -1,0 +1,2 @@
+1、adb目录在packages/modules/ 对比合入
+2、cells目录放在vendor目录下，同时需要在devices目录加入编译连接

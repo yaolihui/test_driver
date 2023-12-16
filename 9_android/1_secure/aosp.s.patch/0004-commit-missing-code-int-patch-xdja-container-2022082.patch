@@ -1,0 +1,25 @@
+From 6954f9300cd5b514cea1a2e7a4b36147f3b07377 Mon Sep 17 00:00:00 2001
+From: lxl <lxl@xdja.com>
+Date: Mon, 5 Sep 2022 09:23:46 +0800
+Subject: [PATCH 4/5] commit missing code int patch:xdja-container-20220829
+ from jianglin
+
+---
+ system/core/rootdir/init.rc | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/system/core/rootdir/init.rc b/system/core/rootdir/init.rc
+index a898c16d91..8a370d335d 100644
+--- a/system/core/rootdir/init.rc
++++ b/system/core/rootdir/init.rc
+@@ -459,7 +459,6 @@ on init
+     start servicemanager
+     start hwservicemanager
+     start vndservicemanager
+-    start cellsservice
+ 
+ # Healthd can trigger a full boot from charger mode by signaling this
+ # property when the power button is held.
+-- 
+2.17.1
+

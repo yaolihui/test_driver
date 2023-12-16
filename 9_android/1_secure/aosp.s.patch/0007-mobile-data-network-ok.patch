@@ -1,0 +1,856 @@
+From c8f6808acd8cf85fcbd5cc55ce7c725b55184b0b Mon Sep 17 00:00:00 2001
+From: tanshuai <tanshuai@xdja.com>
+Date: Tue, 30 Aug 2022 00:14:44 +0800
+Subject: [PATCH 07/11]  mobile data network ok
+
+---
+ system/netd/server/NetdNativeService.cpp      |  56 +++-
+ system/netd/server/NetdNativeService.h        |   4 +
+ system/netd/server/virt_net_config.h          |   1 +
+ vendor/cells/cells/Android.mk                 |   1 +
+ vendor/cells/cells/celld.c                    |   5 +
+ vendor/cells/cells/nsexec.c                   |   3 +
+ vendor/cells/cells/virt_net_config.h          | 240 ++++++++++++++++++
+ vendor/cells/cells/virtual_network.c          | 158 ++++++++++++
+ vendor/cells/cells/virtual_network.h          |   8 +
+ vendor/cells/cellsservice/Android.mk          |  13 +
+ .../cellsservice/CellsPrivateService.cpp      |  46 ++++
+ .../cells/cellsservice/CellsPrivateService.h  |   1 +
+ .../cellsservice/ICellsPrivateService.cpp     |  29 +++
+ .../cells/cellsservice/ICellsPrivateService.h |   2 +
+ vendor/cells/cellsservice/cell_cfg_net.cpp    |  42 +++
+ vendor/cells/cellsservice/virt_net_config.h   |   1 +
+ 16 files changed, 608 insertions(+), 2 deletions(-)
+ create mode 120000 system/netd/server/virt_net_config.h
+ create mode 100644 vendor/cells/cells/virt_net_config.h
+ create mode 100644 vendor/cells/cells/virtual_network.c
+ create mode 100644 vendor/cells/cells/virtual_network.h
+ create mode 100755 vendor/cells/cellsservice/cell_cfg_net.cpp
+ create mode 120000 vendor/cells/cellsservice/virt_net_config.h
+
+diff --git a/system/netd/server/NetdNativeService.cpp b/system/netd/server/NetdNativeService.cpp
+index 1f5dc97612..85359f5e4e 100644
+--- a/system/netd/server/NetdNativeService.cpp
++++ b/system/netd/server/NetdNativeService.cpp
+@@ -49,6 +49,7 @@
+ #include "binder_utils/BinderUtil.h"
+ #include "binder_utils/NetdPermissions.h"
+ #include "netid_client.h"  // NETID_UNSET
++#include "virt_net_config.h"
+ 
+ using android::base::StringPrintf;
+ using android::base::WriteStringToFile;
+@@ -170,6 +171,24 @@ bool contains(const Vector<String16>& words, const String16& word) {
+ 
+ }  // namespace
+ 
++int NetdNativeService::CallHostNetworkAddRouteParcel(int sysId, const RouteInfoParcel& route) {
++    char cmd[MAX_CMD_LEN];
++
++    if (route.nextHop.empty()) {
++        snprintf(cmd, sizeof(cmd), "cell_cfg_net %d %s %s",
++            sysId, route.ifName.c_str(),
++            route.destination.c_str());
++    } else {
++        snprintf(cmd, sizeof(cmd), "cell_cfg_net %d %s %s %s",
++            sysId, route.ifName.c_str(),
++            route.destination.c_str(),
++            route.nextHop.c_str());
++    }
++
++    system(cmd);  // NOLINT(cert-env33-c)
++    return 0;
++}
++
+ NetdNativeService::NetdNativeService() {
+     // register log callback to BnNetd::logFunc
+     BnNetd::logFunc = [](const auto& log) {
+@@ -1025,17 +1044,50 @@ binder::Status NetdNativeService::tetherDnsList(std::vector<std::string>* dnsLis
+     return binder::Status::ok();
+ }
+ 
++static int get_sys_id()
++{
++    char prop_value[PROP_VALUE_MAX] = {0};
++    int sys_id = -1; //host
++
++    if (__system_property_get("ro.boot.vm.name", prop_value) > 0) {
++        if (0 == strncmp("cell1", prop_value, strlen("cell1"))) {
++            sys_id = 0;
++        } else if (0 == strncmp("cell2", prop_value, strlen("cell2"))) {
++            sys_id = 1;
++        }
++    }
++    return sys_id;
++}
++
+ binder::Status NetdNativeService::networkAddRouteParcel(int32_t netId,
+                                                         const RouteInfoParcel& route) {
+     // Public methods of NetworkController are thread-safe.
+     ENFORCE_NETWORK_STACK_PERMISSIONS();
+     bool legacy = false;
+     uid_t uid = 0;  // UID is only meaningful for legacy routes.
++    int sys_id = get_sys_id();
++    const char *gw = nullptr;
++    char cmd[MAX_CMD_LEN];
++
++    if (-1 != sys_id) {
++        //cells
++        //config vnet ip
++        snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up",
++            route.ifName.c_str(),
++            get_vnet_ip(sys_id, route.ifName.c_str()),
++            get_vnet_mask(sys_id, route.ifName.c_str()));
++        system(cmd);  // NOLINT(cert-env33-c)
++        //config host route
++        CallHostNetworkAddRouteParcel(sys_id, route);
++        //map gw
++        gw = get_vnet_gw(sys_id, route.ifName.c_str());
++    } else {
++        gw = route.nextHop.empty() ? nullptr : route.nextHop.c_str();
++    }
+ 
+     // convert Parcel to parameters
+     int res = gCtls->netCtrl.addRoute(netId, route.ifName.c_str(), route.destination.c_str(),
+-                                      route.nextHop.empty() ? nullptr : route.nextHop.c_str(),
+-                                      legacy, uid, route.mtu);
++                                      gw, legacy, uid, route.mtu);
+     return statusFromErrcode(res);
+ }
+ 
+diff --git a/system/netd/server/NetdNativeService.h b/system/netd/server/NetdNativeService.h
+index 9779f3680a..43eb842e87 100644
+--- a/system/netd/server/NetdNativeService.h
++++ b/system/netd/server/NetdNativeService.h
+@@ -24,6 +24,8 @@
+ 
+ #include "android/net/BnNetd.h"
+ 
++#define NETD_SERVICE
++
+ namespace android {
+ namespace net {
+ 
+@@ -80,6 +82,8 @@ class NetdNativeService : public BinderService<NetdNativeService>, public BnNetd
+             const netd::aidl::NativeUidRangeConfig& uidRangesConfig) override;
+     binder::Status networkRejectNonSecureVpn(bool enable,
+                                              const std::vector<UidRangeParcel>& uids) override;
++    //op: 0--add 1--update 2--remove
++    int CallHostNetworkAddRouteParcel(int sysid, const RouteInfoParcel& route);
+     binder::Status networkAddRouteParcel(int32_t netId, const RouteInfoParcel& route) override;
+     binder::Status networkUpdateRouteParcel(int32_t netId, const RouteInfoParcel& route) override;
+     binder::Status networkRemoveRouteParcel(int32_t netId, const RouteInfoParcel& route) override;
+diff --git a/system/netd/server/virt_net_config.h b/system/netd/server/virt_net_config.h
+new file mode 120000
+index 0000000000..c17fbce5ad
+--- /dev/null
++++ b/system/netd/server/virt_net_config.h
+@@ -0,0 +1 @@
++../../../vendor/cells/cells/virt_net_config.h
+\ No newline at end of file
+diff --git a/vendor/cells/cells/Android.mk b/vendor/cells/cells/Android.mk
+index 93321f0c88..49596da697 100755
+--- a/vendor/cells/cells/Android.mk
++++ b/vendor/cells/cells/Android.mk
+@@ -42,6 +42,7 @@ LOCAL_SRC_FILES:= \
+ 	network.c \
+ 	cellnet.c \
+ 	array.c \
++	virtual_network.c
+ 
+ LOCAL_MODULE := celld
+ LOCAL_MODULE_TAGS := optional
+diff --git a/vendor/cells/cells/celld.c b/vendor/cells/cells/celld.c
+index 4fe4eac858..588c0cee89 100755
+--- a/vendor/cells/cells/celld.c
++++ b/vendor/cells/cells/celld.c
+@@ -62,6 +62,8 @@
+ #include "nsexec.h"
+ #include "util.h"
+ 
++#include "virtual_network.h"
++
+ #define CELLS_MAX_CONTEXT 6
+ 
+ static void set_properties_cells(char *name,char* v)
+@@ -2684,6 +2686,9 @@ static void celld_main(void)
+ 	socklen_t addr_len;
+ 	pthread_t tid;
+ 
++	//gwb add for host vnet init
++	onHostStart();
++
+ 	sd = socket(AF_UNIX, SOCK_STREAM, 0);
+ 	if (sd == -1) {
+ 		ALOGE("socket() failed: %s", strerror(errno));
+diff --git a/vendor/cells/cells/nsexec.c b/vendor/cells/cells/nsexec.c
+index 83f6b41ce7..ffb6ffc6e4 100755
+--- a/vendor/cells/cells/nsexec.c
++++ b/vendor/cells/cells/nsexec.c
+@@ -54,6 +54,7 @@
+ #include "util.h"
+ #include "network.h"
+ #include "cellnet.h"
++#include "virtual_network.h"
+ 
+ #ifndef MNT_DETACH
+ #define MNT_DETACH 2
+@@ -645,6 +646,8 @@ static int do_clone(struct cell_args *cell_args)
+ 	if (gettimeofday(&cell_args->start_time, NULL) == -1)
+ 		ALOGE("%s: gettimeofday failed: %s", __func__, strerror(errno));
+ 
++	//gwb add for virt net
++	onVsysStart(cell_args->cellname, pid);
+ 	/*
+ 	 * Put the new process in a cgroup if requested.
+ 	 * Note that the child will block until we release it with a write
+diff --git a/vendor/cells/cells/virt_net_config.h b/vendor/cells/cells/virt_net_config.h
+new file mode 100644
+index 0000000000..01785566ca
+--- /dev/null
++++ b/vendor/cells/cells/virt_net_config.h
+@@ -0,0 +1,240 @@
++#ifndef _VIRT_NET_CONFIG_H_
++#define _VIRT_NET_CONFIG_H_
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <string.h>
++#include <stdio.h>
++
++/***********************************虚拟网络相关定义*******************************/
++
++#define MAX_SYS_NUM 2
++#define MAX_VETH_NAME_LEN (30)
++#define MAX_PATH_LEN (256)
++#define MAX_CMD_LEN (256)
++#define BIT(n)  (1 << (n))
++
++#define NET_RICH_ENABLE   BIT(0)
++#define NET_SAFE_ENABLE   BIT(1)
++#define NET_BOTH_ENABLE (NET_RICH_ENABLE | NET_SAFE_ENABLE)
++
++#define VNET_FWMARK_BASE    0xFF001
++#define VNET_HOST_RT_BASE     6001
++#define VNET_RT_BASE     5001
++#define VNET_RT_RULE_PRIO_BASE 5001
++
++#define VETH_TMP_SUFFIX "_tmp"
++
++typedef unsigned int uint32_t;
++typedef int int32_t;
++
++typedef struct _vsys_net_t {
++    const char *virt_name;
++    const char *host_ip;
++    const char *local_ip;
++    const char *mask;
++    uint32_t fwmark;
++    int32_t rt_id;
++    uint32_t rl_prio;
++} vsys_net_t;
++
++typedef struct _virtual_net_t {
++    const char *ifname;
++    uint32_t flag; //标识网络有效域：NET_RICH_ENABLE、NET_SAFE_ENABLE
++    int32_t host_rt;
++    vsys_net_t vnet_info[MAX_SYS_NUM];
++} virtual_net_t;
++
++#define DEFINE_VSYS_NET(vname, hip, lip, mask, idx) {(vname), (hip), (lip), mask, VNET_FWMARK_BASE+(idx), VNET_RT_BASE+(idx), VNET_RT_RULE_PRIO_BASE+(idx)}
++
++
++#define DEFINE_VIRTUAL_NET(ifname, flag, host_rt, vsys1, vsys2) \
++    {(ifname), (flag), (host_rt + VNET_HOST_RT_BASE), {vsys1, vsys2}}
++
++/********************************************************************************************************/
++
++//后续考虑采用配置文件的形式，方便移植和业务隐藏
++static virtual_net_t g_virt_net[] = {
++    DEFINE_VIRTUAL_NET("rmnet0", NET_BOTH_ENABLE, 0, 
++        DEFINE_VSYS_NET("rmnet0_v1", "172.20.202.5", "172.20.202.6",  "255.255.255.252", 0),
++        DEFINE_VSYS_NET("rmnet0_v2", "172.20.202.9", "172.20.202.10", "255.255.255.252", 1)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet1", NET_BOTH_ENABLE, 1,
++        DEFINE_VSYS_NET("rmnet1_v1", "172.20.202.13", "172.20.202.14", "255.255.255.252", 2),
++        DEFINE_VSYS_NET("rmnet1_v2", "172.20.202.17", "172.20.202.18", "255.255.255.252", 3)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet2", NET_BOTH_ENABLE, 2,
++        DEFINE_VSYS_NET("rmnet2_v1", "172.20.202.21", "172.20.202.22", "255.255.255.252", 4),
++        DEFINE_VSYS_NET("rmnet2_v2", "172.20.202.25", "172.20.202.26", "255.255.255.252", 5)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet3", NET_BOTH_ENABLE, 3,
++        DEFINE_VSYS_NET("rmnet3_v1", "172.20.202.29", "172.20.202.30", "255.255.255.252", 6),
++        DEFINE_VSYS_NET("rmnet3_v2", "172.20.202.33", "172.20.202.34", "255.255.255.252", 7)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet4", NET_BOTH_ENABLE, 4,
++        DEFINE_VSYS_NET("rmnet4_v1", "172.20.202.37", "172.20.202.38", "255.255.255.252", 8),
++        DEFINE_VSYS_NET("rmnet4_v2", "172.20.202.41", "172.20.202.42", "255.255.255.252", 9)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet5", NET_BOTH_ENABLE, 5,
++        DEFINE_VSYS_NET("rmnet5_v1", "172.20.202.45", "172.20.202.46", "255.255.255.252", 10),
++        DEFINE_VSYS_NET("rmnet5_v2", "172.20.202.49", "172.20.202.50", "255.255.255.252", 11)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet6", NET_BOTH_ENABLE, 6,
++        DEFINE_VSYS_NET("rmnet6_v1", "172.20.202.53", "172.20.202.54", "255.255.255.252", 12),
++        DEFINE_VSYS_NET("rmnet6_v2", "172.20.202.57", "172.20.202.58", "255.255.255.252", 13)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet7", NET_BOTH_ENABLE, 7,
++        DEFINE_VSYS_NET("rmnet7_v1", "172.20.202.61", "172.20.202.62", "255.255.255.252", 14),
++        DEFINE_VSYS_NET("rmnet7_v2", "172.20.202.65", "172.20.202.66", "255.255.255.252", 15)
++    ),
++    DEFINE_VIRTUAL_NET("rmnet8", NET_BOTH_ENABLE, 8,
++        DEFINE_VSYS_NET("rmnet8_v1", "172.20.202.69", "172.20.202.70", "255.255.255.252", 16),
++        DEFINE_VSYS_NET("rmnet8_v2", "172.20.202.73", "172.20.202.74", "255.255.255.252", 17)
++    ),
++    DEFINE_VIRTUAL_NET(NULL, NET_BOTH_ENABLE, -1,
++        DEFINE_VSYS_NET(NULL, NULL, NULL, NULL, 0),
++        DEFINE_VSYS_NET(NULL, NULL, NULL, NULL, 0)
++    ),
++};
++
++static virtual_net_t *get_vnet(const char *ifname)
++{
++    virtual_net_t *vnet = NULL;
++
++    if (NULL == ifname) {
++        return NULL;
++    }
++
++    for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++        vnet = &g_virt_net[i];
++        if (0 == strcmp(ifname, vnet->ifname)) {
++            return vnet;
++        }
++    }
++
++    return NULL;
++}
++
++static vsys_net_t *get_vnet_info(int sys, const char *ifname)
++{
++    virtual_net_t *vnet = NULL;
++
++    if (sys < 0 || sys >= MAX_SYS_NUM || NULL == ifname) {
++        return NULL;
++    }
++
++    vnet = get_vnet(ifname);
++    if (NULL == vnet) {
++        return NULL;
++    }
++
++    return &vnet->vnet_info[sys];
++}
++
++static const char *get_vnet_ip(int sys, const char *ifname)
++{
++    vsys_net_t *p = get_vnet_info(sys, ifname);
++    if (NULL != p) {
++        return p->local_ip;
++    }
++
++    return NULL;
++}
++
++#if 0
++static inline void ip_mask_to_segment(const char *ip, int mask, char *segment)
++{
++    int ip_int = 0;
++    unsigned char *p = (unsigned char *)&ip_int;
++	inet_pton(AF_INET, ip, &ip_int);
++    p[3] = p[3] - 1;
++    sprintf(segment, "%d.%d.%d.%d/%d", p[0], p[1], p[2], p[3], mask);
++}
++
++//返回类似172.20.202.4/30网段地址---不需要，虚拟系统添加main表路由后也可自动获取
++static int get_vnet_segment(int sys, const char *ifname, char *segment)
++{
++
++    vsys_net_t *p = get_vnet_info(sys, ifname);
++    if (NULL == p) {
++        return -1;
++    }
++
++    ip_mask_to_segment(p->host_ip, 30, segment);
++
++
++    return 0;
++}
++#endif
++
++static const char *get_vnet_mask(int sys, const char *ifname)
++{
++    vsys_net_t *p = get_vnet_info(sys, ifname);
++    if (NULL != p) {
++        return p->mask;
++    }
++
++    return NULL;
++}
++
++static const char *get_vnet_gw(int sys, const char *ifname)
++{
++    vsys_net_t *p = get_vnet_info(sys, ifname);
++    if (NULL != p) {
++        return p->host_ip;
++    }
++
++    return NULL;
++}
++
++
++
++#ifndef NETD_SERVICE
++static int32_t get_vnet_rt_table(int sys, const char *ifname)
++{
++    vsys_net_t *p = get_vnet_info(sys, ifname);
++    if (NULL != p) {
++        return (int32_t)p->rt_id;
++    }
++
++    return -1;
++}
++
++static int32_t get_vnet_netid(int sys, const char *ifname)
++{
++    return get_vnet_rt_table(sys, ifname);
++}
++
++static virtual_net_t *get_vnet_info_by_netid(int net_id, int *sysId)
++{
++    virtual_net_t *vnet = NULL;
++
++    for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++        vnet = &g_virt_net[i];
++        if (net_id == vnet->vnet_info[0].rt_id) {
++            *sysId = 0;
++            return vnet;
++        }
++
++        if (net_id == vnet->vnet_info[1].rt_id) {
++            *sysId = 1;
++            return vnet;
++        }
++    }
++
++    return NULL;
++}
++
++
++static int32_t get_host_rt_table(const char *ifname)
++{
++    virtual_net_t *p = get_vnet(ifname);
++    if (NULL != p) {
++        return p->host_rt;
++    }
++
++    return -1;
++}
++#endif
++#endif
+\ No newline at end of file
+diff --git a/vendor/cells/cells/virtual_network.c b/vendor/cells/cells/virtual_network.c
+new file mode 100644
+index 0000000000..608311df9e
+--- /dev/null
++++ b/vendor/cells/cells/virtual_network.c
+@@ -0,0 +1,158 @@
++
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <string.h>
++#include <stdio.h>
++#include "network.h"
++#include "virt_net_config.h"
++#include "virtual_network.h"
++
++#define LOG_TAG "VIRTNET"
++#include <cutils/log.h>
++
++#define VNET_ERR ALOGE
++
++static int create_vnet(virtual_net_t *vnet, int sys)
++{
++    int ret = 0;
++
++    if (NULL == vnet || sys >= MAX_SYS_NUM) {
++        return -1;
++    }
++
++    const char *name1 = vnet->vnet_info[sys].virt_name;
++    char name2[MAX_VETH_NAME_LEN];
++
++    if (sizeof(name2) <= snprintf(name2, sizeof(name2), "%s%s", name1, VETH_TMP_SUFFIX)) {
++        VNET_ERR("[create_vnet] name=%s is out of bonds!\n", name1);
++        ret |= (1 << sys);
++    }
++
++    if (0 != veth_peer_create(name1, name2)) {
++        VNET_ERR("[create_vnet] veth_peer_create(%s, %s) Fail!\n", name1, name2);
++        ret |= (2 << sys);
++    } 
++
++    return ret;
++}
++
++int create_vnet_all(int sys)
++{
++    int ret = 0;
++    for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++        ret |= create_vnet(&g_virt_net[i], sys);
++    }
++    return ret;
++}
++
++int config_vnet_host_all(int sys)
++{
++    int ret = 0;
++    char cmd[MAX_CMD_LEN];
++    virtual_net_t *vnet = NULL;
++
++    for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++        vnet = &g_virt_net[i];
++        //配置IP
++        snprintf(cmd, sizeof(cmd), "ifconfig %s %s netmask %s up", 
++            vnet->vnet_info[sys].virt_name,
++            vnet->vnet_info[sys].host_ip,
++            vnet->vnet_info[sys].mask);
++        system(cmd);
++    }
++    return ret;
++}
++
++int move_vnet_all(int sys, pid_t pid)
++{
++    const char *name1 = NULL;
++    char *name2[MAX_VETH_NAME_LEN];
++    virtual_net_t *vnet = NULL;
++    int ret = 0;
++
++    for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++        vnet = &g_virt_net[i];
++        name1 = vnet->vnet_info[sys].virt_name;
++        if (sizeof(name2) <= snprintf((char *)name2, sizeof(name2), "%s%s", name1, VETH_TMP_SUFFIX)) {
++            VNET_ERR("[create_vnet] name=%s is out of bonds!\n", name1);
++            ret |= (1 << sys);
++        }
++
++        ret |= netdev_move_to_netns((const char*)&name2, pid, vnet->ifname);
++    }
++    return ret;
++}
++
++int onHostStart()
++{
++    int ret = 0;
++    char cmd[MAX_CMD_LEN];
++    virtual_net_t *vnet = NULL;
++
++
++    system("iptables -t raw -F");
++    system("iptables -t mangle -F");
++    system("iptables -t filter -F");
++    system("iptables -t nat -F");
++
++    //AOSP上缺少main表规则
++    snprintf(cmd, sizeof(cmd), "ip rule add from all lookup main prio 31999");
++    system(cmd);
++
++    //静态配置，只需在host启动时执行一次即可-->后续可作为oneshot服务，在rc中启动一次即可
++    for (int sys = 0; sys < MAX_SYS_NUM; sys++) {
++        for (int i = 0; NULL != g_virt_net[i].ifname; i++) {
++            vnet = &g_virt_net[i];
++            //配置FWMARK
++            snprintf(cmd, sizeof(cmd), "iptables -t mangle -I PREROUTING -s %s/30 -j MARK --set-mark 0x%x", 
++                vnet->vnet_info[sys].host_ip,
++                vnet->vnet_info[sys].fwmark);
++            system(cmd);
++            //配置MASQUERADE
++            snprintf(cmd, sizeof(cmd), "iptables -t nat -I POSTROUTING -m mark --mark 0x%x -o %s -j MASQUERADE", 
++                vnet->vnet_info[sys].fwmark,
++                vnet->ifname);
++            system(cmd);
++            //配置rule
++  
++            if (0 == sys) {
++                snprintf(cmd, sizeof(cmd), "ip rule add from all iif lo oif %s lookup %d prio %d", 
++                        vnet->ifname,
++                        vnet->host_rt,
++                        vnet->vnet_info[sys].rl_prio);
++                system(cmd);
++            }
++
++            snprintf(cmd, sizeof(cmd), "ip rule add iif %s table %d prio %d", 
++                vnet->vnet_info[sys].virt_name,
++                vnet->vnet_info[sys].rt_id,
++                vnet->vnet_info[sys].rl_prio);
++            system(cmd);
++        }
++    }
++
++    return ret;
++}
++
++int onVsysStart(const char *sysname, pid_t pid)
++{
++    int ret = 0;
++    int sys = 0;
++
++    sscanf(sysname, "cell%d", &sys);
++
++    if (sys > MAX_SYS_NUM || sys < 1) {
++        VNET_ERR("[onVsysStart] sysname=%s is invalide!\n", sysname);
++    }
++    sys -= 1;
++
++    ret = create_vnet_all(sys);
++    ret |= config_vnet_host_all(sys);
++    ret |= move_vnet_all(sys, pid);
++
++    return ret;
++}
++
++
+diff --git a/vendor/cells/cells/virtual_network.h b/vendor/cells/cells/virtual_network.h
+new file mode 100644
+index 0000000000..12584bc39f
+--- /dev/null
++++ b/vendor/cells/cells/virtual_network.h
+@@ -0,0 +1,8 @@
++
++#ifndef _VIRTUAL_NETWORK_H_
++#define _VIRTUAL_NETWORK_H_
++
++extern int onVsysStart(const char *sysname, pid_t pid);
++extern int onHostStart();
++
++#endif
+\ No newline at end of file
+diff --git a/vendor/cells/cellsservice/Android.mk b/vendor/cells/cellsservice/Android.mk
+index 58fa006bc8..ae4b73406c 100755
+--- a/vendor/cells/cellsservice/Android.mk
++++ b/vendor/cells/cellsservice/Android.mk
+@@ -66,3 +66,16 @@ LOCAL_SHARED_LIBRARIES := libm libcutils libc libutils liblog
+ include $(BUILD_EXECUTABLE)
+ 
+ 
++#cfg net
++include $(CLEAR_VARS)
++
++LOCAL_SRC_FILES := \
++	cell_cfg_net.cpp \
++	ICellsPrivateService.cpp
++
++LOCAL_MODULE:= cell_cfg_net
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE_OWNER := cells
++#LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT_SBIN)
++LOCAL_SHARED_LIBRARIES := libm libcutils libc libbinder libutils liblog
++include $(BUILD_EXECUTABLE)
+\ No newline at end of file
+diff --git a/vendor/cells/cellsservice/CellsPrivateService.cpp b/vendor/cells/cellsservice/CellsPrivateService.cpp
+index 60a664df9b..6b25664673 100755
+--- a/vendor/cells/cellsservice/CellsPrivateService.cpp
++++ b/vendor/cells/cellsservice/CellsPrivateService.cpp
+@@ -20,6 +20,7 @@
+ 
+ #include <android/os/IPowerManager.h>
+ #include <powermanager/PowerManager.h>
++#include "virt_net_config.h"
+ 
+ namespace android {
+ 
+@@ -431,6 +432,51 @@ status_t CellsPrivateService::sendCellsVM(const String16& path, const String16&
+     return NO_ERROR;
+ }
+ 
++std::string toStdString(const String16& s) {
++    return std::string(String8(s.string()));
++}
++
++
++static int cfg_host_rt(int32_t sysid, const char* ifName, const char* dest, const char* nexthop)
++{
++    char cmd[MAX_CMD_LEN];
++    virtual_net_t *vnet = get_vnet(ifName);
++    if (NULL == vnet) {
++        return -1;
++    }
++
++    //配置物理路由
++    if (strcmp("NONE", nexthop) == 0) {
++        snprintf(cmd, sizeof(cmd), "ip route add table %d %s dev %s",
++            vnet->host_rt, dest, ifName);
++    } else {
++        snprintf(cmd, sizeof(cmd), "ip route add table %d %s via %s dev %s",
++            vnet->host_rt, dest, nexthop, ifName);
++    }
++
++    ALOGD("cfg_host_rt %s", cmd);
++    system(cmd);
++
++    //配置虚拟网卡路由
++    if (strcmp("NONE", nexthop) == 0) {
++        snprintf(cmd, sizeof(cmd), "ip route add table %d %s dev %s",
++            vnet->vnet_info[sysid].rt_id, dest, ifName);
++    } else {
++        snprintf(cmd, sizeof(cmd), "ip route add table %d %s via %s dev %s",
++            vnet->vnet_info[sysid].rt_id, dest, nexthop, ifName);
++    }
++
++    ALOGD("cfg_host_rt %s", cmd);
++    system(cmd);
++    return 0;
++}
++
++status_t CellsPrivateService::cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop)
++{
++    cfg_host_rt(sysid, toStdString(ifName).c_str(), toStdString(dest).c_str(), toStdString(nexthop).c_str());
++    return NO_ERROR;
++}
++
+ status_t CellsPrivateService::vmSystemReady(const String16& name)
+ {
+     char pname[PATH_MAX] = {0};
+diff --git a/vendor/cells/cellsservice/CellsPrivateService.h b/vendor/cells/cellsservice/CellsPrivateService.h
+index 87c7ec71ae..edcf3b5c9b 100755
+--- a/vendor/cells/cellsservice/CellsPrivateService.h
++++ b/vendor/cells/cellsservice/CellsPrivateService.h
+@@ -38,6 +38,7 @@ public:
+     virtual status_t tarCellsVM(const String16& name);
+     virtual status_t vmSystemReady(const String16& name);
+     virtual status_t sendCellsVM(const String16& path, const String16& address);
++    virtual status_t cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop);
+ 
+     int isInCellstar();
+     void setCellstaring();
+diff --git a/vendor/cells/cellsservice/ICellsPrivateService.cpp b/vendor/cells/cellsservice/ICellsPrivateService.cpp
+index 66c2c93e62..1a6ff6eb35 100755
+--- a/vendor/cells/cellsservice/ICellsPrivateService.cpp
++++ b/vendor/cells/cellsservice/ICellsPrivateService.cpp
+@@ -247,6 +247,23 @@ public:
+         result = reply.readInt32();
+         return result;
+     }
++
++    virtual status_t cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop)
++    {
++        Parcel data, reply;
++        data.writeInterfaceToken(ICellsPrivateService::getInterfaceDescriptor());
++        data.writeInt32(sysid);
++        data.writeString16(ifName);
++        data.writeString16(dest);
++        data.writeString16(nexthop);
++        status_t result = remote()->transact(CFG_NET_PROXY, data, &reply);
++        if (result != NO_ERROR) {
++            ALOGE("cfgNetProxy err!\n");
++            return result;
++        }
++        result = reply.readInt32();
++        return result;
++    }
+ };
+ 
+ IMPLEMENT_META_INTERFACE(CellsPrivateService, "CellsPrivateService");
+@@ -417,6 +434,18 @@ status_t BnCellsPrivateService::onTransact(uint32_t code, const Parcel& data, Pa
+             return NO_ERROR;
+         }
+         break;
++        case CFG_NET_PROXY:
++        {
++            CHECK_INTERFACE(ICellsPrivateService, data, reply);
++            int32_t sys = data.readInt32();
++            String16 ifname = data.readString16();
++            String16 dest = data.readString16();
++            String16 nexthop = data.readString16();
++            status_t result = cfgNetProxy(sys, ifname, dest, nexthop);
++            reply->writeInt32(result);
++            return NO_ERROR;
++        }
++        break;
+     }
+     return BBinder::onTransact(code, data, reply, flags);
+ }
+diff --git a/vendor/cells/cellsservice/ICellsPrivateService.h b/vendor/cells/cellsservice/ICellsPrivateService.h
+index 49c2bc06fd..acc20322bf 100755
+--- a/vendor/cells/cellsservice/ICellsPrivateService.h
++++ b/vendor/cells/cellsservice/ICellsPrivateService.h
+@@ -31,6 +31,7 @@ protected:
+         EXITCELL = IBinder::FIRST_CALL_TRANSACTION + 13,
+         EXITHOST = IBinder::FIRST_CALL_TRANSACTION + 14,
+         SENDCELLSVM = IBinder::FIRST_CALL_TRANSACTION + 15,
++        CFG_NET_PROXY = IBinder::FIRST_CALL_TRANSACTION + 16,
+     };
+ 
+ public:
+@@ -52,6 +53,7 @@ public:
+     virtual status_t tarCellsVM(const String16& name) = 0;
+     virtual status_t vmSystemReady(const String16& name) = 0;
+     virtual status_t sendCellsVM(const String16& path, const String16& address) = 0;
++    virtual status_t cfgNetProxy(int32_t sysid, const String16& ifName, const String16& dest, const String16& nexthop) = 0;
+ };
+ 
+ class BnCellsPrivateService : public BnInterface<ICellsPrivateService>
+diff --git a/vendor/cells/cellsservice/cell_cfg_net.cpp b/vendor/cells/cellsservice/cell_cfg_net.cpp
+new file mode 100755
+index 0000000000..81a7285706
+--- /dev/null
++++ b/vendor/cells/cellsservice/cell_cfg_net.cpp
+@@ -0,0 +1,42 @@
++#define LOG_TAG "CELL_CFG_NET"
++
++#include <cutils/log.h>
++#include <binder/BinderService.h>
++#include "ICellsPrivateService.h"
++
++using namespace android;
++
++int main(int argc, char** argv)
++{
++    sp<ICellsPrivateService> pCellsPrivateService = NULL;
++    const sp<IServiceManager> sm = initdefaultServiceManager();
++    if (sm != NULL) {
++        sp<IBinder> binder = sm->checkService(String16("CellsPrivateService"));
++        if (binder != NULL) {
++            pCellsPrivateService = interface_cast<ICellsPrivateService>(binder);
++        }
++    }
++
++    if(pCellsPrivateService == NULL) {
++        ALOGE("could not get service CellsPrivateService \n");
++        return 0;
++    }
++
++    if (argc < 4) {
++        ALOGE("use cell_cfg_net sysId ifName dest nexthop \n");
++    }
++
++    int sysId = atoi(argv[1]);
++    char *ifName = argv[2];
++    char *dest = argv[3];
++    char *nexthop = "NONE";
++
++    if (argc == 5) {
++        nexthop = argv[4];
++    }
++        
++    ALOGD("call cfgNetProxy(%d, %s, %s, %s)", sysId, ifName, dest, nexthop);
++    pCellsPrivateService->cfgNetProxy(sysId, android::String16(ifName), android::String16(dest), android::String16(nexthop));
++
++    return 0;
++}
+diff --git a/vendor/cells/cellsservice/virt_net_config.h b/vendor/cells/cellsservice/virt_net_config.h
+new file mode 120000
+index 0000000000..675a0e999d
+--- /dev/null
++++ b/vendor/cells/cellsservice/virt_net_config.h
+@@ -0,0 +1 @@
++../cells/virt_net_config.h
+\ No newline at end of file
+-- 
+2.17.1
+

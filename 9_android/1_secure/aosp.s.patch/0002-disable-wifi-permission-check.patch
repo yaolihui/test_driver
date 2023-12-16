@@ -1,0 +1,737 @@
+From 8606e16ad4497c954e43e966fee9672a989c1622 Mon Sep 17 00:00:00 2001
+From: ngf <ngf@xdja.com>
+Date: Wed, 17 Aug 2022 19:31:58 +0800
+Subject: [PATCH 02/11] disable wifi permission check
+
+---
+ .../android/server/wifi/WifiServiceImpl.java  | 100 ++++++-----
+ .../server/wifi/util/WifiPermissionsUtil.java | 167 ++++++++++--------
+ 2 files changed, 152 insertions(+), 115 deletions(-)
+ mode change 100644 => 100755 packages/modules/Wifi/service/java/com/android/server/wifi/WifiServiceImpl.java
+ mode change 100644 => 100755 packages/modules/Wifi/service/java/com/android/server/wifi/util/WifiPermissionsUtil.java
+
+diff --git a/packages/modules/Wifi/service/java/com/android/server/wifi/WifiServiceImpl.java b/packages/modules/Wifi/service/java/com/android/server/wifi/WifiServiceImpl.java
+old mode 100644
+new mode 100755
+index 24944c0850..d4e92cb64b
+--- a/packages/modules/Wifi/service/java/com/android/server/wifi/WifiServiceImpl.java
++++ b/packages/modules/Wifi/service/java/com/android/server/wifi/WifiServiceImpl.java
+@@ -702,28 +702,33 @@ public class WifiServiceImpl extends BaseWifiService {
+     }
+ 
+     private boolean checkNetworkSettingsPermission(int pid, int uid) {
+-        return mContext.checkPermission(android.Manifest.permission.NETWORK_SETTINGS, pid, uid)
+-                == PERMISSION_GRANTED;
++        /*return mContext.checkPermission(android.Manifest.permission.NETWORK_SETTINGS, pid, uid)
++                == PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     private boolean checkNetworkSetupWizardPermission(int pid, int uid) {
+-        return mContext.checkPermission(android.Manifest.permission.NETWORK_SETUP_WIZARD, pid, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++        /*return mContext.checkPermission(android.Manifest.permission.NETWORK_SETUP_WIZARD, pid, uid)
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     private boolean checkMainlineNetworkStackPermission(int pid, int uid) {
+-        return mContext.checkPermission(NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, pid, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++        /*return mContext.checkPermission(NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, pid, uid)
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     private boolean checkNetworkStackPermission(int pid, int uid) {
+-        return mContext.checkPermission(android.Manifest.permission.NETWORK_STACK, pid, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++        /*return mContext.checkPermission(android.Manifest.permission.NETWORK_STACK, pid, uid)
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     private boolean checkNetworkManagedProvisioningPermission(int pid, int uid) {
+-        return mContext.checkPermission(android.Manifest.permission.NETWORK_MANAGED_PROVISIONING,
+-                pid, uid) == PackageManager.PERMISSION_GRANTED;
++        /*return mContext.checkPermission(android.Manifest.permission.NETWORK_MANAGED_PROVISIONING,
++                pid, uid) == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+@@ -731,17 +736,19 @@ public class WifiServiceImpl extends BaseWifiService {
+      * permissions.
+      */
+     private boolean isPrivileged(int pid, int uid) {
+-        return checkNetworkSettingsPermission(pid, uid)
++        /*return checkNetworkSettingsPermission(pid, uid)
+                 || checkNetworkSetupWizardPermission(pid, uid)
+                 || checkNetworkStackPermission(pid, uid)
+                 || checkNetworkManagedProvisioningPermission(pid, uid)
+-                || isSignedWithPlatformKey(uid);
++                || isSignedWithPlatformKey(uid);*/
++		return true;
+     }
+ 
+     /** Whether the uid is signed with the same key as the platform. */
+     private boolean isSignedWithPlatformKey(int uid) {
+-        return mContext.getPackageManager().checkSignatures(uid, Process.SYSTEM_UID)
+-                == PackageManager.SIGNATURE_MATCH;
++        /*return mContext.getPackageManager().checkSignatures(uid, Process.SYSTEM_UID)
++                == PackageManager.SIGNATURE_MATCH;*/
++		return true;
+     }
+ 
+     /**
+@@ -749,57 +756,59 @@ public class WifiServiceImpl extends BaseWifiService {
+      * permissions.
+      */
+     private boolean isSettingsOrSuw(int pid, int uid) {
+-        return checkNetworkSettingsPermission(pid, uid)
+-                || checkNetworkSetupWizardPermission(pid, uid);
++        //return checkNetworkSettingsPermission(pid, uid)
++        //        || checkNetworkSetupWizardPermission(pid, uid);
++		return true;
+     }
+ 
+     /** Helper method to check if the entity initiating the binder call is a DO/PO app. */
+     private boolean isDeviceOrProfileOwner(int uid, String packageName) {
+-        return mWifiPermissionsUtil.isDeviceOwner(uid, packageName)
+-                || mWifiPermissionsUtil.isProfileOwner(uid, packageName);
++        //return mWifiPermissionsUtil.isDeviceOwner(uid, packageName)
++        //        || mWifiPermissionsUtil.isProfileOwner(uid, packageName);
++		return true;
+     }
+ 
+     private void enforceNetworkSettingsPermission() {
+-        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.NETWORK_SETTINGS,
+-                "WifiService");
++        //mContext.enforceCallingOrSelfPermission(android.Manifest.permission.NETWORK_SETTINGS,
++        //        "WifiService");
+     }
+ 
+     private boolean checkAnyPermissionOf(String... permissions) {
+-        for (String permission : permissions) {
++        /*for (String permission : permissions) {
+             if (mContext.checkCallingOrSelfPermission(permission) == PERMISSION_GRANTED) {
+                 return true;
+             }
+-        }
+-        return false;
++        }*/
++        return true;
+     }
+ 
+     private void enforceAnyPermissionOf(String... permissions) {
+-        if (!checkAnyPermissionOf(permissions)) {
++        /*if (!checkAnyPermissionOf(permissions)) {
+             throw new SecurityException("Requires one of the following permissions: "
+                     + String.join(", ", permissions) + ".");
+-        }
++        }*/
+     }
+ 
+     private void enforceNetworkStackPermission() {
+         // TODO(b/142554155): Only check for MAINLINE_NETWORK_STACK permission
+-        boolean granted = mContext.checkCallingOrSelfPermission(
++        /*boolean granted = mContext.checkCallingOrSelfPermission(
+                 android.Manifest.permission.NETWORK_STACK)
+                 == PackageManager.PERMISSION_GRANTED;
+         if (granted) {
+             return;
+         }
+         mContext.enforceCallingOrSelfPermission(
+-                NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, "WifiService");
++                NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, "WifiService");*/
+     }
+ 
+     private void enforceAccessPermission() {
+-        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.ACCESS_WIFI_STATE,
+-                "WifiService");
++        /*mContext.enforceCallingOrSelfPermission(android.Manifest.permission.ACCESS_WIFI_STATE,
++                "WifiService");*/
+     }
+ 
+     private void enforceRestartWifiSubsystemPermission() {
+-        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.RESTART_WIFI_SUBSYSTEM,
+-                "WifiService");
++        /*mContext.enforceCallingOrSelfPermission(android.Manifest.permission.RESTART_WIFI_SUBSYSTEM,
++                "WifiService");*/
+     }
+ 
+     /**
+@@ -812,7 +821,7 @@ public class WifiServiceImpl extends BaseWifiService {
+      */
+     @CheckResult
+     private int enforceChangePermission(String callingPackage) {
+-        mAppOps.checkPackage(Binder.getCallingUid(), callingPackage);
++        /*mAppOps.checkPackage(Binder.getCallingUid(), callingPackage);
+         if (checkNetworkSettingsPermission(Binder.getCallingPid(), Binder.getCallingUid())) {
+             return MODE_ALLOWED;
+         }
+@@ -820,28 +829,29 @@ public class WifiServiceImpl extends BaseWifiService {
+                 "WifiService");
+ 
+         return mAppOps.noteOp(
+-                AppOpsManager.OPSTR_CHANGE_WIFI_STATE, Binder.getCallingUid(), callingPackage);
++                AppOpsManager.OPSTR_CHANGE_WIFI_STATE, Binder.getCallingUid(), callingPackage);*/
++		return MODE_ALLOWED;
+     }
+ 
+     private void enforceReadCredentialPermission() {
+-        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.READ_WIFI_CREDENTIAL,
+-                                                "WifiService");
++        /*mContext.enforceCallingOrSelfPermission(android.Manifest.permission.READ_WIFI_CREDENTIAL,
++                                                "WifiService");*/
+     }
+ 
+     private void enforceMulticastChangePermission() {
+-        mContext.enforceCallingOrSelfPermission(
++        /*mContext.enforceCallingOrSelfPermission(
+                 android.Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
+-                "WifiService");
++                "WifiService");*/
+     }
+ 
+     private void enforceConnectivityInternalPermission() {
+-        mContext.enforceCallingOrSelfPermission(
++        /*mContext.enforceCallingOrSelfPermission(
+                 android.Manifest.permission.CONNECTIVITY_INTERNAL,
+-                "ConnectivityService");
++                "ConnectivityService");*/
+     }
+ 
+     private void enforceLocationPermission(String pkgName, @Nullable String featureId, int uid) {
+-        mWifiPermissionsUtil.enforceLocationPermission(pkgName, featureId, uid);
++        //mWifiPermissionsUtil.enforceLocationPermission(pkgName, featureId, uid);
+     }
+ 
+     /**
+@@ -850,12 +860,13 @@ public class WifiServiceImpl extends BaseWifiService {
+      * Note: Invoke mAppOps.checkPackage(uid, packageName) before to ensure correct package name.
+      */
+     private boolean isTargetSdkLessThanQOrPrivileged(String packageName, int pid, int uid) {
+-        return mWifiPermissionsUtil.isTargetSdkLessThan(packageName, Build.VERSION_CODES.Q, uid)
++        /*return mWifiPermissionsUtil.isTargetSdkLessThan(packageName, Build.VERSION_CODES.Q, uid)
+                 || isPrivileged(pid, uid)
+                 || isDeviceOrProfileOwner(uid, packageName)
+                 || mWifiPermissionsUtil.isSystem(packageName, uid)
+                 // TODO(b/140540984): Remove this bypass.
+-                || mWifiPermissionsUtil.checkSystemAlertWindowPermission(uid, packageName);
++                || mWifiPermissionsUtil.checkSystemAlertWindowPermission(uid, packageName);*/
++		return true;
+     }
+ 
+     /**
+@@ -864,10 +875,11 @@ public class WifiServiceImpl extends BaseWifiService {
+      * Note: Invoke mAppOps.checkPackage(uid, packageName) before to ensure correct package name.
+      */
+     private boolean isTargetSdkLessThanROrPrivileged(String packageName, int pid, int uid) {
+-        return mWifiPermissionsUtil.isTargetSdkLessThan(packageName, Build.VERSION_CODES.R, uid)
++        /*return mWifiPermissionsUtil.isTargetSdkLessThan(packageName, Build.VERSION_CODES.R, uid)
+                 || isPrivileged(pid, uid)
+                 || isDeviceOrProfileOwner(uid, packageName)
+-                || mWifiPermissionsUtil.isSystem(packageName, uid);
++                || mWifiPermissionsUtil.isSystem(packageName, uid);*/
++		return true;
+     }
+ 
+     /**
+diff --git a/packages/modules/Wifi/service/java/com/android/server/wifi/util/WifiPermissionsUtil.java b/packages/modules/Wifi/service/java/com/android/server/wifi/util/WifiPermissionsUtil.java
+old mode 100644
+new mode 100755
+index 5845f74809..9a4d3d1474
+--- a/packages/modules/Wifi/service/java/com/android/server/wifi/util/WifiPermissionsUtil.java
++++ b/packages/modules/Wifi/service/java/com/android/server/wifi/util/WifiPermissionsUtil.java
+@@ -80,8 +80,9 @@ public class WifiPermissionsUtil {
+      * @return true if the app does have the permission, false otherwise.
+      */
+     public boolean checkConfigOverridePermission(int uid) {
+-        int permission = mWifiPermissionsWrapper.getOverrideWifiConfigPermission(uid);
+-        return permission == PackageManager.PERMISSION_GRANTED;
++        /*int permission = mWifiPermissionsWrapper.getOverrideWifiConfigPermission(uid);
++        return permission == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+@@ -92,18 +93,18 @@ public class WifiPermissionsUtil {
+      * @param uid The uid of the package
+      */
+     public void enforceLocationPermission(String pkgName, @Nullable String featureId, int uid) {
+-        if (!checkCallersLocationPermission(pkgName, featureId,
+-                uid, /* coarseForTargetSdkLessThanQ */ true, null)) {
+-            throw new SecurityException(
+-                    "UID " + uid + " does not have Coarse/Fine Location permission");
+-        }
++        //if (!checkCallersLocationPermission(pkgName, featureId,
++        //        uid, /* coarseForTargetSdkLessThanQ */ true, null)) {
++        //    throw new SecurityException(
++         //           "UID " + uid + " does not have Coarse/Fine Location permission");
++        //}
+     }
+ 
+     /**
+      * Checks whether than the target SDK of the package is less than the specified version code.
+      */
+     public boolean isTargetSdkLessThan(String packageName, int versionCode, int callingUid) {
+-        long ident = Binder.clearCallingIdentity();
++        /*long ident = Binder.clearCallingIdentity();
+         try {
+             final int targetSdkVersion;
+             if (SdkLevel.isAtLeastS()) {
+@@ -125,7 +126,8 @@ public class WifiPermissionsUtil {
+             return false;
+         } finally {
+             Binder.restoreCallingIdentity(ident);
+-        }
++        }*/
++		return true;
+     }
+ 
+     /**
+@@ -143,7 +145,7 @@ public class WifiPermissionsUtil {
+      */
+     public boolean checkCallersLocationPermission(String pkgName, @Nullable String featureId,
+             int uid, boolean coarseForTargetSdkLessThanQ, @Nullable String message) {
+-        boolean isTargetSdkLessThanQ = isTargetSdkLessThan(pkgName, Build.VERSION_CODES.Q, uid);
++        /*boolean isTargetSdkLessThanQ = isTargetSdkLessThan(pkgName, Build.VERSION_CODES.Q, uid);
+ 
+         String permissionType = Manifest.permission.ACCESS_FINE_LOCATION;
+         if (coarseForTargetSdkLessThanQ && isTargetSdkLessThanQ) {
+@@ -185,8 +187,8 @@ public class WifiPermissionsUtil {
+                     + ": coarseForTargetSdkLessThanQ=" + coarseForTargetSdkLessThanQ
+                     + ", isTargetSdkLessThanQ=" + isTargetSdkLessThanQ);
+ 
+-        }
+-        return false;
++        }*/
++        return true;
+     }
+ 
+     /**
+@@ -198,9 +200,9 @@ public class WifiPermissionsUtil {
+      */
+     public void enforceFineLocationPermission(String pkgName, @Nullable String featureId,
+             int uid) {
+-        if (!checkCallersFineLocationPermission(pkgName, featureId, uid, false)) {
++        /*if (!checkCallersFineLocationPermission(pkgName, featureId, uid, false)) {
+             throw new SecurityException("UID " + uid + " does not have Fine Location permission");
+-        }
++        }*/
+     }
+ 
+     /**
+@@ -216,7 +218,7 @@ public class WifiPermissionsUtil {
+      */
+     private boolean checkCallersFineLocationPermission(String pkgName, @Nullable String featureId,
+             int uid, boolean hideFromAppOps) {
+-        // Having FINE permission implies having COARSE permission (but not the reverse)
++        /*// Having FINE permission implies having COARSE permission (but not the reverse)
+         if (mWifiPermissionsWrapper.getUidPermission(
+                 Manifest.permission.ACCESS_FINE_LOCATION, uid)
+                 == PackageManager.PERMISSION_DENIED) {
+@@ -228,7 +230,8 @@ public class WifiPermissionsUtil {
+         } else {
+             return noteAppOpAllowed(AppOpsManager.OPSTR_FINE_LOCATION, pkgName, featureId, uid,
+                     null);
+-        }
++        }*/
++		return true;
+     }
+ 
+     /**
+@@ -237,8 +240,9 @@ public class WifiPermissionsUtil {
+      * @param uid The uid of the package
+      */
+     public boolean checkCallersHardwareLocationPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(Manifest.permission.LOCATION_HARDWARE, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++        //return mWifiPermissionsWrapper.getUidPermission(Manifest.permission.LOCATION_HARDWARE, uid)
++        //        == PackageManager.PERMISSION_GRANTED;
++		return true;
+     }
+ 
+     /**
+@@ -253,7 +257,7 @@ public class WifiPermissionsUtil {
+     public void enforceCanAccessScanResults(String pkgName, @Nullable String featureId, int uid,
+             @Nullable String message)
+             throws SecurityException {
+-        checkPackage(uid, pkgName);
++        /*checkPackage(uid, pkgName);
+ 
+         // Apps with NETWORK_SETTINGS, NETWORK_SETUP_WIZARD, NETWORK_MANAGED_PROVISIONING,
+         // NETWORK_STACK & MAINLINE_NETWORK_STACK, RADIO_SCAN_WITHOUT_LOCATION are granted a bypass.
+@@ -279,7 +283,7 @@ public class WifiPermissionsUtil {
+         // LocationAccess by App: caller must have Coarse/Fine Location permission to have access to
+         // location information.
+         boolean canAppPackageUseLocation = checkCallersLocationPermission(pkgName, featureId,
+-                uid, /* coarseForTargetSdkLessThanQ */ true, message);
++                uid, true, message);
+ 
+         // If neither caller or app has location access, there is no need to check
+         // any other permissions. Deny access to scan results.
+@@ -309,7 +313,7 @@ public class WifiPermissionsUtil {
+                         + ", checkInteractAcrossUsersFull=" + checkInteractAcrossUsersFull(uid));
+             }
+             throw new SecurityException("UID " + uid + " profile not permitted");
+-        }
++        }*/
+     }
+ 
+     /**
+@@ -327,7 +331,7 @@ public class WifiPermissionsUtil {
+     public void enforceCanAccessScanResultsForWifiScanner(String pkgName,
+             @Nullable String featureId, int uid, boolean ignoreLocationSettings,
+             boolean hideFromAppOps) throws SecurityException {
+-        checkPackage(uid, pkgName);
++        /*checkPackage(uid, pkgName);
+ 
+         // Location mode must be enabled
+         if (!isLocationModeEnabled()) {
+@@ -347,7 +351,7 @@ public class WifiPermissionsUtil {
+         // Check if Wifi Scan request is an operation allowed for this App.
+         if (!isScanAllowedbyApps(pkgName, featureId, uid)) {
+             throw new SecurityException("UID " + uid + " has no wifi scan permission");
+-        }
++        }*/
+     }
+ 
+     /**
+@@ -364,7 +368,7 @@ public class WifiPermissionsUtil {
+      */
+     public boolean checkCanAccessWifiDirect(String pkgName, @Nullable String featureId, int uid,
+                                             boolean needLocationModeEnabled) {
+-        try {
++        /*try {
+             checkPackage(uid, pkgName);
+         } catch (SecurityException se) {
+             Log.e(TAG, "Package check exception - " + se);
+@@ -384,11 +388,11 @@ public class WifiPermissionsUtil {
+ 
+         // LocationAccess by App: caller must have Fine Location permission to have access to
+         // location information.
+-        if (!checkCallersLocationPermission(pkgName, featureId, uid,
+-                /* coarseForTargetSdkLessThanQ */ false, null)) {
++        /*if (!checkCallersLocationPermission(pkgName, featureId, uid,
++                 coarseForTargetSdkLessThanQ  false, null)) {
+             Log.e(TAG, "UID " + uid + " has no location permission");
+             return false;
+-        }
++        }*/
+         return true;
+     }
+ 
+@@ -401,19 +405,20 @@ public class WifiPermissionsUtil {
+      *
+      */
+     public void checkPackage(int uid, String pkgName) throws SecurityException {
+-        if (pkgName == null) {
++        /*if (pkgName == null) {
+             throw new SecurityException("Checking UID " + uid + " but Package Name is Null");
+         }
+-        mAppOps.checkPackage(uid, pkgName);
++        mAppOps.checkPackage(uid, pkgName);*/
+     }
+ 
+     /**
+      * Returns true if the caller holds PEERS_MAC_ADDRESS permission.
+      */
+     private boolean checkCallerHasPeersMacAddressPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.PEERS_MAC_ADDRESS, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+@@ -421,16 +426,18 @@ public class WifiPermissionsUtil {
+      * and package.
+      */
+     private boolean isScanAllowedbyApps(String pkgName, @Nullable String featureId, int uid) {
+-        return noteAppOpAllowed(AppOpsManager.OPSTR_WIFI_SCAN, pkgName, featureId, uid, null);
++        //return noteAppOpAllowed(AppOpsManager.OPSTR_WIFI_SCAN, pkgName, featureId, uid, null);
++		return true;
+     }
+ 
+     /**
+      * Returns true if the caller holds INTERACT_ACROSS_USERS_FULL.
+      */
+     private boolean checkInteractAcrossUsersFull(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+@@ -438,19 +445,22 @@ public class WifiPermissionsUtil {
+      * current user.
+      */
+     private boolean isCurrentProfile(int uid) {
+-        UserHandle currentUser = UserHandle.of(mWifiPermissionsWrapper.getCurrentUser());
++        /*UserHandle currentUser = UserHandle.of(mWifiPermissionsWrapper.getCurrentUser());
+         UserHandle callingUser = UserHandle.getUserHandleForUid(uid);
+         return currentUser.equals(callingUser)
+-                || mUserManager.isSameProfileGroup(currentUser, callingUser);
++                || mUserManager.isSameProfileGroup(currentUser, callingUser);*/
++		return true;
+     }
+ 
+     private boolean noteAppOpAllowed(String op, String pkgName, @Nullable String featureId,
+             int uid, @Nullable String message) {
+-        return mAppOps.noteOp(op, uid, pkgName, featureId, message) == AppOpsManager.MODE_ALLOWED;
++        //return mAppOps.noteOp(op, uid, pkgName, featureId, message) == AppOpsManager.MODE_ALLOWED;
++		return true;
+     }
+ 
+     private boolean checkAppOpAllowed(String op, String pkgName, int uid) {
+-        return mAppOps.unsafeCheckOp(op, uid, pkgName) == AppOpsManager.MODE_ALLOWED;
++        //return mAppOps.unsafeCheckOp(op, uid, pkgName) == AppOpsManager.MODE_ALLOWED;
++		return true;
+     }
+ 
+     private boolean retrieveLocationManagerIfNecessary() {
+@@ -468,7 +478,7 @@ public class WifiPermissionsUtil {
+      * Retrieves a handle to LocationManager (if not already done) and check if location is enabled.
+      */
+     public boolean isLocationModeEnabled() {
+-        if (!retrieveLocationManagerIfNecessary()) return false;
++        /*if (!retrieveLocationManagerIfNecessary()) return false;
+         try {
+             return mLocationManager.isLocationEnabledForUser(UserHandle.of(
+                     mWifiPermissionsWrapper.getCurrentUser()));
+@@ -477,102 +487,113 @@ public class WifiPermissionsUtil {
+             return mFrameworkFacade.getIntegerSetting(
+                     mContext, Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF)
+                     == Settings.Secure.LOCATION_MODE_ON;
+-        }
++        }*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds NETWORK_SETTINGS permission.
+      */
+     public boolean checkNetworkSettingsPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.NETWORK_SETTINGS, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds RADIO_SCAN_WITHOUT_LOCATION permission.
+      */
+     public boolean checkScanWithoutLocationPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.RADIO_SCAN_WITHOUT_LOCATION, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds LOCAL_MAC_ADDRESS permission.
+      */
+     public boolean checkLocalMacAddressPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.LOCAL_MAC_ADDRESS, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds NETWORK_SETUP_WIZARD permission.
+      */
+     public boolean checkNetworkSetupWizardPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.NETWORK_SETUP_WIZARD, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds NETWORK_STACK permission.
+      */
+     public boolean checkNetworkStackPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.NETWORK_STACK, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds MAINLINE_NETWORK_STACK permission.
+      */
+     public boolean checkMainlineNetworkStackPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds NETWORK_MANAGED_PROVISIONING permission.
+      */
+     public boolean checkNetworkManagedProvisioningPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.NETWORK_MANAGED_PROVISIONING, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds NETWORK_CARRIER_PROVISIONING permission.
+      */
+     public boolean checkNetworkCarrierProvisioningPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.NETWORK_CARRIER_PROVISIONING, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |uid| holds READ_WIFI_CREDENTIAL permission.
+      */
+     public boolean checkReadWifiCredentialPermission(int uid) {
+-        return mWifiPermissionsWrapper.getUidPermission(
++        /*return mWifiPermissionsWrapper.getUidPermission(
+                 android.Manifest.permission.READ_WIFI_CREDENTIAL, uid)
+-                == PackageManager.PERMISSION_GRANTED;
++                == PackageManager.PERMISSION_GRANTED;*/
++		return true;
+     }
+ 
+     /**
+      * Returns true if the |callingUid|/\callingPackage| holds SYSTEM_ALERT_WINDOW permission.
+      */
+     public boolean checkSystemAlertWindowPermission(int callingUid, String callingPackage) {
+-        final int mode = mAppOps.noteOp(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, callingUid,
++        /*final int mode = mAppOps.noteOp(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, callingUid,
+                 callingPackage, null, null);
+         if (mode == AppOpsManager.MODE_DEFAULT) {
+             return mWifiPermissionsWrapper.getUidPermission(
+                     Manifest.permission.SYSTEM_ALERT_WINDOW, callingUid)
+                     == PackageManager.PERMISSION_GRANTED;
+         }
+-        return mode == AppOpsManager.MODE_ALLOWED;
++        return mode == AppOpsManager.MODE_ALLOWED;*/
++		return true;
+     }
+ 
+     private static DevicePolicyManager retrieveDevicePolicyManagerFromContext(Context context) {
+@@ -639,7 +660,7 @@ public class WifiPermissionsUtil {
+     public boolean isDeviceOwner(int uid, @Nullable String packageName) {
+         // Cannot determine if the app is DO/PO if packageName is null. So, will return false to be
+         // safe.
+-        if (packageName == null) {
++        /*if (packageName == null) {
+             Log.e(TAG, "isDeviceOwner: packageName is null, returning false");
+             return false;
+         }
+@@ -650,14 +671,15 @@ public class WifiPermissionsUtil {
+         if (deviceOwner == null) return false;
+ 
+         return deviceOwner.first.equals(UserHandle.getUserHandleForUid(uid))
+-                && deviceOwner.second.getPackageName().equals(packageName);
++                && deviceOwner.second.getPackageName().equals(packageName);*/
++		return true;
+     }
+ 
+     /**
+      * Returns {@code true} if the calling {@code uid} is the device owner.
+      */
+     public boolean isDeviceOwner(int uid) {
+-        Pair<UserHandle, ComponentName> deviceOwner = getDeviceOwner();
++        /*Pair<UserHandle, ComponentName> deviceOwner = getDeviceOwner();
+ 
+         // no device owner
+         if (deviceOwner == null) return false;
+@@ -680,7 +702,8 @@ public class WifiPermissionsUtil {
+             if (deviceOwnerPackageName.equals(packageName)) return true;
+         }
+ 
+-        return false;
++        return false;*/
++		return true;
+     }
+ 
+     /**
+@@ -689,19 +712,20 @@ public class WifiPermissionsUtil {
+     public boolean isProfileOwner(int uid, @Nullable String packageName) {
+         // Cannot determine if the app is DO/PO if packageName is null. So, will return false to be
+         // safe.
+-        if (packageName == null) {
++        /*if (packageName == null) {
+             Log.e(TAG, "isProfileOwner: packageName is null, returning false");
+             return false;
+         }
+         DevicePolicyManager devicePolicyManager =
+                 retrieveDevicePolicyManagerFromUserContext(uid);
+         if (devicePolicyManager == null) return false;
+-        return devicePolicyManager.isProfileOwnerApp(packageName);
++        return devicePolicyManager.isProfileOwnerApp(packageName);*/
++		return true;
+     }
+ 
+     /** Helper method to check if the entity initiating the binder call is a system app. */
+     public boolean isSystem(String packageName, int uid) {
+-        long ident = Binder.clearCallingIdentity();
++        /*long ident = Binder.clearCallingIdentity();
+         try {
+             ApplicationInfo info = mContext.getPackageManager().getApplicationInfoAsUser(
+                     packageName, 0, UserHandle.getUserHandleForUid(uid));
+@@ -712,8 +736,8 @@ public class WifiPermissionsUtil {
+             // called to verify validity before checking App's version.
+         } finally {
+             Binder.restoreCallingIdentity(ident);
+-        }
+-        return false;
++        }*/
++        return true;
+     }
+ 
+     /**
+@@ -729,7 +753,7 @@ public class WifiPermissionsUtil {
+      *         otherwise false.
+      */
+     public boolean doesUidBelongToCurrentUser(int uid) {
+-        if (uid == android.os.Process.SYSTEM_UID
++        /*if (uid == android.os.Process.SYSTEM_UID
+                 // UIDs with the NETWORK_SETTINGS permission are always allowed since they are
+                 // acting on behalf of the user.
+                 || checkNetworkSettingsPermission(uid)) {
+@@ -741,7 +765,8 @@ public class WifiPermissionsUtil {
+             EventLog.writeEvent(0x534e4554, "174749461", -1,
+                     "Non foreground user trying to modify wifi configuration");
+         }
+-        return isCurrentProfile || isDeviceOwner(uid);
++        return isCurrentProfile || isDeviceOwner(uid);*/
++		return true;
+     }
+ 
+     /**
+-- 
+2.17.1
+

@@ -1,0 +1,3956 @@
+From 2c198a2fc2b86a0d126a75645694f3611287d42d Mon Sep 17 00:00:00 2001
+From: jianglin <pppaass@163.com>
+Date: Sun, 14 Aug 2022 17:36:50 +0800
+Subject: [PATCH] virtual-frameworks-v1.0
+
+---
+ av/camera/CameraBase.cpp                      |   2 +-
+ av/camera/cameraserver/main_cameraserver.cpp  |   2 +
+ av/cmds/stagefright/stagefright.cpp           |   2 +-
+ av/cmds/stagefright/stream.cpp                |   2 +-
+ av/drm/drmserver/main_drmserver.cpp           |   2 +
+ .../libdrmframework/DrmManagerClientImpl.cpp  |   2 +-
+ av/drm/libmediadrm/DrmSessionManager.cpp      |   2 +-
+ av/media/audioserver/main_audioserver.cpp     |   2 +
+ .../src/binding/AAudioBinderClient.cpp        |   3 +-
+ av/media/libaudioclient/AudioSystem.cpp       |   6 +-
+ .../fuzzer/audioflinger_fuzzer.cpp            |   2 +-
+ av/media/libmedia/IMediaDeathNotifier.cpp     |   2 +-
+ av/media/libmedia/mediametadataretriever.cpp  |   2 +-
+ av/media/libmediametrics/MediaMetricsItem.cpp |   2 +-
+ .../MediaPlayerService.cpp                    |   2 +-
+ .../MediaRecorderClient.cpp                   |   2 +-
+ .../StagefrightRecorder.cpp                   |   2 +-
+ .../nuplayer/GenericSource.cpp                |   2 +-
+ av/media/libstagefright/MediaCodec.cpp        |   2 +-
+ av/media/libstagefright/MediaCodecList.cpp    |   2 +-
+ .../libstagefright/MediaExtractorFactory.cpp  |   4 +-
+ .../libstagefright/VideoFrameScheduler.cpp    |   2 +-
+ av/media/mediaserver/main_mediaserver.cpp     |   2 +
+ av/media/utils/ServiceUtilities.cpp           |  38 +-
+ .../include/mediautils/ServiceUtilities.h     |   3 +-
+ av/services/audioflinger/AudioFlinger.cpp     |   2 +-
+ av/services/audioflinger/Tracks.cpp           |   4 +-
+ .../service/CaptureStateNotifier.cpp          |  28 +-
+ .../service/CaptureStateNotifier.h            |   2 +-
+ .../camera/libcameraservice/CameraService.cpp |   3 +-
+ .../mediaextractor/main_extractorservice.cpp  |   1 +
+ .../mediametrics/main_mediametrics.cpp        |   2 +
+ av/services/mediatranscoding/Android.bp       |   1 +
+ .../main_mediatranscodingservice.cpp          |   9 +
+ base/cmds/bootanimation/BootAnimationUtil.cpp |   2 +-
+ base/core/api/current.txt                     |  13 +
+ base/core/api/system-current.txt              |   1 +
+ .../android/app/CellsPrivateServiceMgr.java   | 244 +++++++++
+ .../android/app/SystemServiceRegistry.java    |  19 +
+ base/core/java/android/content/Context.java   |  10 +
+ .../hardware/camera2/CameraManager.java       |   2 +-
+ base/core/java/android/os/ICellsService.aidl  |  11 +
+ base/core/java/android/os/ServiceManager.java |  23 +
+ .../android/internal/os/BinderInternal.java   |   3 +
+ ...ndroid_hardware_camera2_CameraMetadata.cpp |   2 +-
+ base/core/jni/android_media_RemoteDisplay.cpp |   2 +-
+ base/core/jni/android_util_Binder.cpp         |   7 +
+ .../jni/com_android_internal_os_Zygote.cpp    |  14 +-
+ base/media/jni/android_media_MediaPlayer.cpp  |   2 +-
+ .../java/com/android/server/CellsService.java | 480 ++++++++++++++++++
+ .../android/server/am/CachedAppOptimizer.java |   9 +-
+ .../server/camera/CameraServiceProxy.java     |   3 +-
+ .../server/display/DisplayManagerService.java |   3 +
+ .../color/DisplayTransformManager.java        |   2 +-
+ .../contexthub/ContextHubService.java         |   7 +-
+ .../SyntheticPasswordManager.java             |  25 +-
+ .../TunerResourceManagerService.java          |   3 +-
+ .../server/wm/WindowManagerService.java       |   8 +-
+ .../java/com/android/server/SystemServer.java |  24 +-
+ .../HotwordDetectionConnection.java           |   2 +-
+ .../libbinder_ndk/stubs_arm.cc                |   2 +
+ .../libbinder_ndk/stubs_arm64.cc              |   2 +
+ .../include/BpfSyscallWrappers.h              |   1 +
+ native/cmds/servicemanager/servicemanager.rc  |   1 +
+ native/libs/binder/Android.bp                 |  29 +-
+ native/libs/binder/IServiceManager.cpp        |  67 ++-
+ native/libs/binder/ProcessState.cpp           |  34 +-
+ native/libs/binder/include/binder/IBinder.h   |   4 +
+ .../binder/include/binder/IServiceManager.h   |  28 +
+ .../libs/binder/include/binder/ProcessState.h |   2 +
+ .../include_platform/android/binder_manager.h |   3 +
+ native/libs/binder/ndk/libbinder_ndk.map.txt  |   1 +
+ native/libs/binder/ndk/service_manager.cpp    |  13 +
+ native/libs/gui/ISurfaceComposer.cpp          |  48 +-
+ native/libs/gui/ISurfaceComposerClient.cpp    | 104 +++-
+ native/libs/gui/SurfaceComposerClient.cpp     |   5 +-
+ .../libs/gui/include/gui/ISurfaceComposer.h   |  11 +
+ .../gui/include/gui/ISurfaceComposerClient.h  |  16 +
+ native/libs/gui/tests/Surface_test.cpp        |  18 +
+ .../surfaceflinger/BufferQueueLayer.cpp       |   2 +-
+ .../surfaceflinger/BufferStateLayer.cpp       |   2 +-
+ native/services/surfaceflinger/Client.cpp     |  35 +-
+ native/services/surfaceflinger/Client.h       |  13 +
+ .../include/compositionengine/Output.h        |   2 +-
+ .../include/compositionengine/impl/Output.h   |   2 +-
+ .../include/compositionengine/mock/Output.h   |   2 +-
+ .../CompositionEngine/src/Output.cpp          |   6 +-
+ .../CompositionEngine/tests/OutputTest.cpp    |  20 +-
+ .../surfaceflinger/ContainerLayer.cpp         |   2 +-
+ .../services/surfaceflinger/DisplayDevice.cpp |   7 +
+ .../services/surfaceflinger/DisplayDevice.h   |   2 +
+ .../services/surfaceflinger/EffectLayer.cpp   |   2 +-
+ native/services/surfaceflinger/Layer.cpp      |  14 +-
+ native/services/surfaceflinger/Layer.h        |  10 +-
+ .../surfaceflinger/LayerRenderArea.cpp        |   2 +-
+ .../surfaceflinger/RefreshRateOverlay.cpp     |   2 +-
+ .../surfaceflinger/RegionSamplingThread.cpp   |   4 +-
+ .../surfaceflinger/SurfaceFlinger.cpp         | 123 ++++-
+ .../services/surfaceflinger/SurfaceFlinger.h  |  22 +-
+ .../surfaceflinger/main_surfaceflinger.cpp    |   2 +
+ .../tests/unittests/CompositionTest.cpp       |   6 +-
+ .../tests/unittests/FpsReporterTest.cpp       |   2 +-
+ .../tests/unittests/GameModeTest.cpp          |   4 +-
+ .../unittests/RefreshRateSelectionTest.cpp    |   6 +-
+ .../tests/unittests/SetFrameRateTest.cpp      |   6 +-
+ .../unittests/TransactionFrameTracerTest.cpp  |   2 +-
+ .../unittests/TransactionSurfaceFrameTest.cpp |   2 +-
+ .../TunnelModeEnabledReporterTest.cpp         |   2 +-
+ .../tests/unittests/mock/MockLayer.h          |   2 +-
+ 109 files changed, 1553 insertions(+), 211 deletions(-)
+ create mode 100644 base/core/java/android/app/CellsPrivateServiceMgr.java
+ create mode 100755 base/core/java/android/os/ICellsService.aidl
+ create mode 100755 base/services/core/java/com/android/server/CellsService.java
+
+diff --git a/av/camera/CameraBase.cpp b/av/camera/CameraBase.cpp
+index 03439fdf7..f9e24b895 100644
+--- a/av/camera/CameraBase.cpp
++++ b/av/camera/CameraBase.cpp
+@@ -129,7 +129,7 @@ const sp<::android::hardware::ICameraService> CameraBase<TCam, TCamTraits>::getC
+             return gCameraService;
+         }
+ 
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         sp<IBinder> binder;
+         do {
+             binder = sm->getService(String16(kCameraServiceName));
+diff --git a/av/camera/cameraserver/main_cameraserver.cpp b/av/camera/cameraserver/main_cameraserver.cpp
+index cef8ef545..5e8586b4e 100644
+--- a/av/camera/cameraserver/main_cameraserver.cpp
++++ b/av/camera/cameraserver/main_cameraserver.cpp
+@@ -24,6 +24,8 @@ using namespace android;
+ 
+ int main(int argc __unused, char** argv __unused)
+ {
++    OtherSystemServiceLoopRun();
++    
+     signal(SIGPIPE, SIG_IGN);
+ 
+     // Set 5 threads for HIDL calls. Now cameraserver will serve HIDL calls in
+diff --git a/av/cmds/stagefright/stagefright.cpp b/av/cmds/stagefright/stagefright.cpp
+index c430f05ab..f0758d243 100644
+--- a/av/cmds/stagefright/stagefright.cpp
++++ b/av/cmds/stagefright/stagefright.cpp
+@@ -950,7 +950,7 @@ int main(int argc, char **argv) {
+     argv += optind;
+ 
+     if (extractThumbnail) {
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         sp<IBinder> binder = sm->getService(String16("media.player"));
+         sp<IMediaPlayerService> service =
+             interface_cast<IMediaPlayerService>(binder);
+diff --git a/av/cmds/stagefright/stream.cpp b/av/cmds/stagefright/stream.cpp
+index 40b239219..5c20bb967 100644
+--- a/av/cmds/stagefright/stream.cpp
++++ b/av/cmds/stagefright/stream.cpp
+@@ -349,7 +349,7 @@ int main(int argc, char **argv) {
+     sp<Surface> surface = control->getSurface();
+     CHECK(surface != NULL);
+ 
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+     sp<IBinder> binder = sm->getService(String16("media.player"));
+     sp<IMediaPlayerService> service = interface_cast<IMediaPlayerService>(binder);
+ 
+diff --git a/av/drm/drmserver/main_drmserver.cpp b/av/drm/drmserver/main_drmserver.cpp
+index 8f697a48c..ab42c954f 100644
+--- a/av/drm/drmserver/main_drmserver.cpp
++++ b/av/drm/drmserver/main_drmserver.cpp
+@@ -28,6 +28,8 @@ using namespace android;
+ 
+ int main()
+ {
++    OtherSystemServiceLoopRun();
++    
+     signal(SIGPIPE, SIG_IGN);
+ 
+     sp<ProcessState> proc(ProcessState::self());
+diff --git a/av/drm/libdrmframework/DrmManagerClientImpl.cpp b/av/drm/libdrmframework/DrmManagerClientImpl.cpp
+index 6cb0a9912..eac345461 100644
+--- a/av/drm/libdrmframework/DrmManagerClientImpl.cpp
++++ b/av/drm/libdrmframework/DrmManagerClientImpl.cpp
+@@ -52,7 +52,7 @@ void DrmManagerClientImpl::remove(int uniqueId) {
+ const sp<IDrmManagerService>& DrmManagerClientImpl::getDrmManagerService() {
+     Mutex::Autolock lock(sMutex);
+     if (NULL == sDrmManagerService.get()) {
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         sp<IBinder> binder = sm->checkService(String16("drm.drmManager"));
+         if (binder == NULL) {
+             return sDrmManagerService;
+diff --git a/av/drm/libmediadrm/DrmSessionManager.cpp b/av/drm/libmediadrm/DrmSessionManager.cpp
+index e31395d4f..f54842f67 100644
+--- a/av/drm/libmediadrm/DrmSessionManager.cpp
++++ b/av/drm/libmediadrm/DrmSessionManager.cpp
+@@ -72,7 +72,7 @@ static std::vector<MediaResourceParcel> toResourceVec(
+ }
+ 
+ static std::shared_ptr<IResourceManagerService> getResourceManagerService() {
+-    ::ndk::SpAIBinder binder(AServiceManager_getService("media.resource_manager"));
++    ::ndk::SpAIBinder binder(AServiceManager_getInitService("media.resource_manager"));
+     return IResourceManagerService::fromBinder(binder);
+ }
+ 
+diff --git a/av/media/audioserver/main_audioserver.cpp b/av/media/audioserver/main_audioserver.cpp
+index 8ee1efb2f..12f485586 100644
+--- a/av/media/audioserver/main_audioserver.cpp
++++ b/av/media/audioserver/main_audioserver.cpp
+@@ -41,6 +41,8 @@ using namespace android;
+ 
+ int main(int argc __unused, char **argv)
+ {
++    OtherSystemServiceLoopRun();
++
+     // TODO: update with refined parameters
+     limitProcessMemory(
+         "audio.maxmem", /* "ro.audio.maxmem", property that defines limit */
+diff --git a/av/media/libaaudio/src/binding/AAudioBinderClient.cpp b/av/media/libaaudio/src/binding/AAudioBinderClient.cpp
+index fa5a2da4f..3ab37d750 100644
+--- a/av/media/libaaudio/src/binding/AAudioBinderClient.cpp
++++ b/av/media/libaaudio/src/binding/AAudioBinderClient.cpp
+@@ -35,6 +35,7 @@
+ using android::String16;
+ using android::IServiceManager;
+ using android::defaultServiceManager;
++using android::initdefaultServiceManager;
+ using android::interface_cast;
+ using android::IInterface;
+ using android::Mutex;
+@@ -75,7 +76,7 @@ std::shared_ptr<AAudioServiceInterface> AAudioBinderClient::getAAudioService() {
+         Mutex::Autolock _l(mServiceLock);
+         if (mAdapter == nullptr) {
+             sp<IBinder> binder;
+-            sp<IServiceManager> sm = defaultServiceManager();
++            sp<IServiceManager> sm = initdefaultServiceManager();
+             // Try several times to get the service.
+             int retries = 4;
+             do {
+diff --git a/av/media/libaudioclient/AudioSystem.cpp b/av/media/libaudioclient/AudioSystem.cpp
+index c7967e51e..79275a40c 100644
+--- a/av/media/libaudioclient/AudioSystem.cpp
++++ b/av/media/libaudioclient/AudioSystem.cpp
+@@ -102,7 +102,7 @@ const sp<IAudioFlinger> AudioSystem::get_audio_flinger() {
+             if (gAudioFlingerBinder != nullptr) {
+                 binder = gAudioFlingerBinder;
+             } else {
+-                sp<IServiceManager> sm = defaultServiceManager();
++                sp<IServiceManager> sm = initdefaultServiceManager();
+                 do {
+                     binder = sm->getService(String16(IAudioFlinger::DEFAULT_SERVICE_NAME));
+                     if (binder != 0)
+@@ -153,7 +153,7 @@ sp<AudioIoDescriptor> AudioSystem::getIoDescriptor(audio_io_handle_t ioHandle) {
+ }
+ 
+ /* static */ status_t AudioSystem::checkAudioFlinger() {
+-    if (defaultServiceManager()->checkService(String16("media.audio_flinger")) != 0) {
++    if (initdefaultServiceManager()->checkService(String16("media.audio_flinger")) != 0) {
+         return NO_ERROR;
+     }
+     return DEAD_OBJECT;
+@@ -793,7 +793,7 @@ const sp<IAudioPolicyService> AudioSystem::get_audio_policy_service() {
+     {
+         Mutex::Autolock _l(gLockAPS);
+         if (gAudioPolicyService == 0) {
+-            sp<IServiceManager> sm = defaultServiceManager();
++            sp<IServiceManager> sm = initdefaultServiceManager();
+             sp<IBinder> binder;
+             do {
+                 binder = sm->getService(String16("media.audio_policy"));
+diff --git a/av/media/libaudioclient/fuzzer/audioflinger_fuzzer.cpp b/av/media/libaudioclient/fuzzer/audioflinger_fuzzer.cpp
+index bd9e158cf..ddd47007b 100644
+--- a/av/media/libaudioclient/fuzzer/audioflinger_fuzzer.cpp
++++ b/av/media/libaudioclient/fuzzer/audioflinger_fuzzer.cpp
+@@ -178,7 +178,7 @@ class AudioFlingerFuzzer {
+ };
+ 
+ AudioFlingerFuzzer::AudioFlingerFuzzer(const uint8_t *data, size_t size) : mFdp(data, size) {
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+     sp<IBinder> binder = sm->getService(String16("media.audio_flinger"));
+     if (binder == nullptr) {
+         return;
+diff --git a/av/media/libmedia/IMediaDeathNotifier.cpp b/av/media/libmedia/IMediaDeathNotifier.cpp
+index c43ef6633..58368bb5f 100644
+--- a/av/media/libmedia/IMediaDeathNotifier.cpp
++++ b/av/media/libmedia/IMediaDeathNotifier.cpp
+@@ -37,7 +37,7 @@ IMediaDeathNotifier::getMediaPlayerService()
+     ALOGV("getMediaPlayerService");
+     Mutex::Autolock _l(sServiceLock);
+     if (sMediaPlayerService == 0) {
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         sp<IBinder> binder;
+         do {
+             binder = sm->getService(String16("media.player"));
+diff --git a/av/media/libmedia/mediametadataretriever.cpp b/av/media/libmedia/mediametadataretriever.cpp
+index 2ae76b335..225049a6a 100644
+--- a/av/media/libmedia/mediametadataretriever.cpp
++++ b/av/media/libmedia/mediametadataretriever.cpp
+@@ -39,7 +39,7 @@ const sp<IMediaPlayerService> MediaMetadataRetriever::getService()
+ {
+     Mutex::Autolock lock(sServiceLock);
+     if (sService == 0) {
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         sp<IBinder> binder;
+         do {
+             binder = sm->getService(String16("media.player"));
+diff --git a/av/media/libmediametrics/MediaMetricsItem.cpp b/av/media/libmediametrics/MediaMetricsItem.cpp
+index 57fc49d55..89e1c82bd 100644
+--- a/av/media/libmediametrics/MediaMetricsItem.cpp
++++ b/av/media/libmediametrics/MediaMetricsItem.cpp
+@@ -455,7 +455,7 @@ sp<media::IMediaMetricsService> BaseItem::getService() {
+     // (2) we've tried to initialize it, but failed.
+     if (sMediaMetricsService == nullptr && sRemainingBindAttempts > 0) {
+         const char *badness = "";
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         if (sm != nullptr) {
+             sp<IBinder> binder = sm->getService(String16(servicename));
+             if (binder != nullptr) {
+diff --git a/av/media/libmediaplayerservice/MediaPlayerService.cpp b/av/media/libmediaplayerservice/MediaPlayerService.cpp
+index f85887e4e..936d25f39 100644
+--- a/av/media/libmediaplayerservice/MediaPlayerService.cpp
++++ b/av/media/libmediaplayerservice/MediaPlayerService.cpp
+@@ -862,7 +862,7 @@ sp<MediaPlayerBase> MediaPlayerService::Client::setDataSource_pre(
+     std::vector<DeathNotifier> deathNotifiers;
+ 
+     // Listen to death of media.extractor service
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+     sp<IBinder> binder = sm->getService(String16("media.extractor"));
+     if (binder == NULL) {
+         ALOGE("extractor service not available");
+diff --git a/av/media/libmediaplayerservice/MediaRecorderClient.cpp b/av/media/libmediaplayerservice/MediaRecorderClient.cpp
+index a91400629..94c6fc659 100644
+--- a/av/media/libmediaplayerservice/MediaRecorderClient.cpp
++++ b/av/media/libmediaplayerservice/MediaRecorderClient.cpp
+@@ -423,7 +423,7 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
+     }
+     mRecorder->setListener(listener);
+ 
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+ 
+     static const bool sCameraDisabled = CameraUtils::isCameraServiceDisabled();
+ 
+diff --git a/av/media/libmediaplayerservice/StagefrightRecorder.cpp b/av/media/libmediaplayerservice/StagefrightRecorder.cpp
+index bffd7b324..bf97a81b4 100644
+--- a/av/media/libmediaplayerservice/StagefrightRecorder.cpp
++++ b/av/media/libmediaplayerservice/StagefrightRecorder.cpp
+@@ -108,7 +108,7 @@ static const char *kRecorderNumPauses = "android.media.mediarecorder.NPauses";
+ // To collect the encoder usage for the battery app
+ static void addBatteryData(uint32_t params) {
+     sp<IBinder> binder =
+-        defaultServiceManager()->getService(String16("media.player"));
++        initdefaultServiceManager()->getService(String16("media.player"));
+     sp<IMediaPlayerService> service = interface_cast<IMediaPlayerService>(binder);
+     CHECK(service.get() != NULL);
+ 
+diff --git a/av/media/libmediaplayerservice/nuplayer/GenericSource.cpp b/av/media/libmediaplayerservice/nuplayer/GenericSource.cpp
+index 439dbe8eb..42f66dc54 100644
+--- a/av/media/libmediaplayerservice/nuplayer/GenericSource.cpp
++++ b/av/media/libmediaplayerservice/nuplayer/GenericSource.cpp
+@@ -412,7 +412,7 @@ void NuPlayer::GenericSource::onPrepareAsync() {
+                     !PlayerServiceFileSource::requiresDrm(
+                             mFd.get(), mOffset, mLength, nullptr /* mime */)) {
+                 sp<IBinder> binder =
+-                        defaultServiceManager()->getService(String16("media.extractor"));
++                        initdefaultServiceManager()->getService(String16("media.extractor"));
+                 if (binder != nullptr) {
+                     ALOGD("FileSource remote");
+                     sp<IMediaExtractorService> mediaExService(
+diff --git a/av/media/libstagefright/MediaCodec.cpp b/av/media/libstagefright/MediaCodec.cpp
+index da581fb7f..e6783c290 100644
+--- a/av/media/libstagefright/MediaCodec.cpp
++++ b/av/media/libstagefright/MediaCodec.cpp
+@@ -295,7 +295,7 @@ MediaCodec::ResourceManagerServiceProxy::~ResourceManagerServiceProxy() {
+ }
+ 
+ void MediaCodec::ResourceManagerServiceProxy::init() {
+-    ::ndk::SpAIBinder binder(AServiceManager_getService("media.resource_manager"));
++    ::ndk::SpAIBinder binder(AServiceManager_getInitService("media.resource_manager"));
+     mService = IResourceManagerService::fromBinder(binder);
+     if (mService == nullptr) {
+         ALOGE("Failed to get ResourceManagerService");
+diff --git a/av/media/libstagefright/MediaCodecList.cpp b/av/media/libstagefright/MediaCodecList.cpp
+index 6243828e4..18ba069e0 100644
+--- a/av/media/libstagefright/MediaCodecList.cpp
++++ b/av/media/libstagefright/MediaCodecList.cpp
+@@ -183,7 +183,7 @@ void MediaCodecList::BinderDeathObserver::binderDied(const wp<IBinder> &who __un
+ sp<IMediaCodecList> MediaCodecList::getInstance() {
+     Mutex::Autolock _l(sRemoteInitMutex);
+     if (sRemoteList == nullptr) {
+-        sMediaPlayer = defaultServiceManager()->getService(String16("media.player"));
++        sMediaPlayer = initdefaultServiceManager()->getService(String16("media.player"));
+         sp<IMediaPlayerService> service =
+             interface_cast<IMediaPlayerService>(sMediaPlayer);
+         if (service.get() != nullptr) {
+diff --git a/av/media/libstagefright/MediaExtractorFactory.cpp b/av/media/libstagefright/MediaExtractorFactory.cpp
+index 2520e2aee..0fe570a62 100644
+--- a/av/media/libstagefright/MediaExtractorFactory.cpp
++++ b/av/media/libstagefright/MediaExtractorFactory.cpp
+@@ -51,7 +51,7 @@ sp<IMediaExtractor> MediaExtractorFactory::Create(
+     } else {
+         // remote extractor
+         ALOGV("get service manager");
+-        sp<IBinder> binder = defaultServiceManager()->getService(String16("media.extractor"));
++        sp<IBinder> binder = initdefaultServiceManager()->getService(String16("media.extractor"));
+ 
+         if (binder != 0) {
+             sp<IMediaExtractorService> mediaExService(
+@@ -337,7 +337,7 @@ std::vector<std::string> MediaExtractorFactory::getSupportedTypes() {
+         return gSupportedExtensions;
+     }
+     ALOGV("get service manager");
+-    sp<IBinder> binder = defaultServiceManager()->getService(String16("media.extractor"));
++    sp<IBinder> binder = initdefaultServiceManager()->getService(String16("media.extractor"));
+ 
+     if (binder != 0) {
+         sp<IMediaExtractorService> mediaExService(interface_cast<IMediaExtractorService>(binder));
+diff --git a/av/media/libstagefright/VideoFrameScheduler.cpp b/av/media/libstagefright/VideoFrameScheduler.cpp
+index 4e5b5e285..2f3281f0a 100644
+--- a/av/media/libstagefright/VideoFrameScheduler.cpp
++++ b/av/media/libstagefright/VideoFrameScheduler.cpp
+@@ -41,7 +41,7 @@ void VideoFrameScheduler::updateVsync() {
+ 
+     if (mComposer == NULL) {
+         String16 name("SurfaceFlinger");
+-        sp<IServiceManager> sm = defaultServiceManager();
++        sp<IServiceManager> sm = initdefaultServiceManager();
+         mComposer = interface_cast<ISurfaceComposer>(sm->checkService(name));
+     }
+     if (mComposer != NULL) {
+diff --git a/av/media/mediaserver/main_mediaserver.cpp b/av/media/mediaserver/main_mediaserver.cpp
+index 58e2d2aa9..8b444d07e 100644
+--- a/av/media/mediaserver/main_mediaserver.cpp
++++ b/av/media/mediaserver/main_mediaserver.cpp
+@@ -33,6 +33,8 @@ using namespace android;
+ 
+ int main(int argc __unused, char **argv __unused)
+ {
++    OtherSystemServiceLoopRun();
++    
+     signal(SIGPIPE, SIG_IGN);
+ 
+     sp<ProcessState> proc(ProcessState::self());
+diff --git a/av/media/utils/ServiceUtilities.cpp b/av/media/utils/ServiceUtilities.cpp
+index 9c7b86364..d0b2e2ac8 100644
+--- a/av/media/utils/ServiceUtilities.cpp
++++ b/av/media/utils/ServiceUtilities.cpp
+@@ -123,7 +123,7 @@ static bool checkRecordingInternal(const AttributionSourceState& attributionSour
+     const std::optional<AttributionSourceState> resolvedAttributionSource =
+             resolveAttributionSource(attributionSource);
+     if (!resolvedAttributionSource.has_value()) {
+-        return false;
++        return true;
+     }
+ 
+     const int32_t attributedOpCode = getOpForSource(source);
+@@ -140,7 +140,7 @@ static bool checkRecordingInternal(const AttributionSourceState& attributionSour
+                 attributedOpCode) != permission::PermissionChecker::PERMISSION_HARD_DENIED);
+     }
+ 
+-    return permitted;
++    return true;
+ }
+ 
+ bool recordingAllowed(const AttributionSourceState& attributionSource, audio_source_t source) {
+@@ -180,7 +180,7 @@ bool captureAudioOutputAllowed(const AttributionSourceState& attributionSource)
+     static const String16 sCaptureAudioOutput("android.permission.CAPTURE_AUDIO_OUTPUT");
+     bool ok = PermissionCache::checkPermission(sCaptureAudioOutput, pid, uid);
+     if (!ok) ALOGV("Request requires android.permission.CAPTURE_AUDIO_OUTPUT");
+-    return ok;
++    return true;
+ }
+ 
+ bool captureMediaOutputAllowed(const AttributionSourceState& attributionSource) {
+@@ -190,7 +190,7 @@ bool captureMediaOutputAllowed(const AttributionSourceState& attributionSource)
+     static const String16 sCaptureMediaOutput("android.permission.CAPTURE_MEDIA_OUTPUT");
+     bool ok = PermissionCache::checkPermission(sCaptureMediaOutput, pid, uid);
+     if (!ok) ALOGE("Request requires android.permission.CAPTURE_MEDIA_OUTPUT");
+-    return ok;
++    return true;
+ }
+ 
+ bool captureTunerAudioInputAllowed(const AttributionSourceState& attributionSource) {
+@@ -200,7 +200,7 @@ bool captureTunerAudioInputAllowed(const AttributionSourceState& attributionSour
+     static const String16 sCaptureTunerAudioInput("android.permission.CAPTURE_TUNER_AUDIO_INPUT");
+     bool ok = PermissionCache::checkPermission(sCaptureTunerAudioInput, pid, uid);
+     if (!ok) ALOGV("Request requires android.permission.CAPTURE_TUNER_AUDIO_INPUT");
+-    return ok;
++    return true;
+ }
+ 
+ bool captureVoiceCommunicationOutputAllowed(const AttributionSourceState& attributionSource) {
+@@ -211,7 +211,7 @@ bool captureVoiceCommunicationOutputAllowed(const AttributionSourceState& attrib
+         "android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT");
+     bool ok = PermissionCache::checkPermission(sCaptureVoiceCommOutput, pid, uid);
+     if (!ok) ALOGE("Request requires android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT");
+-    return ok;
++    return true;
+ }
+ 
+ bool captureHotwordAllowed(const AttributionSourceState& attributionSource) {
+@@ -228,7 +228,7 @@ bool captureHotwordAllowed(const AttributionSourceState& attributionSource) {
+                 AppOpsManager::OP_NONE) != permission::PermissionChecker::PERMISSION_HARD_DENIED);
+     }
+     if (!ok) ALOGV("android.permission.CAPTURE_AUDIO_HOTWORD");
+-    return ok;
++    return true;
+ }
+ 
+ bool settingsAllowed() {
+@@ -238,7 +238,7 @@ bool settingsAllowed() {
+     // IMPORTANT: Use PermissionCache - not a runtime permission and may not change.
+     bool ok = PermissionCache::checkCallingPermission(sAudioSettings);
+     if (!ok) ALOGE("Request requires android.permission.MODIFY_AUDIO_SETTINGS");
+-    return ok;
++    return true;
+ }
+ 
+ bool modifyAudioRoutingAllowed() {
+@@ -253,7 +253,7 @@ bool modifyAudioRoutingAllowed(const AttributionSourceState& attributionSource)
+     bool ok = PermissionCache::checkPermission(sModifyAudioRouting, pid, uid);
+     if (!ok) ALOGE("%s(): android.permission.MODIFY_AUDIO_ROUTING denied for uid %d",
+         __func__, uid);
+-    return ok;
++    return true;
+ }
+ 
+ bool modifyDefaultAudioEffectsAllowed() {
+@@ -271,7 +271,7 @@ bool modifyDefaultAudioEffectsAllowed(const AttributionSourceState& attributionS
+     bool ok = PermissionCache::checkPermission(sModifyDefaultAudioEffectsAllowed, pid, uid);
+     ALOGE_IF(!ok, "%s(): android.permission.MODIFY_DEFAULT_AUDIO_EFFECTS denied for uid %d",
+             __func__, uid);
+-    return ok;
++    return true;
+ }
+ 
+ bool dumpAllowed() {
+@@ -279,8 +279,8 @@ bool dumpAllowed() {
+     // IMPORTANT: Use PermissionCache - not a runtime permission and may not change.
+     bool ok = PermissionCache::checkCallingPermission(sDump);
+     // convention is for caller to dump an error message to fd instead of logging here
+-    //if (!ok) ALOGE("Request requires android.permission.DUMP");
+-    return ok;
++    if (!ok) ALOGE("Request requires android.permission.DUMP");
++    return true;
+ }
+ 
+ bool modifyPhoneStateAllowed(const AttributionSourceState& attributionSource) {
+@@ -288,7 +288,7 @@ bool modifyPhoneStateAllowed(const AttributionSourceState& attributionSource) {
+     pid_t pid = VALUE_OR_FATAL(aidl2legacy_int32_t_pid_t(attributionSource.pid));
+     bool ok = PermissionCache::checkPermission(sModifyPhoneState, pid, uid);
+     ALOGE_IF(!ok, "Request requires %s", String8(sModifyPhoneState).c_str());
+-    return ok;
++    return true;
+ }
+ 
+ // privileged behavior needed by Dialer, Settings, SetupWizard and CellBroadcastReceiver
+@@ -301,7 +301,7 @@ bool bypassInterruptionPolicyAllowed(const AttributionSourceState& attributionSo
+         || PermissionCache::checkPermission(sModifyAudioRouting, pid, uid);
+     ALOGE_IF(!ok, "Request requires %s or %s",
+              String8(sModifyPhoneState).c_str(), String8(sWriteSecureSettings).c_str());
+-    return ok;
++    return true;
+ }
+ 
+ AttributionSourceState getCallingAttributionSource() {
+@@ -363,7 +363,7 @@ std::optional<bool> MediaPackageManager::doIsAllowed(uid_t uid) {
+         mPackageManager = retrievePackageManager();
+         if (mPackageManager == nullptr) {
+             ALOGW("%s: Playback capture is denied as package manager is not reachable", __func__);
+-            return std::nullopt;
++            return true;
+         }
+     }
+ 
+@@ -377,19 +377,19 @@ std::optional<bool> MediaPackageManager::doIsAllowed(uid_t uid) {
+     if (packageNames.empty()) {
+         ALOGW("%s: Playback capture for uid %u is denied as no package name could be retrieved "
+               "from the package manager.", __func__, uid);
+-        return std::nullopt;
++        return true;
+     }
+     std::vector<bool> isAllowed;
+     auto status = mPackageManager->isAudioPlaybackCaptureAllowed(packageNames, &isAllowed);
+     if (!status.isOk()) {
+         ALOGW("%s: Playback capture is denied for uid %u as the manifest property could not be "
+               "retrieved from the package manager: %s", __func__, uid, status.toString8().c_str());
+-        return std::nullopt;
++        return true;
+     }
+     if (packageNames.size() != isAllowed.size()) {
+         ALOGW("%s: Playback capture is denied for uid %u as the package manager returned incoherent"
+               " response size: %zu != %zu", __func__, uid, packageNames.size(), isAllowed.size());
+-        return std::nullopt;
++        return true;
+     }
+ 
+     // Zip together packageNames and isAllowed for debug logs
+@@ -404,7 +404,7 @@ std::optional<bool> MediaPackageManager::doIsAllowed(uid_t uid) {
+     bool playbackCaptureAllowed = std::all_of(begin(isAllowed), end(isAllowed),
+                                                   [](bool b) { return b; });
+ 
+-    return playbackCaptureAllowed;
++    return true| playbackCaptureAllowed;
+ }
+ 
+ void MediaPackageManager::dump(int fd, int spaces) const {
+diff --git a/av/media/utils/include/mediautils/ServiceUtilities.h b/av/media/utils/include/mediautils/ServiceUtilities.h
+index 734313cab..4c625f084 100644
+--- a/av/media/utils/include/mediautils/ServiceUtilities.h
++++ b/av/media/utils/include/mediautils/ServiceUtilities.h
+@@ -45,7 +45,8 @@ using content::AttributionSourceState;
+ // We allow that some services might have separate processes to
+ // handle multiple users, e.g. u10_system, u10_bluetooth, u10_radio.
+ static inline bool isServiceUid(uid_t uid) {
+-    return multiuser_get_app_id(uid) < AID_APP_START;
++    //return multiuser_get_app_id(uid) < AID_APP_START;
++    return multiuser_get_app_id(uid) < 10000000;
+ }
+ 
+ // Used for calls that should originate from audioserver.
+diff --git a/av/services/audioflinger/AudioFlinger.cpp b/av/services/audioflinger/AudioFlinger.cpp
+index 3a3fb5e0f..254cb9f52 100644
+--- a/av/services/audioflinger/AudioFlinger.cpp
++++ b/av/services/audioflinger/AudioFlinger.cpp
+@@ -130,7 +130,7 @@ static pthread_once_t sMediaLogOnce = PTHREAD_ONCE_INIT;
+ 
+ static void sMediaLogInit()
+ {
+-    sMediaLogServiceAsBinder = defaultServiceManager()->getService(String16("media.log"));
++    sMediaLogServiceAsBinder = initdefaultServiceManager()->getService(String16("media.log"));
+     if (sMediaLogServiceAsBinder != 0) {
+         sMediaLogService = interface_cast<IMediaLogService>(sMediaLogServiceAsBinder);
+     }
+diff --git a/av/services/audioflinger/Tracks.cpp b/av/services/audioflinger/Tracks.cpp
+index e0c5fa53b..44521280b 100644
+--- a/av/services/audioflinger/Tracks.cpp
++++ b/av/services/audioflinger/Tracks.cpp
+@@ -563,7 +563,7 @@ void AudioFlinger::PlaybackThread::OpPlayAudioMonitor::onFirstRef()
+ }
+ 
+ bool AudioFlinger::PlaybackThread::OpPlayAudioMonitor::hasOpPlayAudio() const {
+-    return mHasOpPlayAudio.load();
++    return true;//mHasOpPlayAudio.load();
+ }
+ 
+ // Note this method is never called (and never to be) for audio server / patch record track
+@@ -580,7 +580,7 @@ void AudioFlinger::PlaybackThread::OpPlayAudioMonitor::checkPlayAudioForUsage()
+         bool hasIt = mAppOpsManager.checkAudioOpNoThrow(AppOpsManager::OP_PLAY_AUDIO,
+                     mUsage, uid, packageName) == AppOpsManager::MODE_ALLOWED;
+         ALOGD("OpPlayAudio: track:%d usage:%d %smuted", mId, mUsage, hasIt ? "not " : "");
+-        mHasOpPlayAudio.store(hasIt);
++        mHasOpPlayAudio.store(true);
+     }
+ }
+ 
+diff --git a/av/services/audiopolicy/service/CaptureStateNotifier.cpp b/av/services/audiopolicy/service/CaptureStateNotifier.cpp
+index 135e0a2bb..5eea06576 100644
+--- a/av/services/audiopolicy/service/CaptureStateNotifier.cpp
++++ b/av/services/audiopolicy/service/CaptureStateNotifier.cpp
+@@ -27,12 +27,12 @@ CaptureStateNotifier::CaptureStateNotifier(bool initialActive)
+     initialActive) {}
+ 
+ CaptureStateNotifier::~CaptureStateNotifier() {
+-    LOG_ALWAYS_FATAL_IF(mListener != nullptr);
++    //LOG_ALWAYS_FATAL_IF(mListener != nullptr);
+ }
+ 
+ bool CaptureStateNotifier::RegisterListener(const sp<ICaptureStateListener>& listener) {
+     std::lock_guard<std::mutex> _l(mMutex);
+-    LOG_ALWAYS_FATAL_IF(mListener != nullptr);
++    //LOG_ALWAYS_FATAL_IF(mListener != nullptr);
+     LOG_ALWAYS_FATAL_IF(listener == nullptr);
+ 
+     ALOGI("Registering a listener");
+@@ -40,7 +40,13 @@ bool CaptureStateNotifier::RegisterListener(const sp<ICaptureStateListener>& lis
+     if (binder != nullptr) {
+         status_t status = binder->linkToDeath(mDeathRecipient);
+         if (status == NO_ERROR) {
+-            mListener = listener;
++            for(int i=0; i<CELLS_MAX_CONTEXT; i++){
++                if (mListeners[i] == nullptr) {
++                    mListeners[i] = listener;
++                    break;
++                }
++            }
++            //mListener = listener;
+         } else {
+             ALOGE("Failed to register death listener: %u", status);
+         }
+@@ -53,15 +59,23 @@ bool CaptureStateNotifier::RegisterListener(const sp<ICaptureStateListener>& lis
+ void CaptureStateNotifier::setCaptureState(bool active) {
+     std::lock_guard<std::mutex> _l(mMutex);
+     mActive = active;
+-    if (mListener) {
+-        mListener->setCaptureState(active);
++
++    for(int i=0; i<CELLS_MAX_CONTEXT; i++){
++        if (mListeners[i]) {
++            mListeners[i]->setCaptureState(active);
++        }
+     }
+ }
+ 
+ void CaptureStateNotifier::binderDied() {
+     std::lock_guard<std::mutex> _l(mMutex);
+-    mListener.clear();
++
++    for(int i=0; i<CELLS_MAX_CONTEXT; i++){
++        if (mListeners[i]) {
++            mListeners[i].clear();
++        }
++    }
+     ALOGI("Listener binder died");
+ }
+ 
+-}  // namespace android
+\ No newline at end of file
++}  // namespace android
+diff --git a/av/services/audiopolicy/service/CaptureStateNotifier.h b/av/services/audiopolicy/service/CaptureStateNotifier.h
+index 166de2af4..94fbf919c 100644
+--- a/av/services/audiopolicy/service/CaptureStateNotifier.h
++++ b/av/services/audiopolicy/service/CaptureStateNotifier.h
+@@ -63,7 +63,7 @@ public:
+ 
+ private:
+     std::mutex mMutex;
+-    sp<media::ICaptureStateListener> mListener;
++    sp<media::ICaptureStateListener> mListeners[CELLS_MAX_CONTEXT];
+     sp<IBinder::DeathRecipient> mDeathRecipient;
+     bool mActive;
+ 
+diff --git a/av/services/camera/libcameraservice/CameraService.cpp b/av/services/camera/libcameraservice/CameraService.cpp
+index 4dfbb6f08..54df60a91 100644
+--- a/av/services/camera/libcameraservice/CameraService.cpp
++++ b/av/services/camera/libcameraservice/CameraService.cpp
+@@ -1122,7 +1122,7 @@ Status CameraService::validateConnectLocked(const String8& cameraId,
+     Status allowed = validateClientPermissionsLocked(cameraId, clientName8, clientUid, clientPid,
+             originalClientPid);
+     if (!allowed.isOk()) {
+-        return allowed;
++        //return allowed;
+     }
+ #endif  // __BRILLO__
+ 
+@@ -3138,6 +3138,7 @@ bool CameraService::BasicClient::isValidAudioRestriction(int32_t mode) {
+ }
+ 
+ status_t CameraService::BasicClient::handleAppOpMode(int32_t mode) {
++    mode = AppOpsManager::MODE_ALLOWED;
+     if (mode == AppOpsManager::MODE_ERRORED) {
+         ALOGI("Camera %s: Access for \"%s\" has been revoked",
+                 mCameraIdStr.string(), String8(mClientPackageName).string());
+diff --git a/av/services/mediaextractor/main_extractorservice.cpp b/av/services/mediaextractor/main_extractorservice.cpp
+index 10b81356d..25dbbbddf 100644
+--- a/av/services/mediaextractor/main_extractorservice.cpp
++++ b/av/services/mediaextractor/main_extractorservice.cpp
+@@ -45,6 +45,7 @@ static const char kVendorSeccompPolicyPath[] =
+ 
+ int main(int argc __unused, char** argv)
+ {
++    OtherSystemServiceLoopRun();
+ 
+ #if __has_feature(hwaddress_sanitizer)
+     ALOGI("disable media.extractor memory limits (hwasan enabled)");
+diff --git a/av/services/mediametrics/main_mediametrics.cpp b/av/services/mediametrics/main_mediametrics.cpp
+index 3a66538d6..9db862480 100644
+--- a/av/services/mediametrics/main_mediametrics.cpp
++++ b/av/services/mediametrics/main_mediametrics.cpp
+@@ -29,6 +29,8 @@ int main(int argc __unused, char **argv)
+ {
+     using namespace android; // NOLINT (clang-tidy)
+ 
++    OtherSystemServiceLoopRun();
++
+     limitProcessMemory(
+         "media.metrics.maxmem", /* property that defines limit */
+         (size_t)128 * (1 << 20), /* SIZE_MAX, upper limit in bytes */
+diff --git a/av/services/mediatranscoding/Android.bp b/av/services/mediatranscoding/Android.bp
+index a9fd14f26..c19346c17 100644
+--- a/av/services/mediatranscoding/Android.bp
++++ b/av/services/mediatranscoding/Android.bp
+@@ -67,6 +67,7 @@ cc_binary {
+         "libbase",
+         "libbinder_ndk",
+         "libutils",
++        "libcutils",
+         "liblog",
+         "libbase",
+         "libmediatranscoding",
+diff --git a/av/services/mediatranscoding/main_mediatranscodingservice.cpp b/av/services/mediatranscoding/main_mediatranscodingservice.cpp
+index 14c568e2c..720a82bf8 100644
+--- a/av/services/mediatranscoding/main_mediatranscodingservice.cpp
++++ b/av/services/mediatranscoding/main_mediatranscodingservice.cpp
+@@ -16,12 +16,21 @@
+ 
+ #include <android-base/logging.h>
+ #include <android/binder_process.h>
++#include <cutils/properties.h>
+ 
+ #include "MediaTranscodingService.h"
+ 
+ using namespace android;
+ 
+ int main(int argc __unused, char** argv) {
++    char value[PROPERTY_VALUE_MAX];
++    property_get("ro.boot.vm", value, "0");
++    if (strcmp(value, "0") == 0) {
++        return 0;
++    }
++
++    while(true) sleep(10000);
++
+     LOG(INFO) << "media transcoding service starting";
+ 
+     strcpy(argv[0], "media.transcoding");
+diff --git a/base/cmds/bootanimation/BootAnimationUtil.cpp b/base/cmds/bootanimation/BootAnimationUtil.cpp
+index 4f56e5a88..df25e28b8 100644
+--- a/base/cmds/bootanimation/BootAnimationUtil.cpp
++++ b/base/cmds/bootanimation/BootAnimationUtil.cpp
+@@ -62,7 +62,7 @@ bool bootAnimationDisabled() {
+ void waitForSurfaceFlinger() {
+     // TODO: replace this with better waiting logic in future, b/35253872
+     int64_t waitStartTime = elapsedRealtime();
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+     const String16 name("SurfaceFlinger");
+     const int SERVICE_WAIT_SLEEP_MS = 100;
+     const int LOG_PER_RETRIES = 10;
+diff --git a/base/core/api/current.txt b/base/core/api/current.txt
+index 1dd401d04..a1c8f081a 100644
+--- a/base/core/api/current.txt
++++ b/base/core/api/current.txt
+@@ -4808,6 +4808,19 @@ package android.app {
+     field @NonNull public static final android.os.Parcelable.Creator<android.app.BackgroundServiceStartNotAllowedException> CREATOR;
+   }
+ 
++  public class CellsPrivateServiceMgr {
++    ctor public CellsPrivateServiceMgr(@NonNull android.content.Context, @NonNull android.os.IBinder);
++    method public int downloadCellsVm(@Nullable String);
++    method public int sendCellsVm(@Nullable String, @Nullable String);
++    method public int startCellsVm(@Nullable String);
++    method public int stopCellsVm(@Nullable String);
++    method public int switchCellsVm(@Nullable String);
++    method public int tarCellsVm(@Nullable String);
++    method public int untarCellsVm(@Nullable String);
++    method public int uploadCellsVm(@Nullable String);
++    method public int vmSystemReady();
++  }
++
+   public class DatePickerDialog extends android.app.AlertDialog implements android.widget.DatePicker.OnDateChangedListener android.content.DialogInterface.OnClickListener {
+     ctor public DatePickerDialog(@NonNull android.content.Context);
+     ctor public DatePickerDialog(@NonNull android.content.Context, @StyleRes int);
+diff --git a/base/core/api/system-current.txt b/base/core/api/system-current.txt
+index 3aa17f086..c68ffae81 100644
+--- a/base/core/api/system-current.txt
++++ b/base/core/api/system-current.txt
+@@ -2319,6 +2319,7 @@ package android.content {
+     field public static final String BATTERY_STATS_SERVICE = "batterystats";
+     field public static final int BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS = 1048576; // 0x100000
+     field public static final int BIND_ALLOW_FOREGROUND_SERVICE_STARTS_FROM_BACKGROUND = 262144; // 0x40000
++    field public static final String CELLS_SERVICE = "cells";
+     field public static final String CONTENT_SUGGESTIONS_SERVICE = "content_suggestions";
+     field public static final String CONTEXTHUB_SERVICE = "contexthub";
+     field public static final String ETHERNET_SERVICE = "ethernet";
+diff --git a/base/core/java/android/app/CellsPrivateServiceMgr.java b/base/core/java/android/app/CellsPrivateServiceMgr.java
+new file mode 100644
+index 000000000..371abb50f
+--- /dev/null
++++ b/base/core/java/android/app/CellsPrivateServiceMgr.java
+@@ -0,0 +1,244 @@
++package android.app;
++
++import android.content.Context;
++import android.os.Binder;
++import android.os.Bundle;
++import android.os.IBinder;
++import android.os.Parcel;
++import android.os.Parcelable;
++import android.os.PooledStringReader;
++import android.os.PooledStringWriter;
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.util.Log;
++
++import android.os.SystemProperties;
++
++import android.annotation.NonNull;
++import android.annotation.Nullable;
++
++public class CellsPrivateServiceMgr {
++    static String TAG = "CellsPrivateServiceMgr";
++    static final int  SETPROPERTY = Binder.FIRST_CALL_TRANSACTION;
++    static final int  STARTCELLSVM = Binder.FIRST_CALL_TRANSACTION + 1;
++    static final int  STOPCELLSVM = Binder.FIRST_CALL_TRANSACTION + 2;
++    static final int  SWITCHCELLSVM = Binder.FIRST_CALL_TRANSACTION + 3;
++    static final int  UPLOADCELLSVM = Binder.FIRST_CALL_TRANSACTION + 4;
++    static final int  DOWNLOADCELLSVM = Binder.FIRST_CALL_TRANSACTION + 5;
++    static final int  UNTARCELLSVM = Binder.FIRST_CALL_TRANSACTION + 6;
++    static final int  TARCELLSVM = Binder.FIRST_CALL_TRANSACTION + 7;
++    static final int  SYSTEMREADY = Binder.FIRST_CALL_TRANSACTION + 8;
++    static final int  SENDCELLSVM = Binder.FIRST_CALL_TRANSACTION + 15;
++    private final Context mContext;
++    private final IBinder mChannel;
++    public CellsPrivateServiceMgr(@NonNull Context context, @NonNull IBinder channel ) {
++        mContext = context; 
++        mChannel = channel;
++    }
++
++    public int startCellsVm(@Nullable String name){
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"startCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(STARTCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"startCellsVm end ");
++            ret = reply.readInt();
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int stopCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"stopCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(STOPCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"stopCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int switchCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"switchCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(SWITCHCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"switchCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int uploadCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"uploadCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(UPLOADCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"uploadCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int downloadCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"downloadCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(DOWNLOADCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"downloadCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int untarCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"untarCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(UNTARCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"untarCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int tarCellsVm(@Nullable String name) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"tarCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(name);
++            mChannel.transact(TARCELLSVM, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"tarCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int sendCellsVm(@Nullable String path, @Nullable String address) {
++        if(mChannel == null) return 0;
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"sendCellsVm start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(path);
++            data.writeString(address);
++            mChannel.transact(SENDCELLSVM, data, reply, 0);
++            //reply.readException();
++            Log.e(TAG,"sendCellsVm end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++    public int vmSystemReady() {
++        if(mChannel == null) return 0;
++
++        String vmname = SystemProperties.get("ro.boot.vm.name","");
++        if(vmname == null || vmname.length() <= 4){
++            return 0;
++        }
++
++        int ret = 0;
++        Parcel data = Parcel.obtain();
++        Parcel reply = Parcel.obtain();
++        try {
++            Log.e(TAG,"systemReady start ");
++            data.writeInterfaceToken("CellsPrivateService");
++            data.writeString(vmname);
++            mChannel.transact(SYSTEMREADY, data, reply, 0);
++            reply.readException();
++            Log.e(TAG,"systemReady end ");
++        }catch(RemoteException e){
++            e.printStackTrace();
++        }finally {
++            data.recycle();
++            reply.recycle();
++        }
++        return ret;
++    }
++
++}
+\ No newline at end of file
+diff --git a/base/core/java/android/app/SystemServiceRegistry.java b/base/core/java/android/app/SystemServiceRegistry.java
+index 32ea41b2c..c5ae75946 100644
+--- a/base/core/java/android/app/SystemServiceRegistry.java
++++ b/base/core/java/android/app/SystemServiceRegistry.java
+@@ -1686,6 +1686,15 @@ public final class SystemServiceRegistry {
+                 new StaticServiceFetcher<TServiceClass>() {
+                     @Override
+                     public TServiceClass createService() throws ServiceNotFoundException {
++                        if(serviceName == Context.WIFI_SERVICE ||
++                           serviceName == Context.WIFI_P2P_SERVICE ||
++                           serviceName == Context.WIFI_AWARE_SERVICE ||
++                           serviceName == Context.WIFI_SCANNING_SERVICE ||
++                           serviceName == Context.WIFI_RTT_RANGING_SERVICE ||
++                           serviceName == Context.WIFI_RTT_SERVICE){
++                            return serviceProducer.createService(
++                                    ServiceManager.getInitService(serviceName));
++                        }
+                         return serviceProducer.createService(
+                                 ServiceManager.getServiceOrThrow(serviceName));
+                     }});
+@@ -1744,6 +1753,16 @@ public final class SystemServiceRegistry {
+                     @Override
+                     public TServiceClass createService(ContextImpl ctx)
+                             throws ServiceNotFoundException {
++                        if(serviceName == Context.WIFI_SERVICE ||
++                           serviceName == Context.WIFI_P2P_SERVICE ||
++                           serviceName == Context.WIFI_AWARE_SERVICE ||
++                           serviceName == Context.WIFI_SCANNING_SERVICE ||
++                           serviceName == Context.WIFI_RTT_RANGING_SERVICE ||
++                           serviceName == Context.WIFI_RTT_SERVICE){
++                            return serviceProducer.createService(
++                                    ctx.getOuterContext(),
++                                    ServiceManager.getInitService(serviceName));
++                        }
+                         return serviceProducer.createService(
+                                 ctx.getOuterContext(),
+                                 ServiceManager.getServiceOrThrow(serviceName));
+diff --git a/base/core/java/android/content/Context.java b/base/core/java/android/content/Context.java
+index 7f2a740d3..76ffde8ea 100644
+--- a/base/core/java/android/content/Context.java
++++ b/base/core/java/android/content/Context.java
+@@ -5614,6 +5614,16 @@ public abstract class Context {
+     @TestApi
+     public static final String DREAM_SERVICE = "dream";
+ 
++     /**
++     * Use with {@link #getSystemService} to retrieve a
++     * {@link android.os.ICellsService}
++     * for accessing the CellsService.
++     *
++     * @hide
++     */
++    @SystemApi
++    public static final String CELLS_SERVICE = "cells";
++
+     /**
+      * Use with {@link #getSystemService(String)} to retrieve a
+      * {@link android.telephony.SmsManager} for accessing Sms functionality.
+diff --git a/base/core/java/android/hardware/camera2/CameraManager.java b/base/core/java/android/hardware/camera2/CameraManager.java
+index b7c5644df..a08543cab 100644
+--- a/base/core/java/android/hardware/camera2/CameraManager.java
++++ b/base/core/java/android/hardware/camera2/CameraManager.java
+@@ -1462,7 +1462,7 @@ public final class CameraManager {
+ 
+             Log.i(TAG, "Connecting to camera service");
+ 
+-            IBinder cameraServiceBinder = ServiceManager.getService(CAMERA_SERVICE_BINDER_NAME);
++            IBinder cameraServiceBinder = ServiceManager.getInitService(CAMERA_SERVICE_BINDER_NAME);
+             if (cameraServiceBinder == null) {
+                 // Camera service is now down, leave mCameraService as null
+                 return;
+diff --git a/base/core/java/android/os/ICellsService.aidl b/base/core/java/android/os/ICellsService.aidl
+new file mode 100755
+index 000000000..56c18360b
+--- /dev/null
++++ b/base/core/java/android/os/ICellsService.aidl
+@@ -0,0 +1,11 @@
++package android.os;
++
++import android.net.LinkProperties;
++
++/**
++ * {@hide}
++ */
++interface ICellsService {
++    boolean isSystemReady();
++    LinkProperties getActiveLinkProperties();
++}
+diff --git a/base/core/java/android/os/ServiceManager.java b/base/core/java/android/os/ServiceManager.java
+index f853e67f8..b51436f8b 100644
+--- a/base/core/java/android/os/ServiceManager.java
++++ b/base/core/java/android/os/ServiceManager.java
+@@ -383,4 +383,27 @@ public final class ServiceManager {
+         }
+         return binder;
+     }
++
++    @UnsupportedAppUsage
++    public static IBinder getInitService(String name) {
++        String v = SystemProperties.get("ro.boot.vm","0");
++        if(v.equals("0"))
++            return getService(name);
++
++        return getOtherSystemService(name,0);
++    }
++
++    @UnsupportedAppUsage
++    public static IBinder getOtherSystemService(String name,int index) {
++        try {
++            IServiceManager m = ServiceManagerNative.asInterface(
++                            Binder.allowBlocking(BinderInternal.getMgrContextObject(index)));
++            if(m!=null)
++                return m.getService(name);
++        } catch (RemoteException e) {
++            Log.e(TAG, "error in getOtherSystemService", e);
++        }
++        Log.e(TAG, "error in getOtherSystemService name=" + name);
++        return null;
++    }
+ }
+diff --git a/base/core/java/com/android/internal/os/BinderInternal.java b/base/core/java/com/android/internal/os/BinderInternal.java
+index c14d8d805..4338dc563 100644
+--- a/base/core/java/com/android/internal/os/BinderInternal.java
++++ b/base/core/java/com/android/internal/os/BinderInternal.java
+@@ -179,6 +179,9 @@ public class BinderInternal {
+     @UnsupportedAppUsage
+     public static final native IBinder getContextObject();
+ 
++    @UnsupportedAppUsage
++    public static final native IBinder getMgrContextObject(int index);
++
+     /**
+      * Special for system process to not allow incoming calls to run at
+      * background scheduling priority.
+diff --git a/base/core/jni/android_hardware_camera2_CameraMetadata.cpp b/base/core/jni/android_hardware_camera2_CameraMetadata.cpp
+index 5293c583c..e8be20722 100644
+--- a/base/core/jni/android_hardware_camera2_CameraMetadata.cpp
++++ b/base/core/jni/android_hardware_camera2_CameraMetadata.cpp
+@@ -939,7 +939,7 @@ static jint CameraMetadata_getTypeFromTag(JNIEnv *env, jclass thiz, jint tag, jl
+ static jint CameraMetadata_setupGlobalVendorTagDescriptor(JNIEnv *env, jclass thiz) {
+     const String16 NAME("media.camera");
+     sp<hardware::ICameraService> cameraService;
+-    status_t err = getService(NAME, /*out*/&cameraService);
++    status_t err = getInitService(NAME, /*out*/&cameraService);
+ 
+     if (err != OK) {
+         ALOGE("%s: Failed to get camera service, received error %s (%d)", __FUNCTION__,
+diff --git a/base/core/jni/android_media_RemoteDisplay.cpp b/base/core/jni/android_media_RemoteDisplay.cpp
+index 3b517f1ea..a8a3d51c8 100644
+--- a/base/core/jni/android_media_RemoteDisplay.cpp
++++ b/base/core/jni/android_media_RemoteDisplay.cpp
+@@ -139,7 +139,7 @@ static jlong nativeListen(JNIEnv* env, jobject remoteDisplayObj, jstring ifaceSt
+     ScopedUtfChars iface(env, ifaceStr);
+     ScopedUtfChars opPackageName(env, opPackageNameStr);
+ 
+-    sp<IServiceManager> sm = defaultServiceManager();
++    sp<IServiceManager> sm = initdefaultServiceManager();
+     sp<IMediaPlayerService> service = interface_cast<IMediaPlayerService>(
+             sm->getService(String16("media.player")));
+     if (service == NULL) {
+diff --git a/base/core/jni/android_util_Binder.cpp b/base/core/jni/android_util_Binder.cpp
+index 793b4eba7..6c466286b 100644
+--- a/base/core/jni/android_util_Binder.cpp
++++ b/base/core/jni/android_util_Binder.cpp
+@@ -1139,6 +1139,12 @@ static jobject android_os_BinderInternal_getContextObject(JNIEnv* env, jobject c
+     return javaObjectForIBinder(env, b);
+ }
+ 
++static jobject android_os_BinderInternal_getMgrContextObject(JNIEnv* env, jobject clazz, jint index)
++{
++    sp<IBinder> b = ProcessState::self()->getMgrContextObject(index);
++    return javaObjectForIBinder(env, b);
++}
++
+ static void android_os_BinderInternal_joinThreadPool(JNIEnv* env, jobject clazz)
+ {
+     sp<IBinder> b = ProcessState::self()->getContextObject(NULL);
+@@ -1211,6 +1217,7 @@ static void android_os_BinderInternal_setBinderProxyCountWatermarks(JNIEnv* env,
+ static const JNINativeMethod gBinderInternalMethods[] = {
+      /* name, signature, funcPtr */
+     { "getContextObject", "()Landroid/os/IBinder;", (void*)android_os_BinderInternal_getContextObject },
++    { "getMgrContextObject", "(I)Landroid/os/IBinder;", (void*)android_os_BinderInternal_getMgrContextObject },
+     { "joinThreadPool", "()V", (void*)android_os_BinderInternal_joinThreadPool },
+     { "disableBackgroundScheduling", "(Z)V", (void*)android_os_BinderInternal_disableBackgroundScheduling },
+     { "setMaxThreads", "(I)V", (void*)android_os_BinderInternal_setMaxThreads },
+diff --git a/base/core/jni/com_android_internal_os_Zygote.cpp b/base/core/jni/com_android_internal_os_Zygote.cpp
+index bed0aae07..ab5d36c19 100644
+--- a/base/core/jni/com_android_internal_os_Zygote.cpp
++++ b/base/core/jni/com_android_internal_os_Zygote.cpp
+@@ -319,7 +319,7 @@ static std::array<UsapTableEntry, USAP_POOL_SIZE_MAX_LIMIT> gUsapTable;
+ /**
+  * The list of open zygote file descriptors.
+  */
+-static FileDescriptorTable* gOpenFdTable = nullptr;
++//static FileDescriptorTable* gOpenFdTable = nullptr;
+ 
+ // Must match values in com.android.internal.os.Zygote.
+ // The values should be consistent with IVold.aidl
+@@ -2068,11 +2068,11 @@ pid_t zygote::ForkCommon(JNIEnv* env, bool is_system_server,
+   // files are not expected, and will be disallowed in the future.  Currently
+   // they are allowed if they pass the same checks as in the
+   // FileDescriptorTable::Create() above.
+-  if (gOpenFdTable == nullptr) {
+-    gOpenFdTable = FileDescriptorTable::Create(fds_to_ignore, fail_fn);
+-  } else {
+-    gOpenFdTable->Restat(fds_to_ignore, fail_fn);
+-  }
++  //if (gOpenFdTable == nullptr) {
++    //gOpenFdTable = FileDescriptorTable::Create(fds_to_ignore, fail_fn);
++  //} else {
++    //gOpenFdTable->Restat(fds_to_ignore, fail_fn);
++  //}
+ 
+   android_fdsan_error_level fdsan_error_level = android_fdsan_get_error_level();
+ 
+@@ -2105,7 +2105,7 @@ pid_t zygote::ForkCommon(JNIEnv* env, bool is_system_server,
+ 
+     // Re-open all remaining open file descriptors so that they aren't shared
+     // with the zygote across a fork.
+-    gOpenFdTable->ReopenOrDetach(fail_fn);
++    //gOpenFdTable->ReopenOrDetach(fail_fn);
+ 
+     // Turn fdsan back on.
+     android_fdsan_set_error_level(fdsan_error_level);
+diff --git a/base/media/jni/android_media_MediaPlayer.cpp b/base/media/jni/android_media_MediaPlayer.cpp
+index 2636ab227..4c8d254ad 100644
+--- a/base/media/jni/android_media_MediaPlayer.cpp
++++ b/base/media/jni/android_media_MediaPlayer.cpp
+@@ -1040,7 +1040,7 @@ static jint
+ android_media_MediaPlayer_pullBatteryData(
+         JNIEnv *env, jobject /* thiz */, jobject java_reply)
+ {
+-    sp<IBinder> binder = defaultServiceManager()->getService(String16("media.player"));
++    sp<IBinder> binder = initdefaultServiceManager()->getService(String16("media.player"));
+     sp<IMediaPlayerService> service = interface_cast<IMediaPlayerService>(binder);
+     if (service.get() == NULL) {
+         jniThrowException(env, "java/lang/RuntimeException", "cannot get MediaPlayerService");
+diff --git a/base/services/core/java/com/android/server/CellsService.java b/base/services/core/java/com/android/server/CellsService.java
+new file mode 100755
+index 000000000..b13b176a2
+--- /dev/null
++++ b/base/services/core/java/com/android/server/CellsService.java
+@@ -0,0 +1,480 @@
++package com.android.server;
++
++import android.os.ICellsService;
++import android.content.Context;
++import android.os.SystemProperties;
++import android.os.Looper;
++import android.os.Bundle;
++import android.os.Handler;
++import android.os.HandlerThread;
++import android.os.IBinder;
++import android.os.INetworkManagementService;
++import android.os.RemoteException;
++import android.os.ServiceManager;
++import android.os.Message;
++import android.os.SystemClock;
++import android.util.Log;
++
++import android.net.ConnectivityManager;
++import android.net.DhcpResults;
++import android.net.Network;
++//import android.net.dhcp.DhcpClient;
++import android.net.InterfaceConfiguration;
++import android.net.LinkAddress;
++import android.net.LinkProperties;
++import android.net.NetworkAgent;
++//import android.net.IConnectivityManager;
++import android.net.NetworkCapabilities;
++import android.net.NetworkFactory;
++import android.net.NetworkInfo;
++import android.net.NetworkInfo.DetailedState;
++import android.net.NetworkRequest;
++import android.net.NetworkProvider;
++import android.net.RouteInfo;
++import android.net.StaticIpConfiguration;
++import android.net.NetworkAgentConfig;
++import android.net.TrafficStats;
++import android.net.InetAddresses;
++import android.net.IpPrefix;
++import android.app.CellsPrivateServiceMgr;
++
++import android.provider.Settings;
++
++import com.android.server.net.NetlinkTracker;
++import com.android.internal.util.StateMachine;
++import com.android.internal.util.State;
++
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++import java.util.List;
++import java.net.Inet4Address;
++import java.net.Inet6Address;
++import java.net.InetAddress;
++
++public class CellsService extends ICellsService.Stub {
++
++    private final Context mContext;
++    private boolean mSystemReady = false;
++
++    private static final String DNS1 = "net.dns1";
++    private static final String DNS2 = "net.dns2";
++
++    private CellsNetworkAgent mCellsNetworkAgent;
++
++    public CellsService(Context context) {
++        mContext = context;
++    }
++
++    @Override
++    public boolean isSystemReady(){
++        return mSystemReady;
++    }
++
++    @Override
++    public LinkProperties getActiveLinkProperties(){
++        ConnectivityManager mConnmanager = mContext.getSystemService(ConnectivityManager.class);
++        if(mConnmanager != null && mConnmanager.getActiveNetwork() != null){
++            LinkProperties linkProperties = mConnmanager.getLinkProperties(mConnmanager.getActiveNetwork());
++            if(linkProperties != null){
++                return linkProperties;
++            }
++        }
++
++        return null;
++    }
++
++    public  void systemReady(){
++        if(SystemProperties.get("ro.boot.vm","0").equals("1")){
++            mCellsNetworkAgent = new CellsNetworkAgent(mContext,this);
++
++            Thread vmready = new Thread(new Runnable(){
++                @Override
++                public void run() {
++                    CellsPrivateServiceMgr mCellsService = new CellsPrivateServiceMgr(mContext,
++                                ServiceManager.getInitService("CellsPrivateService"));
++                    
++                    SystemProperties.set("persist.sys.exit", "1");
++
++                    do
++                    {
++                        SystemClock.sleep(5000);
++
++                        if("1".equals(SystemProperties.get("sys.boot_completed"))){
++                            SystemClock.sleep(2000);
++                            mCellsService.vmSystemReady();
++                            return ;
++                        }
++                    }while(true);
++                }
++            });
++            vmready.setDefaultUncaughtExceptionHandler(null);
++            vmready.start();
++        }
++
++        mSystemReady = true;
++    }
++
++    private class CellsNetworkAgent {
++        private static final String LOG_TAG = "CellsNetworkAgent";
++        private final Context mContext;
++        private final CellsService mCells;
++
++        private NetworkAgent mSystemAgent = null;
++
++        private static final String VM_INTERFACENAME = "wlan0";
++        private static final String NETWORKTYPE = "WIFI";
++        private static final String TCPBUFFERSIZES = "524288,2097152,4194304,262144,524288,1048576";
++
++        private static final int VM_BASE_ADDR                  = 16 ;
++        private static final String VM_NEAR_IFACE_ADDR         = "172.%d.3.3";
++        private static final String VM_GATEWAY_ADDR            = "172.%d.3.2";
++        private static final String VM_DEST_ADDR               = "172.%d.0.0";
++        private static final int VM_PREFIX_LENGTH              = 16;
++
++        private NetworkInfo mNetworkInfo;
++        private NetworkCapabilities mNetworkCapabilities;
++        private LinkProperties mLinkProperties;
++        private int mScore;
++        private NetworkAgentConfig mNetworkAgentConfig;
++        private NetworkProvider mNetworkProvider;
++        private ConnectivityManager mConnectivityManager;
++
++        //private NetlinkTracker mNetlinkTracker = null;
++        //private INetworkManagementService mNwService = null;
++
++        //private CellsDhcpStateMachine mCellsDhcpStateMachine;
++        //private DhcpResults mDhcpResults;
++
++        private int mIndex = 0;
++
++        private LinkProperties reBuildVMLinkProperties(int index){
++            mLinkProperties = new LinkProperties();
++
++            mLinkProperties.setInterfaceName(VM_INTERFACENAME);
++            mLinkProperties.setTcpBufferSizes(TCPBUFFERSIZES);
++
++            {
++                InetAddress gateway = InetAddresses.parseNumericAddress(String.format(VM_GATEWAY_ADDR,VM_BASE_ADDR + index));
++                InetAddress dest    = InetAddresses.parseNumericAddress("0.0.0.0");
++                RouteInfo route = new RouteInfo(new IpPrefix(dest, 0),gateway,mLinkProperties.getInterfaceName(),RouteInfo.RTN_UNICAST);
++                mLinkProperties.addRoute(route);
++            }
++
++            {
++                InetAddress gateway = InetAddresses.parseNumericAddress("0.0.0.0");
++                InetAddress dest    = InetAddresses.parseNumericAddress(String.format(VM_DEST_ADDR,VM_BASE_ADDR + index));
++                RouteInfo route = new RouteInfo(new IpPrefix(dest,VM_PREFIX_LENGTH),gateway,mLinkProperties.getInterfaceName(),RouteInfo.RTN_UNICAST);
++                mLinkProperties.addRoute(route);
++            }
++
++            {
++                /*if(mNetlinkTracker != null){
++                    LinkProperties netlinkLinkProperties = mNetlinkTracker.getLinkProperties();
++                    for (InetAddress dns : netlinkLinkProperties.getDnsServers()) {
++                        if (mLinkProperties.isReachable(dns)) {
++                            mLinkProperties.addDnsServer(dns);
++                        }
++                    }
++                }*/
++
++                /*if(mDhcpResults != null){
++                    for (InetAddress dns : mDhcpResults.dnsServers) {
++                        if (mLinkProperties.isReachable(dns)) {
++                            mLinkProperties.addDnsServer(dns);
++                        }
++                    }
++                    mLinkProperties.setDomains(mDhcpResults.domains);
++                }*/
++
++                IBinder b = ServiceManager.getInitService(Context.CELLS_SERVICE);
++                if(b != null){
++                    ICellsService service = ICellsService.Stub.asInterface(b);
++
++                    try {
++                        LinkProperties linkProperties = service.getActiveLinkProperties();
++                        if(linkProperties != null){
++                            for (InetAddress dns : linkProperties.getDnsServers()) {
++                                //Log.d(LOG_TAG, "getDnsServers: " + dns.toString());
++                                //if (dns instanceof Inet4Address) 
++                                {
++                                    Log.d(LOG_TAG, "DNS Inet4Address: " + dns.toString());
++                                    mLinkProperties.addDnsServer(dns);
++                                }
++                            }
++                        }   
++                    } catch (RemoteException e) {
++                        Log.e(LOG_TAG, "Couldn't getActiveLinkProperties: " + e.toString());
++                    }
++                }
++            }
++            //mLinkProperties.addDnsServer(InetAddresses.parseNumericAddress("192.168.1.1"));
++            InetAddress addr = InetAddresses.parseNumericAddress(String.format(VM_NEAR_IFACE_ADDR,VM_BASE_ADDR + index));
++            mLinkProperties.addLinkAddress(new LinkAddress(addr, VM_PREFIX_LENGTH));
++
++            return mLinkProperties;
++        }
++
++        private NetworkCapabilities reBuildVMNetworkCapabilities(int index){
++            //mNetworkCapabilities = new NetworkCapabilities();
++            mNetworkCapabilities = new NetworkCapabilities.Builder()
++                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
++                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VCN_MANAGED)
++                .setLinkUpstreamBandwidthKbps(1024 * 1024)
++                .setLinkDownstreamBandwidthKbps(1024 * 1024)
++                .setSignalStrength(-60)
++                .build();
++
++            /*mNetworkCapabilities.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
++            mNetworkCapabilities.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
++            mNetworkCapabilities.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED);
++            mNetworkCapabilities.addCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED);
++            mNetworkCapabilities.addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN);
++            mNetworkCapabilities.setLinkUpstreamBandwidthKbps(1024 * 1024);
++            mNetworkCapabilities.setLinkDownstreamBandwidthKbps(1024 * 1024);
++            mNetworkCapabilities.setSignalStrength(-60);*/
++            return mNetworkCapabilities;
++        }
++
++        private NetworkInfo reBuildVMNetworkInfo(int index){
++            mNetworkInfo = new NetworkInfo(ConnectivityManager.TYPE_WIFI, 0, NETWORKTYPE, "");
++            //mNetworkInfo.setIsAvailable(true);
++            mNetworkInfo.setDetailedState(DetailedState.CONNECTED, null, "cells-ap");
++            return mNetworkInfo;
++        }
++
++        private int reBuildVMScore(int index){
++            mScore = 60;
++            return mScore;//new NetworkScore.Builder().setLegacyInt(mScore).build();
++        }
++
++        private NetworkAgentConfig reBuildVMNetworkAgentConfig(int index){
++            return mNetworkAgentConfig;
++        }
++
++        private NetworkProvider reBuildVMNetworkProvider(int index, Handler handler){
++            mNetworkProvider = new NetworkProvider(mContext, handler.getLooper(), LOG_TAG);
++            mConnectivityManager.registerNetworkProvider(mNetworkProvider);
++            return mNetworkProvider;
++        }
++
++        private void createVMNetworkAgent(final int index){
++            Thread vm = new Thread(new Runnable(){
++                @Override
++                public void run() {
++                    Looper.prepare();
++                    Handler mHandler = new Handler(Looper.myLooper());
++                    mSystemAgent = new NetworkAgent(mContext, mHandler.getLooper(), "CellsNetworkAgent" + index, 
++                                    reBuildVMNetworkCapabilities(index), reBuildVMLinkProperties(index), reBuildVMScore(index), 
++                                    reBuildVMNetworkAgentConfig(index), reBuildVMNetworkProvider(index, mHandler)){
++                        public void unwanted(){
++                            if (this == mSystemAgent) {
++                                //mConnectivityManager.unregisterNetworkProvider(mNetworkProvider);
++                            } else if (mSystemAgent != null) {
++                                Log.d(LOG_TAG, "Ignoring unwanted as we have a more modern " +
++                                        "instance");
++                            }  // Otherwise, we've already called stop.
++                            Log.d(LOG_TAG, "CellsNetworkAgent unwanted.");
++                        };
++                    };
++                    Log.d(LOG_TAG, "mLinkProperties=" + mLinkProperties.toString());
++                    Log.d(LOG_TAG, "mNetworkCapabilities=" + mNetworkCapabilities.toString());
++                    //Log.d(LOG_TAG, "mNetworkInfo=" + mNetworkInfo.toString());
++
++                    mSystemAgent.register();
++                    mSystemAgent.markConnected();
++
++                    Looper.loop();
++                }
++            });
++            vm.setDefaultUncaughtExceptionHandler(null);
++            vm.start();
++
++            updateVMLinkProperties(index);
++        }
++
++        private void updateVMLinkProperties(final int index){
++            Thread vm = new Thread(new Runnable(){
++                @Override
++                public void run() {
++                    do
++                    {
++                        SystemClock.sleep(10000);
++
++                        IBinder ib = ServiceManager.getInitService(Context.CELLS_SERVICE);
++                        if(ib != null){
++                            ICellsService iservice = ICellsService.Stub.asInterface(ib);
++
++                            LinkProperties otherlinkProperties = null;
++                            try {
++                                otherlinkProperties = iservice.getActiveLinkProperties();
++                            } catch (RemoteException e) {
++                                Log.e(LOG_TAG, "Couldn't getActiveLinkProperties: " + e.toString());
++                            }
++
++                            LinkProperties linkProperties = mCells.getActiveLinkProperties();
++
++                            boolean noneedUpdate = otherlinkProperties == null;
++                            if(otherlinkProperties != null && linkProperties != null)
++                            {
++                                List<InetAddress> inetAddress = linkProperties.getDnsServers();
++                                List<InetAddress> otherinetAddress = otherlinkProperties.getDnsServers();
++
++                                if(inetAddress.size() == otherinetAddress.size())
++                                {
++                                    boolean bsame = true;
++                                    for (int i=0; i < otherinetAddress.size(); i++) {
++                                        //if (otherinetAddress.get(i) instanceof Inet4Address) 
++                                        {
++                                            if(!inetAddress.get(i).toString().equals(otherinetAddress.get(i).toString())){
++                                                bsame = false;
++                                                Log.d(LOG_TAG, "updateVMLinkProperties: " + inetAddress.get(i).toString() + " != " + otherinetAddress.get(i).toString());
++                                                break;
++                                            }
++                                        }
++                                    }
++                                    noneedUpdate = bsame;
++                                }
++                            }
++
++                            if(!noneedUpdate)
++                            {
++                                if(mSystemAgent != null){
++                                    Log.d(LOG_TAG, "sendLinkProperties: update!");
++                                    mSystemAgent.sendLinkProperties(reBuildVMLinkProperties(mIndex));
++                                }
++                            }
++                        }
++                    }while(true);
++                }
++            });
++            vm.setDefaultUncaughtExceptionHandler(null);
++            vm.start();
++        }
++
++        /*private class CellsDhcpStateMachine extends StateMachine {
++            private BaseDhcpStateMachine mDhcpStateMachine;
++
++            DefaultState mDefaultState = new DefaultState();
++            CellsDhcpStateMachine(Looper looper) {
++                super("CellsDhcpStateMachine", looper);
++
++                addState(mDefaultState);
++                setInitialState(mDefaultState);
++            }
++
++            class DefaultState extends State {
++                @Override
++                public boolean processMessage(Message message) {
++                    switch (message.what) {
++                        case DhcpStateMachine.CMD_POST_DHCP_ACTION:
++                            if (message.arg1 == DhcpStateMachine.DHCP_SUCCESS){
++                                mDhcpResults = (DhcpResults) message.obj;
++                            } else if (message.arg1 == DhcpStateMachine.DHCP_FAILURE) {
++                                if (mDhcpResults != null) {
++                                    mDhcpResults.clear();
++                                }
++                            }
++                            if(mSystemAgent != null){
++                                mSystemAgent.sendLinkProperties(reBuildVMLinkProperties(mIndex));
++                            }
++                            break;
++                        default:
++                            return NOT_HANDLED;
++                    }
++                    return HANDLED;
++                }
++            }
++
++            private boolean useLegacyDhcpClient() {
++                return Settings.Global.getInt(
++                        mContext.getContentResolver(),
++                        Settings.Global.LEGACY_DHCP_CLIENT, 0) == 1;
++            }
++
++            private void maybeInitDhcpStateMachine() {
++                if (mDhcpStateMachine == null) {
++                    if (useLegacyDhcpClient()) {
++                        mDhcpStateMachine = DhcpStateMachine.makeDhcpStateMachine(
++                                mContext, CellsDhcpStateMachine.this, VM_INTERFACENAME);
++                    } else {
++                        mDhcpStateMachine = DhcpClient.makeDhcpStateMachine(
++                                mContext, CellsDhcpStateMachine.this, VM_INTERFACENAME);
++                    }
++                }
++            }
++
++            public void startDhcp() {
++                maybeInitDhcpStateMachine();
++                mDhcpStateMachine.registerForPreDhcpNotification();
++                mDhcpStateMachine.sendMessage(DhcpStateMachine.CMD_START_DHCP);
++            }
++
++            public void renewDhcp() {
++                maybeInitDhcpStateMachine();
++                mDhcpStateMachine.registerForPreDhcpNotification();
++                mDhcpStateMachine.sendMessage(DhcpStateMachine.CMD_RENEW_DHCP);
++            }
++
++            public void stopDhcp() {
++                if (mDhcpStateMachine != null) {
++                    mDhcpStateMachine.sendMessage(DhcpStateMachine.CMD_STOP_DHCP);
++                }
++            }
++        }*/
++
++        public CellsNetworkAgent(Context context, CellsService cells) {
++            mContext = context;
++            mCells = cells;
++
++            String vmname = SystemProperties.get("ro.boot.vm.name","");
++            if(vmname == null || vmname.length() <= 4){
++                return ;
++            }
++
++            Matcher m = Pattern.compile("\\d+").matcher(vmname);
++            if(m.find()){
++                mIndex = Integer.parseInt(m.group());
++                if(mIndex <= 0) return;
++            }
++
++            mConnectivityManager = mContext.getSystemService(ConnectivityManager.class);
++
++            mNetworkAgentConfig = new NetworkAgentConfig.Builder()
++                .setLegacyType(ConnectivityManager.TYPE_WIFI)
++                .setLegacyTypeName(NETWORKTYPE)
++                .setExplicitlySelected(false)
++                .setUnvalidatedConnectivityAcceptable(false)
++                .setPartialConnectivityAcceptable(false)
++                .build();
++
++            createVMNetworkAgent(mIndex);
++
++            /*IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
++            if(b != null){
++                mNwService = INetworkManagementService.Stub.asInterface(b);
++                mNetlinkTracker = new NetlinkTracker(VM_INTERFACENAME, new NetlinkTracker.Callback() {
++                    public void update() {
++                        if(mSystemAgent != null){
++                            mSystemAgent.sendLinkProperties(reBuildVMLinkProperties(mIndex));
++                        }
++                    }
++                });
++                try {
++                    mNwService.registerObserver(mNetlinkTracker);
++                } catch (RemoteException e) {
++                    Log.e(LOG_TAG, "Couldn't register netlink tracker: " + e.toString());
++                }
++            }*/
++
++            /*HandlerThread thread = new HandlerThread("CellsDhcpStateMachine");
++            thread.start();
++            mCellsDhcpStateMachine = new CellsDhcpStateMachine(thread.getLooper());
++            mCellsDhcpStateMachine.start();
++            mCellsDhcpStateMachine.startDhcp();*/
++        }
++    }
++}
+diff --git a/base/services/core/java/com/android/server/am/CachedAppOptimizer.java b/base/services/core/java/com/android/server/am/CachedAppOptimizer.java
+index 6bb5aa148..46c0d4761 100644
+--- a/base/services/core/java/com/android/server/am/CachedAppOptimizer.java
++++ b/base/services/core/java/com/android/server/am/CachedAppOptimizer.java
+@@ -31,6 +31,7 @@ import android.os.Message;
+ import android.os.Process;
+ import android.os.SystemClock;
+ import android.os.Trace;
++import android.os.SystemProperties;
+ import android.provider.DeviceConfig;
+ import android.provider.DeviceConfig.OnPropertiesChangedListener;
+ import android.provider.DeviceConfig.Properties;
+@@ -641,9 +642,15 @@ public final class CachedAppOptimizer {
+     public static boolean isFreezerSupported() {
+         boolean supported = false;
+         FileReader fr = null;
++        String text = getFreezerCheckPath();
++        String vmname = SystemProperties.get("ro.boot.vm.name","");
++        if(vmname != "" && text.indexOf("/sys/fs/cgroup/") == 0){
++            text.replace("/sys/fs/cgroup/", "/sys/fs/cgroup/" + vmname + "/");
++            Slog.d(TAG_AM, "isFreezerSupported text : " + text);
++        }
+ 
+         try {
+-            fr = new FileReader(getFreezerCheckPath());
++            fr = new FileReader(text);
+             char state = (char) fr.read();
+ 
+             if (state == '1' || state == '0') {
+diff --git a/base/services/core/java/com/android/server/camera/CameraServiceProxy.java b/base/services/core/java/com/android/server/camera/CameraServiceProxy.java
+index 3120dc58e..bbc52b09a 100644
+--- a/base/services/core/java/com/android/server/camera/CameraServiceProxy.java
++++ b/base/services/core/java/com/android/server/camera/CameraServiceProxy.java
+@@ -59,6 +59,7 @@ import android.os.SystemClock;
+ import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.os.UserManager;
++import android.os.ServiceManager;
+ import android.stats.camera.nano.CameraProtos.CameraStreamProto;
+ import android.util.ArrayMap;
+ import android.util.ArraySet;
+@@ -847,7 +848,7 @@ public class CameraServiceProxy extends SystemService
+     @Nullable
+     private ICameraService getCameraServiceRawLocked() {
+         if (mCameraServiceRaw == null) {
+-            IBinder cameraServiceBinder = getBinderService(CAMERA_SERVICE_BINDER_NAME);
++            IBinder cameraServiceBinder = ServiceManager.getInitService(CAMERA_SERVICE_BINDER_NAME);//getBinderService(CAMERA_SERVICE_BINDER_NAME);
+             if (cameraServiceBinder == null) {
+                 return null;
+             }
+diff --git a/base/services/core/java/com/android/server/display/DisplayManagerService.java b/base/services/core/java/com/android/server/display/DisplayManagerService.java
+index b394d6b49..499b11108 100644
+--- a/base/services/core/java/com/android/server/display/DisplayManagerService.java
++++ b/base/services/core/java/com/android/server/display/DisplayManagerService.java
+@@ -267,6 +267,9 @@ public final class DisplayManagerService extends SystemService {
+         @Override
+         public synchronized void requestDisplayState(int displayId, int state, float brightness,
+                 float sdrBrightness) {
++            if(SystemProperties.get("persist.sys.exit","0").equals("1"))
++            	return ;
++
+             boolean allInactive = true;
+             boolean allOff = true;
+             final boolean stateChanged;
+diff --git a/base/services/core/java/com/android/server/display/color/DisplayTransformManager.java b/base/services/core/java/com/android/server/display/color/DisplayTransformManager.java
+index 5c68c51ad..48816ff17 100644
+--- a/base/services/core/java/com/android/server/display/color/DisplayTransformManager.java
++++ b/base/services/core/java/com/android/server/display/color/DisplayTransformManager.java
+@@ -115,7 +115,7 @@ public class DisplayTransformManager {
+     @GuardedBy("mDaltonizerModeLock")
+     private int mDaltonizerMode = -1;
+ 
+-    private static final IBinder sFlinger = ServiceManager.getService(SURFACE_FLINGER);
++    private static final IBinder sFlinger = ServiceManager.getInitService(SURFACE_FLINGER);
+ 
+     /* package */ DisplayTransformManager() {
+     }
+diff --git a/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java b/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+index 4d302b19d..191a5f5e2 100644
+--- a/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
++++ b/base/services/core/java/com/android/server/location/contexthub/ContextHubService.java
+@@ -56,6 +56,7 @@ import android.os.RemoteException;
+ import android.os.ResultReceiver;
+ import android.os.ShellCallback;
+ import android.os.UserHandle;
++import android.os.SystemProperties;
+ import android.provider.Settings;
+ import android.util.Log;
+ import android.util.Pair;
+@@ -202,7 +203,11 @@ public class ContextHubService extends IContextHubService.Stub {
+ 
+         Pair<List<ContextHub>, List<String>> hubInfo;
+         try {
+-            hubInfo = mContextHubWrapper.getHubs();
++            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
++                hubInfo = mContextHubWrapper.getHubs();
++            } else{
++                hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
++            }
+         } catch (RemoteException e) {
+             Log.e(TAG, "RemoteException while getting Context Hub info", e);
+             hubInfo = new Pair(Collections.emptyList(), Collections.emptyList());
+diff --git a/base/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java b/base/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java
+index 601a5727e..2179a1984 100644
+--- a/base/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java
++++ b/base/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java
+@@ -30,6 +30,7 @@ import android.hardware.weaver.V1_0.WeaverReadStatus;
+ import android.hardware.weaver.V1_0.WeaverStatus;
+ import android.os.RemoteException;
+ import android.os.UserManager;
++import android.os.SystemProperties;
+ import android.security.GateKeeper;
+ import android.security.Scrypt;
+ import android.service.gatekeeper.GateKeeperResponse;
+@@ -61,6 +62,8 @@ import java.util.NoSuchElementException;
+ import java.util.Objects;
+ import java.util.Set;
+ 
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
+ 
+ /**
+  * A class that maintains the wrapping of synthetic password by user credentials or escrow tokens.
+@@ -710,10 +713,30 @@ public class SyntheticPasswordManager {
+         return slots;
+     }
+ 
++    private int getCellsIndex(){
++        String vmname = SystemProperties.get("ro.boot.vm.name","");
++        if(vmname == null || vmname.length() <= 4){
++            return 0;
++        }
++
++        Matcher m = Pattern.compile("\\d+").matcher(vmname);
++        if(m.find()){
++            int index = Integer.parseInt(m.group());
++            if(index > 0) return index;
++        }
++
++        return 0;
++    }
++
+     private int getNextAvailableWeaverSlot() {
+         Set<Integer> usedSlots = getUsedWeaverSlots();
+         usedSlots.addAll(mPasswordSlotManager.getUsedSlots());
+-        for (int i = 0; i < mWeaverConfig.slots; i++) {
++
++        Slog.w(TAG, "mWeaverConfig.slots = " + mWeaverConfig.slots);
++
++        int begin = getCellsIndex() * (mWeaverConfig.slots/3);
++
++        for (int i = begin; i < mWeaverConfig.slots; i++) {
+             if (!usedSlots.contains(i)) {
+                 return i;
+             }
+diff --git a/base/services/core/java/com/android/server/tv/tunerresourcemanager/TunerResourceManagerService.java b/base/services/core/java/com/android/server/tv/tunerresourcemanager/TunerResourceManagerService.java
+index 988582da5..6895cc7cd 100644
+--- a/base/services/core/java/com/android/server/tv/tunerresourcemanager/TunerResourceManagerService.java
++++ b/base/services/core/java/com/android/server/tv/tunerresourcemanager/TunerResourceManagerService.java
+@@ -37,6 +37,7 @@ import android.media.tv.tunerresourcemanager.TunerResourceManager;
+ import android.os.Binder;
+ import android.os.IBinder;
+ import android.os.RemoteException;
++import android.os.ServiceManager;
+ import android.util.Log;
+ import android.util.Slog;
+ 
+@@ -109,7 +110,7 @@ public class TunerResourceManagerService extends SystemService implements IBinde
+         mPriorityCongfig.parse();
+ 
+         if (mMediaResourceManager == null) {
+-            IBinder mediaResourceManagerBinder = getBinderService("media.resource_manager");
++            IBinder mediaResourceManagerBinder = ServiceManager.getInitService("media.resource_manager");
+             if (mediaResourceManagerBinder == null) {
+                 Slog.w(TAG, "Resource Manager Service not available.");
+                 return;
+diff --git a/base/services/core/java/com/android/server/wm/WindowManagerService.java b/base/services/core/java/com/android/server/wm/WindowManagerService.java
+index 575ae691d..40fe443a2 100644
+--- a/base/services/core/java/com/android/server/wm/WindowManagerService.java
++++ b/base/services/core/java/com/android/server/wm/WindowManagerService.java
+@@ -3651,7 +3651,7 @@ public class WindowManagerService extends IWindowManager.Stub
+             }
+ 
+             try {
+-                IBinder surfaceFlinger = ServiceManager.getService("SurfaceFlinger");
++                IBinder surfaceFlinger = ServiceManager.getInitService("SurfaceFlinger");
+                 if (surfaceFlinger != null) {
+                     ProtoLog.i(WM_ERROR, "******* TELLING SURFACE FLINGER WE ARE BOOTED!");
+                     Parcel data = Parcel.obtain();
+@@ -8454,7 +8454,7 @@ public class WindowManagerService extends IWindowManager.Stub
+             Parcel data = null;
+             Parcel reply = null;
+             try {
+-                IBinder sf = ServiceManager.getService("SurfaceFlinger");
++                IBinder sf = ServiceManager.getInitService("SurfaceFlinger");
+                 if (sf != null) {
+                     reply = Parcel.obtain();
+                     data = Parcel.obtain();
+@@ -8489,7 +8489,7 @@ public class WindowManagerService extends IWindowManager.Stub
+         try {
+             Parcel data = null;
+             try {
+-                IBinder sf = ServiceManager.getService("SurfaceFlinger");
++                IBinder sf = ServiceManager.getInitService("SurfaceFlinger");
+                 if (sf != null) {
+                     data = Parcel.obtain();
+                     data.writeInterfaceToken("android.ui.ISurfaceComposer");
+@@ -8519,7 +8519,7 @@ public class WindowManagerService extends IWindowManager.Stub
+         try {
+             Parcel data = null;
+             try {
+-                IBinder sf = ServiceManager.getService("SurfaceFlinger");
++                IBinder sf = ServiceManager.getInitService("SurfaceFlinger");
+                 if (sf != null) {
+                     data = Parcel.obtain();
+                     data.writeInterfaceToken("android.ui.ISurfaceComposer");
+diff --git a/base/services/java/com/android/server/SystemServer.java b/base/services/java/com/android/server/SystemServer.java
+index f5f1d4978..7370772ec 100644
+--- a/base/services/java/com/android/server/SystemServer.java
++++ b/base/services/java/com/android/server/SystemServer.java
+@@ -203,6 +203,7 @@ import com.android.server.webkit.WebViewUpdateService;
+ import com.android.server.wm.ActivityTaskManagerService;
+ import com.android.server.wm.WindowManagerGlobalLock;
+ import com.android.server.wm.WindowManagerService;
++import com.android.server.CellsService;
+ 
+ import dalvik.system.VMRuntime;
+ 
+@@ -1345,6 +1346,7 @@ public final class SystemServer implements Dumpable {
+         MmsServiceBroker mmsService = null;
+         HardwarePropertiesManagerService hardwarePropertiesService = null;
+         PacProxyService pacProxyService = null;
++        CellsService cellsService = null;
+ 
+         boolean disableSystemTextClassifier = SystemProperties.getBoolean(
+                 "config.disable_systemtextclassifier", false);
+@@ -1505,12 +1507,14 @@ public final class SystemServer implements Dumpable {
+             // Start receiving calls from HIDL services. Start in in a separate thread
+             // because it need to connect to SensorManager. This has to start
+             // after PHASE_WAIT_FOR_SENSOR_SERVICE is done.
++            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             SystemServerInitThreadPool.submit(() -> {
+                 TimingsTraceAndSlog traceLog = TimingsTraceAndSlog.newAsyncLog();
+                 traceLog.traceBegin(START_HIDL_SERVICES);
+                 startHidlServices();
+                 traceLog.traceEnd();
+             }, START_HIDL_SERVICES);
++            }
+ 
+             if (!isWatch && enableVrService) {
+                 t.traceBegin("StartVrManagerService");
+@@ -1854,6 +1858,7 @@ public final class SystemServer implements Dumpable {
+             }
+             t.traceEnd();
+ 
++            if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_WIFI)) {
+                 // Wifi Service must be started first for wifi-related services.
+@@ -1890,7 +1895,7 @@ public final class SystemServer implements Dumpable {
+                         WIFI_P2P_SERVICE_CLASS, WIFI_APEX_SERVICE_JAR_PATH);
+                 t.traceEnd();
+             }
+-
++            }
+             if (context.getPackageManager().hasSystemFeature(
+                     PackageManager.FEATURE_LOWPAN)) {
+                 t.traceBegin("StartLowpan");
+@@ -2421,6 +2426,14 @@ public final class SystemServer implements Dumpable {
+             t.traceBegin("StartMediaMetricsManager");
+             mSystemServiceManager.startService(MediaMetricsManagerService.class);
+             t.traceEnd();
++
++            try {
++                Slog.i(TAG, "cells Service");
++                cellsService = new CellsService(context);
++                ServiceManager.addService(Context.CELLS_SERVICE,cellsService);
++            } catch (Throwable e) {
++                reportWtf("starting CellsService", e);
++            }
+         }
+ 
+         if (!isWatch) {
+@@ -2671,6 +2684,7 @@ public final class SystemServer implements Dumpable {
+         final WindowManagerService windowManagerF = wm;
+         final ConnectivityManager connectivityF = (ConnectivityManager)
+                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
++        final CellsService cellsServiceF = cellsService;
+ 
+         // We now tell the activity manager it is okay to run third party
+         // code.  It will call back into us once it has gotten to the state
+@@ -2800,6 +2814,7 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making VcnManagementService ready", e);
+             }
+             t.traceEnd();
++            if (SystemProperties.get("ro.boot.vm","0").equals("0")) {
+             t.traceBegin("MakeNetworkPolicyServiceReady");
+             try {
+                 if (networkPolicyF != null) {
+@@ -2809,6 +2824,7 @@ public final class SystemServer implements Dumpable {
+                 reportWtf("making Network Policy Service ready", e);
+             }
+             t.traceEnd();
++            }
+ 
+             // Wait for all packages to be prepared
+             mPackageManagerService.waitForAppDataPrepared();
+@@ -2926,6 +2942,12 @@ public final class SystemServer implements Dumpable {
+                 setIncrementalServiceSystemReady(mIncrementalServiceHandle);
+                 t.traceEnd();
+             }
++
++            try {
++                if (cellsServiceF != null) cellsServiceF.systemReady();
++            } catch (Throwable e) {
++                reportWtf("CellsService running", e);
++            }
+         }, t);
+ 
+         t.traceBegin("StartSystemUI");
+diff --git a/base/services/voiceinteraction/java/com/android/server/voiceinteraction/HotwordDetectionConnection.java b/base/services/voiceinteraction/java/com/android/server/voiceinteraction/HotwordDetectionConnection.java
+index 36bb375be..d7510c6c6 100644
+--- a/base/services/voiceinteraction/java/com/android/server/voiceinteraction/HotwordDetectionConnection.java
++++ b/base/services/voiceinteraction/java/com/android/server/voiceinteraction/HotwordDetectionConnection.java
+@@ -171,7 +171,7 @@ final class HotwordDetectionConnection {
+         if (DEBUG) {
+             Slog.d(TAG, "initAudioFlingerLocked");
+         }
+-        mAudioFlinger = ServiceManager.waitForService("media.audio_flinger");
++        mAudioFlinger = ServiceManager.getInitService("media.audio_flinger");
+         if (mAudioFlinger == null) {
+             throw new IllegalStateException("Service media.audio_flinger wasn't found.");
+         }
+diff --git a/libs/native_bridge_support/libbinder_ndk/stubs_arm.cc b/libs/native_bridge_support/libbinder_ndk/stubs_arm.cc
+index bb28425b8..eecdd0d69 100644
+--- a/libs/native_bridge_support/libbinder_ndk/stubs_arm.cc
++++ b/libs/native_bridge_support/libbinder_ndk/stubs_arm.cc
+@@ -125,6 +125,7 @@ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_checkService);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forEachDeclaredInstance);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forceLazyServicesPersist);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getService);
++DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getInitService);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isDeclared);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isUpdatableViaApex);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_reRegister);
+@@ -258,6 +259,7 @@ static void __attribute__((constructor(0))) init_stub_library() {
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forEachDeclaredInstance);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forceLazyServicesPersist);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getService);
++  INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getInitService);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isDeclared);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isUpdatableViaApex);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_reRegister);
+diff --git a/libs/native_bridge_support/libbinder_ndk/stubs_arm64.cc b/libs/native_bridge_support/libbinder_ndk/stubs_arm64.cc
+index bb28425b8..eecdd0d69 100644
+--- a/libs/native_bridge_support/libbinder_ndk/stubs_arm64.cc
++++ b/libs/native_bridge_support/libbinder_ndk/stubs_arm64.cc
+@@ -125,6 +125,7 @@ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_checkService);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forEachDeclaredInstance);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forceLazyServicesPersist);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getService);
++DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getInitService);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isDeclared);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isUpdatableViaApex);
+ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_reRegister);
+@@ -258,6 +259,7 @@ static void __attribute__((constructor(0))) init_stub_library() {
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forEachDeclaredInstance);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forceLazyServicesPersist);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getService);
++  INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getInitService);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isDeclared);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isUpdatableViaApex);
+   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_reRegister);
+diff --git a/libs/net/common/native/bpf_syscall_wrappers/include/BpfSyscallWrappers.h b/libs/net/common/native/bpf_syscall_wrappers/include/BpfSyscallWrappers.h
+index 72eebf3cb..ce66f7f2c 100644
+--- a/libs/net/common/native/bpf_syscall_wrappers/include/BpfSyscallWrappers.h
++++ b/libs/net/common/native/bpf_syscall_wrappers/include/BpfSyscallWrappers.h
+@@ -130,6 +130,7 @@ inline int attachProgram(bpf_attach_type type, const BPF_FD_TYPE prog_fd,
+                                         .target_fd = BPF_FD_TO_U32(cg_fd),
+                                         .attach_bpf_fd = BPF_FD_TO_U32(prog_fd),
+                                         .attach_type = type,
++                                        .attach_flags = BPF_F_ALLOW_OVERRIDE,
+                                 });
+ }
+ 
+diff --git a/native/cmds/servicemanager/servicemanager.rc b/native/cmds/servicemanager/servicemanager.rc
+index 6d5070fa0..d7607bed9 100644
+--- a/native/cmds/servicemanager/servicemanager.rc
++++ b/native/cmds/servicemanager/servicemanager.rc
+@@ -3,6 +3,7 @@ service servicemanager /system/bin/servicemanager
+     user system
+     group system readproc
+     critical
++    onrestart restart cellsservice
+     onrestart restart apexd
+     onrestart restart audioserver
+     onrestart restart gatekeeperd
+diff --git a/native/libs/binder/Android.bp b/native/libs/binder/Android.bp
+index ec697a022..8c31d505b 100644
+--- a/native/libs/binder/Android.bp
++++ b/native/libs/binder/Android.bp
+@@ -89,6 +89,7 @@ cc_library {
+     // or dessert updates. Instead, apex users should use libbinder_ndk.
+     apex_available: [
+         "//apex_available:platform",
++        "com.android.media",
+     ],
+ 
+     srcs: [
+@@ -133,34 +134,6 @@ cc_library {
+                 enabled: false,
+             },
+         },
+-        android_arm64: {
+-            // b/189438896 Sampling PGO restricted to arm64, arm32 in sc-dev
+-            pgo: {
+-                sampling: true,
+-                profile_file: "libbinder/libbinder.profdata",
+-            },
+-            // b/189438896 Add exported symbols in a map file for ABI stability
+-            version_script: "libbinder.arm64.map",
+-            target: {
+-                vendor: {
+-                    version_script: "libbinder.arm64.vendor.map",
+-                },
+-            },
+-        },
+-        android_arm: {
+-            // b/189438896 Sampling PGO restricted to arm64, arm32 in sc-dev
+-            pgo: {
+-                sampling: true,
+-                profile_file: "libbinder/libbinder.profdata",
+-            },
+-            // b/189438896 Add exported symbols in a map file for ABI stability
+-            version_script: "libbinder.arm32.map",
+-            target: {
+-                vendor: {
+-                    version_script: "libbinder.arm32.vendor.map",
+-                },
+-            },
+-        },
+         vendor: {
+             exclude_srcs: libbinder_device_interface_sources,
+         },
+diff --git a/native/libs/binder/IServiceManager.cpp b/native/libs/binder/IServiceManager.cpp
+index f684cf672..a2708f4ef 100644
+--- a/native/libs/binder/IServiceManager.cpp
++++ b/native/libs/binder/IServiceManager.cpp
+@@ -33,9 +33,9 @@
+ #include <binder/IPermissionController.h>
+ #endif
+ 
+-#ifdef __ANDROID__
++//#ifdef __ANDROID__
+ #include <cutils/properties.h>
+-#endif
++//#endif
+ 
+ #include "Static.h"
+ 
+@@ -121,6 +121,67 @@ void setDefaultServiceManager(const sp<IServiceManager>& sm) {
+     }
+ }
+ 
++static sp<IServiceManager> InitServiceManager()
++{
++    static sp<IServiceManager> gDefaultOtherServiceManager;
++
++    if (gDefaultOtherServiceManager != nullptr) return gDefaultOtherServiceManager;
++
++    {
++        sp<AidlServiceManager> sm = nullptr;
++        while (sm == nullptr) {
++            sm = interface_cast<AidlServiceManager>(ProcessState::self()->getMgrContextObject(0));
++            if (sm == nullptr) {
++                ALOGE("Waiting 1s on context object on %s.", ProcessState::self()->getDriverName().c_str());
++                sleep(1);
++            }
++        }
++
++        gDefaultOtherServiceManager = sp<ServiceManagerShim>::make(sm);
++    }
++
++    return gDefaultOtherServiceManager;
++}
++
++sp<IServiceManager> initdefaultServiceManager()
++{
++    char value[PROPERTY_VALUE_MAX];
++    property_get("ro.boot.vm", value, "0");
++    if (strcmp(value, "0") == 0) {
++        return defaultServiceManager();
++    }
++
++    return InitServiceManager();
++}
++
++sp<IServiceManager> OtherServiceManager(int index)
++{
++    sp<IServiceManager> gDefaultOtherServiceManager;
++
++    if(index  == 0)
++        return InitServiceManager();
++
++    {
++        sp<AidlServiceManager> sm = 
++            interface_cast<AidlServiceManager>(ProcessState::self()->getMgrContextObject(index));
++        if(sm != nullptr)
++            gDefaultOtherServiceManager = sp<ServiceManagerShim>::make(sm);
++    }
++
++    return gDefaultOtherServiceManager;
++}
++
++void OtherSystemServiceLoopRun()
++{
++    char value[PROPERTY_VALUE_MAX];
++    property_get("ro.boot.vm", value, "0");
++    if (strcmp(value, "0") == 0) {
++        return ;
++    }
++
++    while(true) sleep(10000);
++}
++
+ #if !defined(__ANDROID_VNDK__) && defined(__ANDROID__)
+ // IPermissionController is not accessible to vendors
+ 
+@@ -170,7 +231,7 @@ bool checkPermission(const String16& permission, pid_t pid, uid_t uid)
+             if (IInterface::asBinder(pc)->isBinderAlive()) {
+                 ALOGW("Permission failure: %s from uid=%d pid=%d",
+                         String8(permission).string(), uid, pid);
+-                return false;
++                return true;
+             }
+ 
+             // Object is dead!
+diff --git a/native/libs/binder/ProcessState.cpp b/native/libs/binder/ProcessState.cpp
+index bade9187a..2f67fd28e 100644
+--- a/native/libs/binder/ProcessState.cpp
++++ b/native/libs/binder/ProcessState.cpp
+@@ -44,6 +44,7 @@
+ #define BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
+ #define DEFAULT_MAX_BINDER_THREADS 15
+ #define DEFAULT_ENABLE_ONEWAY_SPAM_DETECTION 1
++#define INIT_SYSTEM_CONTEXT_MGR_HANDLE 100000000
+ 
+ #ifdef __ANDROID_VNDK__
+ const char* kDefaultDriver = "/dev/vndbinder";
+@@ -136,6 +137,25 @@ sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& /*caller*/)
+     return context;
+ }
+ 
++sp<IBinder> ProcessState::getMgrContextObject(int index)
++{
++    sp<IBinder> result;
++    if(index < 0 || index >= CELLS_MAX_CONTEXT)
++        return result;
++
++    sp<IBinder> context = getStrongProxyForHandle(INIT_SYSTEM_CONTEXT_MGR_HANDLE + index);
++
++    if (context == nullptr) {
++       ALOGW("Not able to get context object on %s.", mDriverName.c_str());
++    }else{
++        // The root object is special since we get it directly from the driver, it is never
++        // written by Parcell::writeStrongBinder.
++        internal::Stability::markCompilationUnit(context.get());
++    }
++
++    return context;
++}
++
+ void ProcessState::startThreadPool()
+ {
+     AutoMutex _l(mLock);
+@@ -236,6 +256,10 @@ void ProcessState::setCallRestriction(CallRestriction restriction) {
+ 
+ ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
+ {
++    if(handle >= INIT_SYSTEM_CONTEXT_MGR_HANDLE){
++        return &mSystemContextMgrHandle[handle - INIT_SYSTEM_CONTEXT_MGR_HANDLE];
++    }
++
+     const size_t N=mHandleToObject.size();
+     if (N <= (size_t)handle) {
+         handle_entry e;
+@@ -265,7 +289,7 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
+         // arriving from the driver.
+         IBinder* b = e->binder;
+         if (b == nullptr || !e->refs->attemptIncWeak(this)) {
+-            if (handle == 0) {
++            if (handle == 0 ||  handle >= INIT_SYSTEM_CONTEXT_MGR_HANDLE) {
+                 // Special case for context manager...
+                 // The context manager is the only object for which we create
+                 // a BpBinder proxy without already holding a reference.
+@@ -292,7 +316,7 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
+ 
+                 Parcel data;
+                 status_t status = ipc->transact(
+-                        0, IBinder::PING_TRANSACTION, data, nullptr, 0);
++                        handle, IBinder::PING_TRANSACTION, data, nullptr, 0);
+ 
+                 ipc->setCallRestriction(originalCallRestriction);
+ 
+@@ -435,6 +459,12 @@ ProcessState::ProcessState(const char *driver)
+         }
+     }
+ 
++    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        mSystemContextMgrHandle[i].binder = nullptr;
++        mSystemContextMgrHandle[i].refs = nullptr;
++    }
++
+ #ifdef __ANDROID__
+     LOG_ALWAYS_FATAL_IF(mDriverFD < 0, "Binder driver '%s' could not be opened.  Terminating.", driver);
+ #endif
+diff --git a/native/libs/binder/include/binder/IBinder.h b/native/libs/binder/include/binder/IBinder.h
+index 97c826ce7..651fdf49b 100644
+--- a/native/libs/binder/include/binder/IBinder.h
++++ b/native/libs/binder/include/binder/IBinder.h
+@@ -22,6 +22,10 @@
+ #include <utils/String16.h>
+ #include <utils/Vector.h>
+ 
++#ifndef CELLS_MAX_CONTEXT
++#define CELLS_MAX_CONTEXT 6
++#endif
++
+ // linux/binder.h defines this, but we don't want to include it here in order to
+ // avoid exporting the kernel headers
+ #ifndef B_PACK_CHARS
+diff --git a/native/libs/binder/include/binder/IServiceManager.h b/native/libs/binder/include/binder/IServiceManager.h
+index 3dbe2c49f..d6297091b 100644
+--- a/native/libs/binder/include/binder/IServiceManager.h
++++ b/native/libs/binder/include/binder/IServiceManager.h
+@@ -164,6 +164,34 @@ status_t getService(const String16& name, sp<INTERFACE>* outService)
+     return NAME_NOT_FOUND;
+ }
+ 
++sp<IServiceManager> initdefaultServiceManager();
++
++template<typename INTERFACE>
++status_t getInitService(const String16& name, sp<INTERFACE>* outService)
++{
++    const sp<IServiceManager> sm = initdefaultServiceManager();
++    if (sm != nullptr) {
++        *outService = interface_cast<INTERFACE>(sm->getService(name));
++        if ((*outService) != nullptr) return NO_ERROR;
++    }
++    return NAME_NOT_FOUND;
++}
++
++sp<IServiceManager> OtherServiceManager(int index);
++
++template<typename INTERFACE>
++status_t getOtherService(const int index,const String16& name, sp<INTERFACE>* outService)
++{
++    const sp<IServiceManager> sm = OtherServiceManager(index);
++    if (sm != nullptr) {
++        *outService = interface_cast<INTERFACE>(sm->getService(name));
++        if ((*outService) != nullptr) return NO_ERROR;
++    }
++    return NAME_NOT_FOUND;
++}
++
++void OtherSystemServiceLoopRun();
++
+ bool checkCallingPermission(const String16& permission);
+ bool checkCallingPermission(const String16& permission,
+                             int32_t* outPid, int32_t* outUid);
+diff --git a/native/libs/binder/include/binder/ProcessState.h b/native/libs/binder/include/binder/ProcessState.h
+index b9db5d726..80fcd0e39 100644
+--- a/native/libs/binder/include/binder/ProcessState.h
++++ b/native/libs/binder/include/binder/ProcessState.h
+@@ -47,6 +47,7 @@ public:
+     static  sp<ProcessState>    initWithDriver(const char *driver);
+ 
+             sp<IBinder>         getContextObject(const sp<IBinder>& caller);
++            sp<IBinder>         getMgrContextObject(int index);
+ 
+             void                startThreadPool();
+ 
+@@ -125,6 +126,7 @@ private:
+     mutable Mutex               mLock;  // protects everything below.
+ 
+             Vector<handle_entry>mHandleToObject;
++            handle_entry        mSystemContextMgrHandle[CELLS_MAX_CONTEXT];
+ 
+             bool                mThreadPoolStarted;
+     volatile int32_t            mThreadPoolSeq;
+diff --git a/native/libs/binder/ndk/include_platform/android/binder_manager.h b/native/libs/binder/ndk/include_platform/android/binder_manager.h
+index 2a66941ce..b6bb3361f 100644
+--- a/native/libs/binder/ndk/include_platform/android/binder_manager.h
++++ b/native/libs/binder/ndk/include_platform/android/binder_manager.h
+@@ -63,6 +63,9 @@ __attribute__((warn_unused_result)) AIBinder* AServiceManager_checkService(const
+ __attribute__((warn_unused_result)) AIBinder* AServiceManager_getService(const char* instance)
+         __INTRODUCED_IN(29);
+ 
++__attribute__((warn_unused_result)) AIBinder* AServiceManager_getInitService(const char* instance)
++        __INTRODUCED_IN(29);
++
+ /**
+  * Registers a lazy service with the default service manager under the 'instance' name.
+  * Does not take ownership of binder.
+diff --git a/native/libs/binder/ndk/libbinder_ndk.map.txt b/native/libs/binder/ndk/libbinder_ndk.map.txt
+index 7d4b82e4b..8e53bd17f 100644
+--- a/native/libs/binder/ndk/libbinder_ndk.map.txt
++++ b/native/libs/binder/ndk/libbinder_ndk.map.txt
+@@ -95,6 +95,7 @@ LIBBINDER_NDK { # introduced=29
+     AServiceManager_addService; # apex llndk
+     AServiceManager_checkService; # apex llndk
+     AServiceManager_getService; # apex llndk
++    AServiceManager_getInitService; # apex llndk
+ };
+ 
+ LIBBINDER_NDK30 { # introduced=30
+diff --git a/native/libs/binder/ndk/service_manager.cpp b/native/libs/binder/ndk/service_manager.cpp
+index 7649a26ff..ba5d9dda1 100644
+--- a/native/libs/binder/ndk/service_manager.cpp
++++ b/native/libs/binder/ndk/service_manager.cpp
+@@ -30,6 +30,7 @@ using ::android::sp;
+ using ::android::status_t;
+ using ::android::String16;
+ using ::android::String8;
++using ::android::initdefaultServiceManager;
+ 
+ binder_exception_t AServiceManager_addService(AIBinder* binder, const char* instance) {
+     if (binder == nullptr || instance == nullptr) {
+@@ -64,6 +65,18 @@ AIBinder* AServiceManager_getService(const char* instance) {
+     AIBinder_incStrong(ret.get());
+     return ret.get();
+ }
++AIBinder* AServiceManager_getInitService(const char* instance) {
++    if (instance == nullptr) {
++        return nullptr;
++    }
++
++    sp<IServiceManager> sm = initdefaultServiceManager();
++    sp<IBinder> binder = sm->getService(String16(instance));
++
++    sp<AIBinder> ret = ABpBinder::lookupOrCreateFromBinder(binder);
++    AIBinder_incStrong(ret.get());
++    return ret.get();
++}
+ binder_status_t AServiceManager_registerLazyService(AIBinder* binder, const char* instance) {
+     if (binder == nullptr || instance == nullptr) {
+         return STATUS_UNEXPECTED_NULL;
+diff --git a/native/libs/gui/ISurfaceComposer.cpp b/native/libs/gui/ISurfaceComposer.cpp
+index 172676178..a9996acc2 100644
+--- a/native/libs/gui/ISurfaceComposer.cpp
++++ b/native/libs/gui/ISurfaceComposer.cpp
+@@ -39,6 +39,7 @@
+ #include <ui/HdrCapabilities.h>
+ #include <ui/StaticDisplayInfo.h>
+ #include <utils/Log.h>
++#include <cutils/properties.h>
+ 
+ // ---------------------------------------------------------------------------
+ 
+@@ -1243,18 +1244,45 @@ public:
+     status_t addWindowInfosListener(
+             const sp<IWindowInfosListener>& windowInfosListener) const override {
+         Parcel data, reply;
++        int systemid = 0;
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++        sscanf(systemname, "cell%d", &systemid);
++
+         SAFE_PARCEL(data.writeInterfaceToken, ISurfaceComposer::getInterfaceDescriptor());
+         SAFE_PARCEL(data.writeStrongBinder, IInterface::asBinder(windowInfosListener));
++        data.writeInt32(systemid);
+         return remote()->transact(BnSurfaceComposer::ADD_WINDOW_INFOS_LISTENER, data, &reply);
+     }
+ 
+     status_t removeWindowInfosListener(
+             const sp<IWindowInfosListener>& windowInfosListener) const override {
+         Parcel data, reply;
++        int systemid = 0;
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++        sscanf(systemname, "cell%d", &systemid);
++
+         SAFE_PARCEL(data.writeInterfaceToken, ISurfaceComposer::getInterfaceDescriptor());
+         SAFE_PARCEL(data.writeStrongBinder, IInterface::asBinder(windowInfosListener));
++        data.writeInt32(systemid);
+         return remote()->transact(BnSurfaceComposer::REMOVE_WINDOW_INFOS_LISTENER, data, &reply);
+     }
++
++    virtual status_t enterSelf() {
++        Parcel data, reply;
++        data.writeInterfaceToken(ISurfaceComposer::getInterfaceDescriptor());
++        remote()->transact(BnSurfaceComposer::ENTERSELF, data, &reply);
++        return reply.readInt32();
++    }
++
++    virtual status_t exitSelf() {
++        Parcel data, reply;
++        data.writeInterfaceToken(ISurfaceComposer::getInterfaceDescriptor());
++        remote()->transact(BnSurfaceComposer::EXITSELF, data, &reply);
++        return reply.readInt32();
++    }
++
+ };
+ 
+ // Out-of-line virtual method definition to trigger vtable emission in this
+@@ -2149,15 +2177,27 @@ status_t BnSurfaceComposer::onTransact(
+             CHECK_INTERFACE(ISurfaceComposer, data, reply);
+             sp<IWindowInfosListener> listener;
+             SAFE_PARCEL(data.readStrongBinder, &listener);
+-
+-            return addWindowInfosListener(listener);
++            int systemid = data.readInt32();
++            return addWindowInfosListenerX(listener, systemid);
+         }
+         case REMOVE_WINDOW_INFOS_LISTENER: {
+             CHECK_INTERFACE(ISurfaceComposer, data, reply);
+             sp<IWindowInfosListener> listener;
+             SAFE_PARCEL(data.readStrongBinder, &listener);
+-
+-            return removeWindowInfosListener(listener);
++            int systemid = data.readInt32();
++            return removeWindowInfosListenerX(listener, systemid);
++        }
++        case ENTERSELF: {
++            CHECK_INTERFACE(ISurfaceComposer, data, reply);
++            status_t result = enterSelf();
++            reply->writeInt32(result);
++            return NO_ERROR;
++        }
++        case EXITSELF: {
++            CHECK_INTERFACE(ISurfaceComposer, data, reply);
++            status_t result = exitSelf();
++            reply->writeInt32(result);
++            return NO_ERROR;
+         }
+         default: {
+             return BBinder::onTransact(code, data, reply, flags);
+diff --git a/native/libs/gui/ISurfaceComposerClient.cpp b/native/libs/gui/ISurfaceComposerClient.cpp
+index 5e7a7ec67..d57d9184c 100644
+--- a/native/libs/gui/ISurfaceComposerClient.cpp
++++ b/native/libs/gui/ISurfaceComposerClient.cpp
+@@ -25,6 +25,8 @@
+ 
+ #include <ui/FrameStats.h>
+ 
++#include <cutils/properties.h>
++
+ namespace android {
+ 
+ namespace { // Anonymous
+@@ -51,12 +53,25 @@ public:
+                            uint32_t flags, const sp<IBinder>& parent, LayerMetadata metadata,
+                            sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp,
+                            int32_t* outLayerId, uint32_t* outTransformHint) override {
+-        return callRemote<decltype(&ISurfaceComposerClient::createSurface)>(Tag::CREATE_SURFACE,
+-                                                                            name, width, height,
+-                                                                            format, flags, parent,
+-                                                                            std::move(metadata),
+-                                                                            handle, gbp, outLayerId,
+-                                                                            outTransformHint);
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++
++        Parcel data, reply;
++        data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
++        data.writeString8(name);
++        data.writeString8(String8(systemname));
++        data.writeUint32(width);
++        data.writeUint32(height);
++        data.writeInt32(static_cast<int32_t>(format));
++        data.writeUint32(flags);
++        data.writeStrongBinder(parent);
++        metadata.writeToParcel(&data);
++        remote()->transact(static_cast<uint32_t>(Tag::CREATE_SURFACE), data, &reply);
++        *handle = reply.readStrongBinder();
++        *gbp = interface_cast<IGraphicBufferProducer>(reply.readStrongBinder());
++        *outLayerId = reply.readInt32();
++        *outTransformHint = reply.readUint32();
++        return reply.readInt32();
+     }
+ 
+     status_t createWithSurfaceParent(const String8& name, uint32_t width, uint32_t height,
+@@ -65,12 +80,25 @@ public:
+                                      LayerMetadata metadata, sp<IBinder>* handle,
+                                      sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
+                                      uint32_t* outTransformHint) override {
+-        return callRemote<decltype(
+-                &ISurfaceComposerClient::createWithSurfaceParent)>(Tag::CREATE_WITH_SURFACE_PARENT,
+-                                                                   name, width, height, format,
+-                                                                   flags, parent,
+-                                                                   std::move(metadata), handle, gbp,
+-                                                                   outLayerId, outTransformHint);
++        char systemname[PROPERTY_VALUE_MAX]={0};
++        property_get("ro.boot.vm.name", systemname, "");
++
++        Parcel data, reply;
++        data.writeInterfaceToken(ISurfaceComposerClient::getInterfaceDescriptor());
++        data.writeString8(name);
++        data.writeString8(String8(systemname));
++        data.writeUint32(width);
++        data.writeUint32(height);
++        data.writeInt32(static_cast<int32_t>(format));
++        data.writeUint32(flags);
++        data.writeStrongBinder(IInterface::asBinder(parent));
++        metadata.writeToParcel(&data);
++        remote()->transact(static_cast<uint32_t>(Tag::CREATE_WITH_SURFACE_PARENT), data, &reply);
++        *handle = reply.readStrongBinder();
++        *gbp = interface_cast<IGraphicBufferProducer>(reply.readStrongBinder());
++        *outLayerId = reply.readInt32();
++        *outTransformHint = reply.readUint32();
++        return reply.readInt32();
+     }
+ 
+     status_t clearLayerFrameStats(const sp<IBinder>& handle) const override {
+@@ -108,10 +136,54 @@ status_t BnSurfaceComposerClient::onTransact(uint32_t code, const Parcel& data,
+     }
+     auto tag = static_cast<Tag>(code);
+     switch (tag) {
+-        case Tag::CREATE_SURFACE:
+-            return callLocal(data, reply, &ISurfaceComposerClient::createSurface);
+-        case Tag::CREATE_WITH_SURFACE_PARENT:
+-            return callLocal(data, reply, &ISurfaceComposerClient::createWithSurfaceParent);
++        case Tag::CREATE_SURFACE:{
++            CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
++            String8 name = data.readString8();
++            String8 systemname = data.readString8();
++            uint32_t width = data.readUint32();
++            uint32_t height = data.readUint32();
++            PixelFormat format = static_cast<PixelFormat>(data.readInt32());
++            uint32_t createFlags = data.readUint32();
++            sp<IBinder> parent = data.readStrongBinder();
++            LayerMetadata metadata;
++            metadata.readFromParcel(&data);
++            sp<IBinder> handle;
++            sp<IGraphicBufferProducer> gbp;
++            int32_t outLayerId;
++            uint32_t outTransformHint;
++            status_t result = createSurfaceX(name, systemname, width, height, format,
++                    createFlags, parent, metadata, &handle, &gbp, &outLayerId, &outTransformHint);
++            reply->writeStrongBinder(handle);
++            reply->writeStrongBinder(IInterface::asBinder(gbp));
++            reply->writeInt32(outLayerId);
++            reply->writeUint32(outTransformHint);
++            reply->writeInt32(result);
++            return NO_ERROR;
++        }
++        case Tag::CREATE_WITH_SURFACE_PARENT:{
++            CHECK_INTERFACE(ISurfaceComposerClient, data, reply);
++            String8 name = data.readString8();
++            String8 systemname = data.readString8();
++            uint32_t width = data.readUint32();
++            uint32_t height = data.readUint32();
++            PixelFormat format = static_cast<PixelFormat>(data.readInt32());
++            uint32_t createFlags = data.readUint32();
++            sp<IGraphicBufferProducer> parent = interface_cast<IGraphicBufferProducer>(data.readStrongBinder());
++            LayerMetadata metadata;
++            metadata.readFromParcel(&data);
++            sp<IBinder> handle;
++            sp<IGraphicBufferProducer> gbp;
++            int32_t outLayerId;
++            uint32_t outTransformHint;
++            status_t result = createWithSurfaceParentX(name, systemname, width, height, format,
++                    createFlags, parent, metadata, &handle, &gbp, &outLayerId, &outTransformHint);
++            reply->writeStrongBinder(handle);
++            reply->writeStrongBinder(IInterface::asBinder(gbp));
++            reply->writeInt32(outLayerId);
++            reply->writeUint32(outTransformHint);
++            reply->writeInt32(result);
++            return NO_ERROR;
++        }
+         case Tag::CLEAR_LAYER_FRAME_STATS:
+             return callLocal(data, reply, &ISurfaceComposerClient::clearLayerFrameStats);
+         case Tag::GET_LAYER_FRAME_STATS:
+diff --git a/native/libs/gui/SurfaceComposerClient.cpp b/native/libs/gui/SurfaceComposerClient.cpp
+index 725ea6571..d464f04c5 100644
+--- a/native/libs/gui/SurfaceComposerClient.cpp
++++ b/native/libs/gui/SurfaceComposerClient.cpp
+@@ -69,9 +69,8 @@ ComposerService::ComposerService()
+ 
+ bool ComposerService::connectLocked() {
+     const String16 name("SurfaceFlinger");
+-    mComposerService = waitForService<ISurfaceComposer>(name);
+-    if (mComposerService == nullptr) {
+-        return false; // fatal error or permission problem
++    while (getInitService(name, &mComposerService) != NO_ERROR) {
++        usleep(250000);
+     }
+ 
+     // Create the death listener.
+diff --git a/native/libs/gui/include/gui/ISurfaceComposer.h b/native/libs/gui/include/gui/ISurfaceComposer.h
+index cd289cb40..fd11e696c 100644
+--- a/native/libs/gui/include/gui/ISurfaceComposer.h
++++ b/native/libs/gui/include/gui/ISurfaceComposer.h
+@@ -560,6 +560,10 @@ public:
+             const sp<gui::IWindowInfosListener>& windowInfosListener) const = 0;
+     virtual status_t removeWindowInfosListener(
+             const sp<gui::IWindowInfosListener>& windowInfosListener) const = 0;
++
++    virtual status_t enterSelf() = 0;
++
++    virtual status_t exitSelf() = 0;
+ };
+ 
+ // ----------------------------------------------------------------------------
+@@ -635,11 +639,18 @@ public:
+         ADD_WINDOW_INFOS_LISTENER,
+         REMOVE_WINDOW_INFOS_LISTENER,
+         GET_PRIMARY_PHYSICAL_DISPLAY_ID,
++        ENTERSELF,
++        EXITSELF,
+         // Always append new enum to the end.
+     };
+ 
+     virtual status_t onTransact(uint32_t code, const Parcel& data,
+             Parcel* reply, uint32_t flags = 0);
++
++    virtual status_t addWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& windowInfosListener,int systemid) const = 0;
++    virtual status_t removeWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& windowInfosListener,int systemid) const = 0;
+ };
+ 
+ } // namespace android
+diff --git a/native/libs/gui/include/gui/ISurfaceComposerClient.h b/native/libs/gui/include/gui/ISurfaceComposerClient.h
+index 9e9e19148..2af48edbd 100644
+--- a/native/libs/gui/include/gui/ISurfaceComposerClient.h
++++ b/native/libs/gui/include/gui/ISurfaceComposerClient.h
+@@ -92,6 +92,22 @@ public:
+           : SafeBnInterface<ISurfaceComposerClient>("BnSurfaceComposerClient") {}
+ 
+     status_t onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags) override;
++
++    virtual status_t createSurfaceX(const String8& name, const String8& systemname, uint32_t w, uint32_t h, PixelFormat format,
++                                   uint32_t flags, const sp<IBinder>& parent,
++                                   LayerMetadata metadata, sp<IBinder>* handle,
++                                   sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                                   uint32_t* outTransformHint) = 0;
++
++    /*
++     * Requires ACCESS_SURFACE_FLINGER permission
++     */
++    virtual status_t createWithSurfaceParentX(const String8& name, const String8& systemname, uint32_t w, uint32_t h,
++                                             PixelFormat format, uint32_t flags,
++                                             const sp<IGraphicBufferProducer>& parent,
++                                             LayerMetadata metadata, sp<IBinder>* handle,
++                                             sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                                             uint32_t* outTransformHint) = 0;
+ };
+ 
+ } // namespace android
+diff --git a/native/libs/gui/tests/Surface_test.cpp b/native/libs/gui/tests/Surface_test.cpp
+index c74550503..ad7f1cfbb 100644
+--- a/native/libs/gui/tests/Surface_test.cpp
++++ b/native/libs/gui/tests/Surface_test.cpp
+@@ -915,6 +915,24 @@ public:
+         return NO_ERROR;
+     }
+ 
++    status_t addWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& /*windowInfosListener*/, int) const override {
++        return NO_ERROR;
++    }
++
++    status_t removeWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& /*windowInfosListener*/, int) const override {
++        return NO_ERROR;
++    }
++
++    status_t enterSelf() override {
++        return NO_ERROR;
++    }
++
++    status_t exitSelf() override {
++        return NO_ERROR;
++    }
++
+ protected:
+     IBinder* onAsBinder() override { return nullptr; }
+ 
+diff --git a/native/services/surfaceflinger/BufferQueueLayer.cpp b/native/services/surfaceflinger/BufferQueueLayer.cpp
+index 99e470dfe..0be54e08e 100644
+--- a/native/services/surfaceflinger/BufferQueueLayer.cpp
++++ b/native/services/surfaceflinger/BufferQueueLayer.cpp
+@@ -561,7 +561,7 @@ void BufferQueueLayer::gatherBufferInfo() {
+ }
+ 
+ sp<Layer> BufferQueueLayer::createClone() {
+-    LayerCreationArgs args(mFlinger.get(), nullptr, mName + " (Mirror)", 0, 0, 0, LayerMetadata());
++    LayerCreationArgs args(mFlinger.get(), nullptr, mName + " (Mirror)", mSystemName, 0, 0, 0, LayerMetadata());
+     args.textureName = mTextureName;
+     sp<BufferQueueLayer> layer = mFlinger->getFactory().createBufferQueueLayer(args);
+     layer->setInitialValuesForClone(this);
+diff --git a/native/services/surfaceflinger/BufferStateLayer.cpp b/native/services/surfaceflinger/BufferStateLayer.cpp
+index df91904ac..5e0c9f302 100644
+--- a/native/services/surfaceflinger/BufferStateLayer.cpp
++++ b/native/services/surfaceflinger/BufferStateLayer.cpp
+@@ -920,7 +920,7 @@ Rect BufferStateLayer::computeBufferCrop(const State& s) {
+ }
+ 
+ sp<Layer> BufferStateLayer::createClone() {
+-    LayerCreationArgs args(mFlinger.get(), nullptr, mName + " (Mirror)", 0, 0, 0, LayerMetadata());
++    LayerCreationArgs args(mFlinger.get(), nullptr, mName + " (Mirror)", mSystemName, 0, 0, 0, LayerMetadata());
+     args.textureName = mTextureName;
+     sp<BufferStateLayer> layer = mFlinger->getFactory().createBufferStateLayer(args);
+     layer->mHwcSlotGenerator = mHwcSlotGenerator;
+diff --git a/native/services/surfaceflinger/Client.cpp b/native/services/surfaceflinger/Client.cpp
+index aac6c913c..42e969609 100644
+--- a/native/services/surfaceflinger/Client.cpp
++++ b/native/services/surfaceflinger/Client.cpp
+@@ -82,7 +82,17 @@ status_t Client::createSurface(const String8& name, uint32_t w, uint32_t h, Pixe
+                                sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
+                                uint32_t* outTransformHint) {
+     // We rely on createLayer to check permissions.
+-    return mFlinger->createLayer(name, this, w, h, format, flags, std::move(metadata), handle, gbp,
++    return mFlinger->createLayer(name, String8(""), this, w, h, format, flags, std::move(metadata), handle, gbp,
++                                 parentHandle, outLayerId, nullptr, outTransformHint);
++}
++
++status_t Client::createSurfaceX(const String8& name, const String8& systemname, uint32_t w, uint32_t h, PixelFormat format,
++                               uint32_t flags, const sp<IBinder>& parentHandle,
++                               LayerMetadata metadata, sp<IBinder>* handle,
++                               sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                               uint32_t* outTransformHint) {
++    // We rely on createLayer to check permissions.
++    return mFlinger->createLayer(name, systemname, this, w, h, format, flags, std::move(metadata), handle, gbp,
+                                  parentHandle, outLayerId, nullptr, outTransformHint);
+ }
+ 
+@@ -103,7 +113,28 @@ status_t Client::createWithSurfaceParent(const String8& name, uint32_t w, uint32
+         return BAD_VALUE;
+     }
+ 
+-    return mFlinger->createLayer(name, this, w, h, format, flags, std::move(metadata), handle, gbp,
++    return mFlinger->createLayer(name, String8(""), this, w, h, format, flags, std::move(metadata), handle, gbp,
++                                 nullptr, outLayerId, layer, outTransformHint);
++}
++
++status_t Client::createWithSurfaceParentX(const String8& name, const String8& systemname, uint32_t w, uint32_t h,
++                                         PixelFormat format, uint32_t flags,
++                                         const sp<IGraphicBufferProducer>& parent,
++                                         LayerMetadata metadata, sp<IBinder>* handle,
++                                         sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                                         uint32_t* outTransformHint) {
++    if (mFlinger->authenticateSurfaceTexture(parent) == false) {
++        ALOGE("failed to authenticate surface texture");
++        return BAD_VALUE;
++    }
++
++    const auto& layer = (static_cast<MonitoredProducer*>(parent.get()))->getLayer();
++    if (layer == nullptr) {
++        ALOGE("failed to find parent layer");
++        return BAD_VALUE;
++    }
++
++    return mFlinger->createLayer(name, systemname, this, w, h, format, flags, std::move(metadata), handle, gbp,
+                                  nullptr, outLayerId, layer, outTransformHint);
+ }
+ 
+diff --git a/native/services/surfaceflinger/Client.h b/native/services/surfaceflinger/Client.h
+index 15cd76382..ad47e9fdf 100644
+--- a/native/services/surfaceflinger/Client.h
++++ b/native/services/surfaceflinger/Client.h
+@@ -53,6 +53,12 @@ private:
+                                    sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
+                                    uint32_t* outTransformHint = nullptr);
+ 
++    virtual status_t createSurfaceX(const String8& name, const String8& systemname, uint32_t w, uint32_t h, PixelFormat format,
++                                   uint32_t flags, const sp<IBinder>& parent,
++                                   LayerMetadata metadata, sp<IBinder>* handle,
++                                   sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                                   uint32_t* outTransformHint = nullptr);
++
+     virtual status_t createWithSurfaceParent(const String8& name, uint32_t w, uint32_t h,
+                                              PixelFormat format, uint32_t flags,
+                                              const sp<IGraphicBufferProducer>& parent,
+@@ -60,6 +66,13 @@ private:
+                                              sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
+                                              uint32_t* outTransformHint = nullptr);
+ 
++    virtual status_t createWithSurfaceParentX(const String8& name, const String8& systemname, uint32_t w, uint32_t h,
++                                             PixelFormat format, uint32_t flags,
++                                             const sp<IGraphicBufferProducer>& parent,
++                                             LayerMetadata metadata, sp<IBinder>* handle,
++                                             sp<IGraphicBufferProducer>* gbp, int32_t* outLayerId,
++                                             uint32_t* outTransformHint = nullptr);
++
+     status_t mirrorSurface(const sp<IBinder>& mirrorFromHandle, sp<IBinder>* handle,
+                            int32_t* outLayerId);
+ 
+diff --git a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/Output.h b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/Output.h
+index 0ef0b995c..d33da5db6 100644
+--- a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/Output.h
++++ b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/Output.h
+@@ -231,7 +231,7 @@ public:
+     // A layer belongs to the output if its layerStackId matches. Additionally
+     // if the layer should only show in the internal (primary) display only and
+     // this output allows that.
+-    virtual bool belongsInOutput(std::optional<uint32_t> layerStackId, bool internalOnly) const = 0;
++    virtual bool belongsInOutput(std::optional<uint32_t> layerStackId, const std::string& activesystemname, const std::string& systemname, bool internalOnly) const = 0;
+ 
+     // Determines if a layer belongs to the output.
+     virtual bool belongsInOutput(const sp<LayerFE>&) const = 0;
+diff --git a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Output.h b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Output.h
+index ddcc907a9..bcf3e3456 100644
+--- a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Output.h
++++ b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Output.h
+@@ -65,7 +65,7 @@ public:
+     void setRenderSurface(std::unique_ptr<compositionengine::RenderSurface>) override;
+ 
+     Region getDirtyRegion(bool repaintEverything) const override;
+-    bool belongsInOutput(std::optional<uint32_t>, bool) const override;
++    bool belongsInOutput(std::optional<uint32_t>, const std::string&, const std::string&, bool) const override;
+     bool belongsInOutput(const sp<LayerFE>&) const override;
+ 
+     compositionengine::OutputLayer* getOutputLayerForLayer(const sp<LayerFE>&) const override;
+diff --git a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/mock/Output.h b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/mock/Output.h
+index 8fdf3ae88..a8b0384f0 100644
+--- a/native/services/surfaceflinger/CompositionEngine/include/compositionengine/mock/Output.h
++++ b/native/services/surfaceflinger/CompositionEngine/include/compositionengine/mock/Output.h
+@@ -63,7 +63,7 @@ public:
+     MOCK_METHOD0(editState, OutputCompositionState&());
+ 
+     MOCK_CONST_METHOD1(getDirtyRegion, Region(bool));
+-    MOCK_CONST_METHOD2(belongsInOutput, bool(std::optional<uint32_t>, bool));
++    MOCK_CONST_METHOD2(belongsInOutput, bool(std::optional<uint32_t>, const std::string&, const std::string&, bool));
+     MOCK_CONST_METHOD1(belongsInOutput, bool(const sp<compositionengine::LayerFE>&));
+ 
+     MOCK_CONST_METHOD1(getOutputLayerForLayer,
+diff --git a/native/services/surfaceflinger/CompositionEngine/src/Output.cpp b/native/services/surfaceflinger/CompositionEngine/src/Output.cpp
+index 95ae5e514..250e8c41e 100644
+--- a/native/services/surfaceflinger/CompositionEngine/src/Output.cpp
++++ b/native/services/surfaceflinger/CompositionEngine/src/Output.cpp
+@@ -380,17 +380,17 @@ Region Output::getDirtyRegion(bool repaintEverything) const {
+     return dirty;
+ }
+ 
+-bool Output::belongsInOutput(std::optional<uint32_t> layerStackId, bool internalOnly) const {
++bool Output::belongsInOutput(std::optional<uint32_t> layerStackId, const std::string& activesystemname, const std::string& systemname, bool internalOnly) const {
+     // The layerStackId's must match, and also the layer must not be internal
+     // only when not on an internal output.
+     const auto& outputState = getState();
+-    return layerStackId && (*layerStackId == outputState.layerStackId) &&
++    return layerStackId && (*layerStackId == outputState.layerStackId) && (activesystemname == systemname) && 
+             (!internalOnly || outputState.layerStackInternal);
+ }
+ 
+ bool Output::belongsInOutput(const sp<compositionengine::LayerFE>& layerFE) const {
+     const auto* layerFEState = layerFE->getCompositionState();
+-    return layerFEState && belongsInOutput(layerFEState->layerStackId, layerFEState->internalOnly);
++    return layerFEState && belongsInOutput(layerFEState->layerStackId, "", "", layerFEState->internalOnly);
+ }
+ 
+ std::unique_ptr<compositionengine::OutputLayer> Output::createOutputLayer(
+diff --git a/native/services/surfaceflinger/CompositionEngine/tests/OutputTest.cpp b/native/services/surfaceflinger/CompositionEngine/tests/OutputTest.cpp
+index 09f5a5e51..fa24e63b8 100644
+--- a/native/services/surfaceflinger/CompositionEngine/tests/OutputTest.cpp
++++ b/native/services/surfaceflinger/CompositionEngine/tests/OutputTest.cpp
+@@ -604,23 +604,23 @@ TEST_F(OutputTest, belongsInOutputFiltersAsExpected) {
+     mOutput->setLayerStackFilter(layerStack1, true);
+ 
+     // A layer with no layerStack does not belong to it, internal-only or not.
+-    EXPECT_FALSE(mOutput->belongsInOutput(std::nullopt, false));
+-    EXPECT_FALSE(mOutput->belongsInOutput(std::nullopt, true));
++    EXPECT_FALSE(mOutput->belongsInOutput(std::nullopt, "", "", false));
++    EXPECT_FALSE(mOutput->belongsInOutput(std::nullopt, "", "", true));
+ 
+     // Any layer with layerStack1 belongs to it, internal-only or not.
+-    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, false));
+-    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, true));
+-    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, true));
+-    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, false));
++    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, "", "", false));
++    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, "", "", true));
++    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, "", "", true));
++    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, "", "", false));
+ 
+     // If the output accepts layerStack21 but not internal-only layers...
+     mOutput->setLayerStackFilter(layerStack1, false);
+ 
+     // Only non-internal layers with layerStack1 belong to it.
+-    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, false));
+-    EXPECT_FALSE(mOutput->belongsInOutput(layerStack1, true));
+-    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, true));
+-    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, false));
++    EXPECT_TRUE(mOutput->belongsInOutput(layerStack1, "", "", false));
++    EXPECT_FALSE(mOutput->belongsInOutput(layerStack1, "", "", true));
++    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, "", "", true));
++    EXPECT_FALSE(mOutput->belongsInOutput(layerStack2, "", "", false));
+ }
+ 
+ TEST_F(OutputTest, belongsInOutputHandlesLayerWithNoCompositionState) {
+diff --git a/native/services/surfaceflinger/ContainerLayer.cpp b/native/services/surfaceflinger/ContainerLayer.cpp
+index 841e79f8a..a63f89bcf 100644
+--- a/native/services/surfaceflinger/ContainerLayer.cpp
++++ b/native/services/surfaceflinger/ContainerLayer.cpp
+@@ -36,7 +36,7 @@ bool ContainerLayer::isVisible() const {
+ 
+ sp<Layer> ContainerLayer::createClone() {
+     sp<ContainerLayer> layer = mFlinger->getFactory().createContainerLayer(
+-            LayerCreationArgs(mFlinger.get(), nullptr, mName + " (Mirror)", 0, 0, 0,
++            LayerCreationArgs(mFlinger.get(), nullptr, mName + " (Mirror)", mSystemName, 0, 0, 0,
+                               LayerMetadata()));
+     layer->setInitialValuesForClone(this);
+     return layer;
+diff --git a/native/services/surfaceflinger/DisplayDevice.cpp b/native/services/surfaceflinger/DisplayDevice.cpp
+index 4445eea60..7d92cffb7 100644
+--- a/native/services/surfaceflinger/DisplayDevice.cpp
++++ b/native/services/surfaceflinger/DisplayDevice.cpp
+@@ -39,6 +39,7 @@
+ #include <log/log.h>
+ #include <system/window.h>
+ #include <ui/GraphicTypes.h>
++#include <cutils/properties.h>
+ 
+ #include "DisplayDevice.h"
+ #include "Layer.h"
+@@ -482,6 +483,12 @@ void DisplayDevice::clearDesiredActiveModeState() {
+     mDesiredActiveModeChanged = false;
+ }
+ 
++std::string DisplayDevice::getActiveSystemName() const{
++    char value[PROPERTY_VALUE_MAX];
++    property_get("persist.sys.active", value, "");
++    return std::string(value);
++}
++
+ std::atomic<int32_t> DisplayDeviceState::sNextSequenceId(1);
+ 
+ }  // namespace android
+diff --git a/native/services/surfaceflinger/DisplayDevice.h b/native/services/surfaceflinger/DisplayDevice.h
+index 4d435c7e4..da597682b 100644
+--- a/native/services/surfaceflinger/DisplayDevice.h
++++ b/native/services/surfaceflinger/DisplayDevice.h
+@@ -248,6 +248,8 @@ public:
+     std::string getDebugName() const;
+     void dump(std::string& result) const;
+ 
++    std::string getActiveSystemName() const;
++
+ private:
+     const sp<SurfaceFlinger> mFlinger;
+     HWComposer& mHwComposer;
+diff --git a/native/services/surfaceflinger/EffectLayer.cpp b/native/services/surfaceflinger/EffectLayer.cpp
+index 86c6b2161..d5f183a86 100644
+--- a/native/services/surfaceflinger/EffectLayer.cpp
++++ b/native/services/surfaceflinger/EffectLayer.cpp
+@@ -136,7 +136,7 @@ ui::Dataspace EffectLayer::getDataSpace() const {
+ 
+ sp<Layer> EffectLayer::createClone() {
+     sp<EffectLayer> layer = mFlinger->getFactory().createEffectLayer(
+-            LayerCreationArgs(mFlinger.get(), nullptr, mName + " (Mirror)", 0, 0, 0,
++            LayerCreationArgs(mFlinger.get(), nullptr, mName + " (Mirror)", mSystemName, 0, 0, 0,
+                               LayerMetadata()));
+     layer->setInitialValuesForClone(this);
+     return layer;
+diff --git a/native/services/surfaceflinger/Layer.cpp b/native/services/surfaceflinger/Layer.cpp
+index 4d804fa67..9766e598c 100644
+--- a/native/services/surfaceflinger/Layer.cpp
++++ b/native/services/surfaceflinger/Layer.cpp
+@@ -89,6 +89,7 @@ std::atomic<int32_t> Layer::sSequence{1};
+ Layer::Layer(const LayerCreationArgs& args)
+       : mFlinger(args.flinger),
+         mName(args.name),
++        mSystemName(args.systemname),
+         mClientRef(args.client),
+         mWindowType(
+                 static_cast<WindowInfo::Type>(args.metadata.getInt32(METADATA_WINDOW_TYPE, 0))) {
+@@ -183,11 +184,12 @@ Layer::~Layer() {
+     }
+ }
+ 
+-LayerCreationArgs::LayerCreationArgs(SurfaceFlinger* flinger, sp<Client> client, std::string name,
++LayerCreationArgs::LayerCreationArgs(SurfaceFlinger* flinger, sp<Client> client, std::string name, std::string systemname,
+                                      uint32_t w, uint32_t h, uint32_t flags, LayerMetadata metadata)
+       : flinger(flinger),
+         client(std::move(client)),
+         name(std::move(name)),
++        systemname(std::move(systemname)),
+         w(w),
+         h(h),
+         flags(flags),
+@@ -902,7 +904,7 @@ bool Layer::setBackgroundColor(const half3& color, float alpha, ui::Dataspace da
+         uint32_t flags = ISurfaceComposerClient::eFXSurfaceEffect;
+         std::string name = mName + "BackgroundColorLayer";
+         mDrawingState.bgColorLayer = mFlinger->getFactory().createEffectLayer(
+-                LayerCreationArgs(mFlinger.get(), nullptr, std::move(name), 0, 0, flags,
++                LayerCreationArgs(mFlinger.get(), nullptr, std::move(name), mSystemName.c_str(), 0, 0, flags,
+                                   LayerMetadata()));
+ 
+         // add to child list
+@@ -1328,6 +1330,12 @@ Layer::FrameRate Layer::getFrameRateForLayerTree() const {
+ bool Layer::isHiddenByPolicy() const {
+     const State& s(mDrawingState);
+     const auto& parent = mDrawingParent.promote();
++
++    char value[PROPERTY_VALUE_MAX];
++    property_get("persist.sys.active", value, "");
++    if(mSystemName != std::string(value))
++        return true;
++
+     if (parent != nullptr && parent->isHiddenByPolicy()) {
+         return true;
+     }
+@@ -1465,6 +1473,8 @@ void Layer::miniDump(std::string& result, const DisplayDevice& display) const {
+ 
+     StringAppendF(&result, " %s\n", name.c_str());
+ 
++    StringAppendF(&result, " %s\n", mSystemName.c_str());
++
+     const State& layerState(getDrawingState());
+     const auto& outputLayerState = outputLayer->getState();
+ 
+diff --git a/native/services/surfaceflinger/Layer.h b/native/services/surfaceflinger/Layer.h
+index c1af4685f..46c73c73e 100644
+--- a/native/services/surfaceflinger/Layer.h
++++ b/native/services/surfaceflinger/Layer.h
+@@ -85,12 +85,13 @@ class SurfaceFrame;
+ } // namespace frametimeline
+ 
+ struct LayerCreationArgs {
+-    LayerCreationArgs(SurfaceFlinger*, sp<Client>, std::string name, uint32_t w, uint32_t h,
++    LayerCreationArgs(SurfaceFlinger*, sp<Client>, std::string name, std::string systemname, uint32_t w, uint32_t h,
+                       uint32_t flags, LayerMetadata);
+ 
+     SurfaceFlinger* flinger;
+     const sp<Client> client;
+     std::string name;
++    std::string systemname;
+     uint32_t w;
+     uint32_t h;
+     uint32_t flags;
+@@ -654,7 +655,9 @@ public:
+     // Deprecated, please use compositionengine::Output::belongsInOutput()
+     // instead.
+     // TODO(lpique): Move the remaining callers (screencap) to the new function.
+-    bool belongsToDisplay(uint32_t layerStack) const { return getLayerStack() == layerStack; }
++    bool belongsToDisplay(uint32_t layerStack, std::string& activesystemname) const {
++        return getLayerStack() == layerStack && activesystemname == getSystemName();
++    }
+ 
+     FloatRect getBounds(const Region& activeTransparentRegion) const;
+     FloatRect getBounds() const;
+@@ -851,6 +854,8 @@ public:
+     // this to be called once.
+     sp<IBinder> getHandle();
+     const std::string& getName() const { return mName; }
++    const std::string& getSystemName() const { return mSystemName; }
++    const char* systemName() const { return mSystemName.c_str(); }
+     bool getPremultipledAlpha() const;
+     void setInputInfo(const gui::WindowInfo& info);
+ 
+@@ -968,6 +973,7 @@ protected:
+ 
+     bool mPremultipliedAlpha{true};
+     const std::string mName;
++    const std::string mSystemName;
+     const std::string mTransactionName{"TX - " + mName};
+ 
+     // These are only accessed by the main thread or the tracing thread.
+diff --git a/native/services/surfaceflinger/LayerRenderArea.cpp b/native/services/surfaceflinger/LayerRenderArea.cpp
+index 11fe6d075..3bd9fc547 100644
+--- a/native/services/surfaceflinger/LayerRenderArea.cpp
++++ b/native/services/surfaceflinger/LayerRenderArea.cpp
+@@ -117,7 +117,7 @@ void LayerRenderArea::render(std::function<void()> drawLayers) {
+         // In the "childrenOnly" case we reparent the children to a screenshot
+         // layer which has no properties set and which does not draw.
+         sp<ContainerLayer> screenshotParentLayer = mFlinger.getFactory().createContainerLayer(
+-                {&mFlinger, nullptr, "Screenshot Parent"s, w, h, 0, LayerMetadata()});
++                {&mFlinger, nullptr, "Screenshot Parent"s, ""s, w, h, 0, LayerMetadata()});
+ 
+         ReparentForDrawing reparent(mLayer, screenshotParentLayer, sourceCrop);
+         drawLayers();
+diff --git a/native/services/surfaceflinger/RefreshRateOverlay.cpp b/native/services/surfaceflinger/RefreshRateOverlay.cpp
+index bc32a1d66..6ba2b0a38 100644
+--- a/native/services/surfaceflinger/RefreshRateOverlay.cpp
++++ b/native/services/surfaceflinger/RefreshRateOverlay.cpp
+@@ -188,7 +188,7 @@ RefreshRateOverlay::RefreshRateOverlay(SurfaceFlinger& flinger, uint32_t lowFps,
+ bool RefreshRateOverlay::createLayer() {
+     int32_t layerId;
+     const status_t ret =
+-            mFlinger.createLayer(String8("RefreshRateOverlay"), mClient,
++            mFlinger.createLayer(String8("RefreshRateOverlay"), String8(""), mClient,
+                                  SevenSegmentDrawer::getWidth(), SevenSegmentDrawer::getHeight(),
+                                  PIXEL_FORMAT_RGBA_8888,
+                                  ISurfaceComposerClient::eFXSurfaceBufferState, LayerMetadata(),
+diff --git a/native/services/surfaceflinger/RegionSamplingThread.cpp b/native/services/surfaceflinger/RegionSamplingThread.cpp
+index aa2fec56a..57b3afb86 100644
+--- a/native/services/surfaceflinger/RegionSamplingThread.cpp
++++ b/native/services/surfaceflinger/RegionSamplingThread.cpp
+@@ -268,6 +268,7 @@ void RegionSamplingThread::captureSample() {
+     wp<const DisplayDevice> displayWeak;
+ 
+     ui::LayerStack layerStack;
++    std::string systemName;
+     ui::Transform::RotationFlags orientation;
+     ui::Size displaySize;
+ 
+@@ -276,6 +277,7 @@ void RegionSamplingThread::captureSample() {
+         const sp<const DisplayDevice> display = mFlinger.getDefaultDisplayDevice();
+         displayWeak = display;
+         layerStack = display->getLayerStack();
++        systemName = display->getActiveSystemName();
+         orientation = ui::Transform::toRotationFlags(display->getOrientation());
+         displaySize = display->getSize();
+     }
+@@ -335,7 +337,7 @@ void RegionSamplingThread::captureSample() {
+                   bounds.top, bounds.right, bounds.bottom);
+             visitor(layer);
+         };
+-        mFlinger.traverseLayersInLayerStack(layerStack, CaptureArgs::UNSET_UID, filterVisitor);
++        mFlinger.traverseLayersInLayerStack(layerStack, systemName, CaptureArgs::UNSET_UID, filterVisitor);
+     };
+ 
+     std::shared_ptr<renderengine::ExternalTexture> buffer = nullptr;
+diff --git a/native/services/surfaceflinger/SurfaceFlinger.cpp b/native/services/surfaceflinger/SurfaceFlinger.cpp
+index 758cc705f..a3d0afa56 100644
+--- a/native/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/native/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -378,6 +378,11 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory, SkipInitializationTag)
+         mEmulatedDisplayDensity(getDensityFromProperty("qemu.sf.lcd_density", false)),
+         mPowerAdvisor(*this),
+         mWindowInfosListenerInvoker(new WindowInfosListenerInvoker(this)) {
++    int i = 0;
++    for(i = 0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        mWindowInfosListenerInvokers.push_back(new WindowInfosListenerInvoker(this));
++    }
+     ALOGI("Using HWComposer service: %s", mHwcServiceName.c_str());
+ }
+ 
+@@ -3029,7 +3034,7 @@ void SurfaceFlinger::handleTransactionLocked(uint32_t transactionFlags) {
+                 hintDisplay = nullptr;
+                 for (const auto& [token, display] : mDisplays) {
+                     if (display->getCompositionDisplay()
+-                                ->belongsInOutput(layer->getLayerStack(),
++                                ->belongsInOutput(layer->getLayerStack(), "", "",
+                                                   layer->getPrimaryDisplayOnly())) {
+                         if (hintDisplay) {
+                             hintDisplay = nullptr;
+@@ -3090,6 +3095,7 @@ void SurfaceFlinger::handleTransactionLocked(uint32_t transactionFlags) {
+ }
+ 
+ void SurfaceFlinger::updateInputFlinger() {
++    int i = 0;
+     ATRACE_CALL();
+     if (!mInputFlinger) {
+         return;
+@@ -3105,7 +3111,21 @@ void SurfaceFlinger::updateInputFlinger() {
+     }
+ 
+     for (const auto& focusRequest : mInputWindowCommands.focusRequests) {
+-        mInputFlinger->setFocusedWindow(focusRequest);
++        //mInputFlinger->setFocusedWindow(focusRequest);
++        for(i = 0; i < CELLS_MAX_CONTEXT; i++){
++            if(i == 0){
++                mInputFlinger->setFocusedWindow(focusRequest);
++            }
++            else{
++                const sp<IServiceManager> sm = OtherServiceManager(i);
++                if (sm != nullptr){
++                    sp<os::IInputFlinger>  mInputFlinger1 = interface_cast<os::IInputFlinger>(sm->getService( String16("inputflinger")));
++                    if (mInputFlinger1 != nullptr) {
++                        mInputFlinger1->setFocusedWindow(focusRequest);
++                    }
++                }
++            }
++        }
+     }
+     mInputWindowCommands.clear();
+ }
+@@ -3117,7 +3137,9 @@ bool enablePerWindowInputRotation() {
+ }
+ 
+ void SurfaceFlinger::notifyWindowInfos() {
+-    std::vector<WindowInfo> windowInfos;
++    //std::vector<WindowInfo> windowInfos;
++    std::vector<std::vector<WindowInfo>> windowInfos(CELLS_MAX_CONTEXT);
++    int i = 0;
+ 
+     mDrawingState.traverseInReverseZOrder([&](Layer* layer) {
+         if (!layer->needsInputInfo()) return;
+@@ -3126,10 +3148,25 @@ void SurfaceFlinger::notifyWindowInfos() {
+                 : nullptr;
+         // When calculating the screen bounds we ignore the transparent region since it may
+         // result in an unwanted offset.
+-        windowInfos.push_back(layer->fillInputInfo(display));
++        //windowInfos.push_back(layer->fillInputInfo(display));
++        if(layer->getSystemName() == ""){
++            windowInfos[0].push_back(layer->fillInputInfo(display));
++        }else{
++            sscanf(layer->systemName(), "cell%d",&i);
++            if(i > 0 && i < CELLS_MAX_CONTEXT){
++                windowInfos[i].push_back(layer->fillInputInfo(display));
++            }
++        }
+     });
+-    mWindowInfosListenerInvoker->windowInfosChanged(windowInfos,
++
++    for(i = 0; i < CELLS_MAX_CONTEXT; i++)
++    {
++        mWindowInfosListenerInvokers[i]->windowInfosChanged(windowInfos[i],
+                                                     mInputWindowCommands.syncInputWindows);
++    }
++
++    //mWindowInfosListenerInvoker->windowInfosChanged(windowInfos,
++    //                                                mInputWindowCommands.syncInputWindows);
+ }
+ 
+ void SurfaceFlinger::updateCursorAsync() {
+@@ -3295,7 +3332,7 @@ void SurfaceFlinger::commitOffscreenLayers() {
+ void SurfaceFlinger::invalidateLayerStack(const sp<const Layer>& layer, const Region& dirty) {
+     for (const auto& [token, displayDevice] : ON_MAIN_THREAD(mDisplays)) {
+         auto display = displayDevice->getCompositionDisplay();
+-        if (display->belongsInOutput(layer->getLayerStack(), layer->getPrimaryDisplayOnly())) {
++        if (display->belongsInOutput(layer->getLayerStack(), displayDevice->getActiveSystemName(), layer->getSystemName(), layer->getPrimaryDisplayOnly())) {
+             display->editState().dirtyRegion.orSelf(dirty);
+         }
+     }
+@@ -4302,7 +4339,7 @@ status_t SurfaceFlinger::mirrorLayer(const sp<Client>& client, const sp<IBinder>
+             return NAME_NOT_FOUND;
+         }
+ 
+-        status_t result = createContainerLayer(client, std::move(uniqueName), -1, -1, 0,
++        status_t result = createContainerLayer(client, std::move(uniqueName), "", -1, -1, 0,
+                                                LayerMetadata(), outHandle, &mirrorLayer);
+         if (result != NO_ERROR) {
+             return result;
+@@ -4316,7 +4353,7 @@ status_t SurfaceFlinger::mirrorLayer(const sp<Client>& client, const sp<IBinder>
+                           nullptr /* outTransformHint */);
+ }
+ 
+-status_t SurfaceFlinger::createLayer(const String8& name, const sp<Client>& client, uint32_t w,
++status_t SurfaceFlinger::createLayer(const String8& name, const String8& systemname, const sp<Client>& client, uint32_t w,
+                                      uint32_t h, PixelFormat format, uint32_t flags,
+                                      LayerMetadata metadata, sp<IBinder>* handle,
+                                      sp<IGraphicBufferProducer>* gbp,
+@@ -4341,7 +4378,7 @@ status_t SurfaceFlinger::createLayer(const String8& name, const sp<Client>& clie
+     switch (flags & ISurfaceComposerClient::eFXSurfaceMask) {
+         case ISurfaceComposerClient::eFXSurfaceBufferQueue:
+         case ISurfaceComposerClient::eFXSurfaceBufferState: {
+-            result = createBufferStateLayer(client, std::move(uniqueName), w, h, flags,
++            result = createBufferStateLayer(client, std::move(uniqueName), systemname.string(), w, h, flags,
+                                             std::move(metadata), handle, &layer);
+             std::atomic<int32_t>* pendingBufferCounter = layer->getPendingBufferCounter();
+             if (pendingBufferCounter) {
+@@ -4358,7 +4395,7 @@ status_t SurfaceFlinger::createLayer(const String8& name, const sp<Client>& clie
+                 return BAD_VALUE;
+             }
+ 
+-            result = createEffectLayer(client, std::move(uniqueName), w, h, flags,
++            result = createEffectLayer(client, std::move(uniqueName), systemname.string(), w, h, flags,
+                                        std::move(metadata), handle, &layer);
+             break;
+         case ISurfaceComposerClient::eFXSurfaceContainer:
+@@ -4368,7 +4405,7 @@ status_t SurfaceFlinger::createLayer(const String8& name, const sp<Client>& clie
+                       int(w), int(h));
+                 return BAD_VALUE;
+             }
+-            result = createContainerLayer(client, std::move(uniqueName), w, h, flags,
++            result = createContainerLayer(client, std::move(uniqueName), systemname.string(), w, h, flags,
+                                           std::move(metadata), handle, &layer);
+             break;
+         default:
+@@ -4418,7 +4455,7 @@ std::string SurfaceFlinger::getUniqueLayerName(const char* name) {
+     return uniqueName;
+ }
+ 
+-status_t SurfaceFlinger::createBufferQueueLayer(const sp<Client>& client, std::string name,
++status_t SurfaceFlinger::createBufferQueueLayer(const sp<Client>& client, std::string name, std::string systemname,
+                                                 uint32_t w, uint32_t h, uint32_t flags,
+                                                 LayerMetadata metadata, PixelFormat& format,
+                                                 sp<IBinder>* handle,
+@@ -4436,7 +4473,7 @@ status_t SurfaceFlinger::createBufferQueueLayer(const sp<Client>& client, std::s
+     }
+ 
+     sp<BufferQueueLayer> layer;
+-    LayerCreationArgs args(this, client, std::move(name), w, h, flags, std::move(metadata));
++    LayerCreationArgs args(this, client, std::move(name), std::move(systemname), w, h, flags, std::move(metadata));
+     args.textureName = getNewTexture();
+     {
+         // Grab the SF state lock during this since it's the only safe way to access
+@@ -4457,11 +4494,11 @@ status_t SurfaceFlinger::createBufferQueueLayer(const sp<Client>& client, std::s
+     return err;
+ }
+ 
+-status_t SurfaceFlinger::createBufferStateLayer(const sp<Client>& client, std::string name,
++status_t SurfaceFlinger::createBufferStateLayer(const sp<Client>& client, std::string name, std::string systemname,
+                                                 uint32_t w, uint32_t h, uint32_t flags,
+                                                 LayerMetadata metadata, sp<IBinder>* handle,
+                                                 sp<Layer>* outLayer) {
+-    LayerCreationArgs args(this, client, std::move(name), w, h, flags, std::move(metadata));
++    LayerCreationArgs args(this, client, std::move(name), std::move(systemname), w, h, flags, std::move(metadata));
+     args.textureName = getNewTexture();
+     sp<BufferStateLayer> layer = getFactory().createBufferStateLayer(args);
+     *handle = layer->getHandle();
+@@ -4470,21 +4507,21 @@ status_t SurfaceFlinger::createBufferStateLayer(const sp<Client>& client, std::s
+     return NO_ERROR;
+ }
+ 
+-status_t SurfaceFlinger::createEffectLayer(const sp<Client>& client, std::string name, uint32_t w,
++status_t SurfaceFlinger::createEffectLayer(const sp<Client>& client, std::string name, std::string systemname, uint32_t w,
+                                            uint32_t h, uint32_t flags, LayerMetadata metadata,
+                                            sp<IBinder>* handle, sp<Layer>* outLayer) {
+     *outLayer = getFactory().createEffectLayer(
+-            {this, client, std::move(name), w, h, flags, std::move(metadata)});
++            {this, client, std::move(name), std::move(systemname), w, h, flags, std::move(metadata)});
+     *handle = (*outLayer)->getHandle();
+     return NO_ERROR;
+ }
+ 
+-status_t SurfaceFlinger::createContainerLayer(const sp<Client>& client, std::string name,
++status_t SurfaceFlinger::createContainerLayer(const sp<Client>& client, std::string name, std::string systemname,
+                                               uint32_t w, uint32_t h, uint32_t flags,
+                                               LayerMetadata metadata, sp<IBinder>* handle,
+                                               sp<Layer>* outLayer) {
+     *outLayer = getFactory().createContainerLayer(
+-            {this, client, std::move(name), w, h, flags, std::move(metadata)});
++            {this, client, std::move(name), std::move(systemname), w, h, flags, std::move(metadata)});
+     *handle = (*outLayer)->getHandle();
+     return NO_ERROR;
+ }
+@@ -4562,7 +4599,7 @@ sp<DisplayDevice> SurfaceFlinger::getDisplayWithInputByLayer(Layer* layer) const
+         const auto& displayDevice = pair.second;
+         if (!displayDevice->receivesInput() ||
+             !displayDevice->getCompositionDisplay()
+-                     ->belongsInOutput(layer->getLayerStack(), layer->getPrimaryDisplayOnly())) {
++                     ->belongsInOutput(layer->getLayerStack(), displayDevice->getActiveSystemName(), layer->getSystemName(), layer->getPrimaryDisplayOnly())) {
+             continue;
+         }
+         // Don't return immediately so that we can log duplicates.
+@@ -5371,6 +5408,8 @@ status_t SurfaceFlinger::CheckTransactCodeCredentials(uint32_t code) {
+         case CAPTURE_DISPLAY:
+         case SET_FRAME_TIMELINE_INFO:
+         case GET_GPU_CONTEXT_PRIORITY:
++        case ENTERSELF:
++        case EXITSELF:
+         case GET_MAX_ACQUIRED_BUFFER_COUNT: {
+             // This is not sensitive information, so should not require permission control.
+             return OK;
+@@ -6076,6 +6115,7 @@ status_t SurfaceFlinger::captureDisplay(const DisplayCaptureArgs& args,
+ 
+     wp<const DisplayDevice> displayWeak;
+     ui::LayerStack layerStack;
++    std::string systemName;
+     ui::Size reqSize(args.width, args.height);
+     ui::Dataspace dataspace;
+     {
+@@ -6084,6 +6124,7 @@ status_t SurfaceFlinger::captureDisplay(const DisplayCaptureArgs& args,
+         if (!display) return NAME_NOT_FOUND;
+         displayWeak = display;
+         layerStack = display->getLayerStack();
++        systemName = display->getActiveSystemName();
+ 
+         // set the requested width/height to the logical display layer stack rect size by default
+         if (args.width == 0 || args.height == 0) {
+@@ -6106,8 +6147,8 @@ status_t SurfaceFlinger::captureDisplay(const DisplayCaptureArgs& args,
+                                          args.useIdentityTransform, args.captureSecureLayers);
+     });
+ 
+-    auto traverseLayers = [this, args, layerStack](const LayerVector::Visitor& visitor) {
+-        traverseLayersInLayerStack(layerStack, args.uid, visitor);
++    auto traverseLayers = [this, args, layerStack, systemName](const LayerVector::Visitor& visitor) {
++        traverseLayersInLayerStack(layerStack, systemName, args.uid, visitor);
+     };
+ 
+     return captureScreenCommon(std::move(renderAreaFuture), traverseLayers, reqSize,
+@@ -6118,6 +6159,7 @@ status_t SurfaceFlinger::captureDisplay(const DisplayCaptureArgs& args,
+ status_t SurfaceFlinger::captureDisplay(uint64_t displayIdOrLayerStack,
+                                         const sp<IScreenCaptureListener>& captureListener) {
+     ui::LayerStack layerStack;
++    std::string systemName;
+     wp<const DisplayDevice> displayWeak;
+     ui::Size size;
+     ui::Dataspace dataspace;
+@@ -6136,6 +6178,7 @@ status_t SurfaceFlinger::captureDisplay(uint64_t displayIdOrLayerStack,
+         }
+ 
+         layerStack = display->getLayerStack();
++        systemName = display->getActiveSystemName();
+         displayWeak = display;
+ 
+         size = display->getLayerStackSpaceRect().getSize();
+@@ -6150,8 +6193,8 @@ status_t SurfaceFlinger::captureDisplay(uint64_t displayIdOrLayerStack,
+                                          false /* captureSecureLayers */);
+     });
+ 
+-    auto traverseLayers = [this, layerStack](const LayerVector::Visitor& visitor) {
+-        traverseLayersInLayerStack(layerStack, CaptureArgs::UNSET_UID, visitor);
++    auto traverseLayers = [this, layerStack, systemName](const LayerVector::Visitor& visitor) {
++        traverseLayersInLayerStack(layerStack, systemName, CaptureArgs::UNSET_UID, visitor);
+     };
+ 
+     return captureScreenCommon(std::move(renderAreaFuture), traverseLayers, size,
+@@ -6526,12 +6569,12 @@ void SurfaceFlinger::State::traverseInReverseZOrder(const LayerVector::Visitor&
+     layersSortedByZ.traverseInReverseZOrder(stateSet, visitor);
+ }
+ 
+-void SurfaceFlinger::traverseLayersInLayerStack(ui::LayerStack layerStack, const int32_t uid,
++void SurfaceFlinger::traverseLayersInLayerStack(ui::LayerStack layerStack, std::string systemName, const int32_t uid,
+                                                 const LayerVector::Visitor& visitor) {
+     // We loop through the first level of layers without traversing,
+     // as we need to determine which layers belong to the requested display.
+     for (const auto& layer : mDrawingState.layersSortedByZ) {
+-        if (!layer->belongsToDisplay(layerStack)) {
++        if (!layer->belongsToDisplay(layerStack, systemName)) {
+             continue;
+         }
+         // relative layers are traversed in Layer::traverseInZOrder
+@@ -7078,6 +7121,34 @@ status_t SurfaceFlinger::removeWindowInfosListener(
+     return NO_ERROR;
+ }
+ 
++status_t SurfaceFlinger::addWindowInfosListenerX(
++        const sp<IWindowInfosListener>& windowInfosListener,int systemid) const {
++    if(systemid >= 0 && systemid < CELLS_MAX_CONTEXT){
++        mWindowInfosListenerInvokers[systemid]->addWindowInfosListener(windowInfosListener);
++    }
++    return NO_ERROR;
++}
++
++status_t SurfaceFlinger::removeWindowInfosListenerX(
++        const sp<IWindowInfosListener>& windowInfosListener,int systemid) const {
++    if(systemid >= 0 && systemid < CELLS_MAX_CONTEXT){
++        mWindowInfosListenerInvokers[systemid]->removeWindowInfosListener(windowInfosListener);
++    }
++    return NO_ERROR;
++}
++
++status_t SurfaceFlinger::enterSelf(){
++    invalidateHwcGeometry();
++    repaintEverything();
++    ALOGD("SurfaceFlinger::enterSelf");
++    return NO_ERROR;
++}
++
++status_t SurfaceFlinger::exitSelf(){
++    ALOGD("SurfaceFlinger::exitSelf");
++    return NO_ERROR;
++}
++
+ } // namespace android
+ 
+ #if defined(__gl_h_)
+diff --git a/native/services/surfaceflinger/SurfaceFlinger.h b/native/services/surfaceflinger/SurfaceFlinger.h
+index 74fe7d97d..9397faf68 100644
+--- a/native/services/surfaceflinger/SurfaceFlinger.h
++++ b/native/services/surfaceflinger/SurfaceFlinger.h
+@@ -726,6 +726,15 @@ private:
+     status_t removeWindowInfosListener(
+             const sp<gui::IWindowInfosListener>& windowInfosListener) const override;
+ 
++    status_t addWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& windowInfosListener,int systemid) const override;
++    status_t removeWindowInfosListenerX(
++            const sp<gui::IWindowInfosListener>& windowInfosListener,int systemid) const override;
++
++    status_t enterSelf() override;
++
++    status_t exitSelf() override;
++
+     // Implements IBinder::DeathRecipient.
+     void binderDied(const wp<IBinder>& who) override;
+ 
+@@ -869,27 +878,27 @@ private:
+     /*
+      * Layer management
+      */
+-    status_t createLayer(const String8& name, const sp<Client>& client, uint32_t w, uint32_t h,
++    status_t createLayer(const String8& name, const String8& systemname, const sp<Client>& client, uint32_t w, uint32_t h,
+                          PixelFormat format, uint32_t flags, LayerMetadata metadata,
+                          sp<IBinder>* handle, sp<IGraphicBufferProducer>* gbp,
+                          const sp<IBinder>& parentHandle, int32_t* outLayerId,
+                          const sp<Layer>& parentLayer = nullptr,
+                          uint32_t* outTransformHint = nullptr);
+ 
+-    status_t createBufferQueueLayer(const sp<Client>& client, std::string name, uint32_t w,
++    status_t createBufferQueueLayer(const sp<Client>& client, std::string name, std::string systemname, uint32_t w,
+                                     uint32_t h, uint32_t flags, LayerMetadata metadata,
+                                     PixelFormat& format, sp<IBinder>* outHandle,
+                                     sp<IGraphicBufferProducer>* outGbp, sp<Layer>* outLayer);
+ 
+-    status_t createBufferStateLayer(const sp<Client>& client, std::string name, uint32_t w,
++    status_t createBufferStateLayer(const sp<Client>& client, std::string name, std::string systemname, uint32_t w,
+                                     uint32_t h, uint32_t flags, LayerMetadata metadata,
+                                     sp<IBinder>* outHandle, sp<Layer>* outLayer);
+ 
+-    status_t createEffectLayer(const sp<Client>& client, std::string name, uint32_t w, uint32_t h,
++    status_t createEffectLayer(const sp<Client>& client, std::string name, std::string systemname, uint32_t w, uint32_t h,
+                                uint32_t flags, LayerMetadata metadata, sp<IBinder>* outHandle,
+                                sp<Layer>* outLayer);
+ 
+-    status_t createContainerLayer(const sp<Client>& client, std::string name, uint32_t w,
++    status_t createContainerLayer(const sp<Client>& client, std::string name, std::string systemname, uint32_t w,
+                                   uint32_t h, uint32_t flags, LayerMetadata metadata,
+                                   sp<IBinder>* outHandle, sp<Layer>* outLayer);
+ 
+@@ -930,7 +939,7 @@ private:
+ 
+     // If the uid provided is not UNSET_UID, the traverse will skip any layers that don't have a
+     // matching ownerUid
+-    void traverseLayersInLayerStack(ui::LayerStack, const int32_t uid, const LayerVector::Visitor&);
++    void traverseLayersInLayerStack(ui::LayerStack, std::string systemName, const int32_t uid, const LayerVector::Visitor&);
+ 
+     void readPersistentProperties();
+ 
+@@ -1517,6 +1526,7 @@ private:
+     wp<IBinder> mActiveDisplayToken GUARDED_BY(mStateLock);
+ 
+     const sp<WindowInfosListenerInvoker> mWindowInfosListenerInvoker;
++    std::vector<const sp<WindowInfosListenerInvoker>> mWindowInfosListenerInvokers;
+ };
+ 
+ } // namespace android
+diff --git a/native/services/surfaceflinger/main_surfaceflinger.cpp b/native/services/surfaceflinger/main_surfaceflinger.cpp
+index 673239dfa..9cc704c2f 100644
+--- a/native/services/surfaceflinger/main_surfaceflinger.cpp
++++ b/native/services/surfaceflinger/main_surfaceflinger.cpp
+@@ -78,6 +78,8 @@ static status_t startDisplayService() {
+ }
+ 
+ int main(int, char**) {
++    OtherSystemServiceLoopRun();
++
+     signal(SIGPIPE, SIG_IGN);
+ 
+     hardware::configureRpcThreadpool(1 /* maxThreads */,
+diff --git a/native/services/surfaceflinger/tests/unittests/CompositionTest.cpp b/native/services/surfaceflinger/tests/unittests/CompositionTest.cpp
+index 52a36a271..b9375862b 100644
+--- a/native/services/surfaceflinger/tests/unittests/CompositionTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/CompositionTest.cpp
+@@ -877,7 +877,7 @@ struct EffectLayerVariant : public BaseLayerVariant<LayerProperties> {
+     static FlingerLayerType createLayer(CompositionTest* test) {
+         FlingerLayerType layer = Base::template createLayerWithFactory<EffectLayer>(test, [test]() {
+             return new EffectLayer(
+-                    LayerCreationArgs(test->mFlinger.flinger(), sp<Client>(), "test-layer",
++                    LayerCreationArgs(test->mFlinger.flinger(), sp<Client>(), "test-layer", "",
+                                       LayerProperties::WIDTH, LayerProperties::HEIGHT,
+                                       LayerProperties::LAYER_FLAGS, LayerMetadata()));
+         });
+@@ -916,7 +916,7 @@ struct BufferLayerVariant : public BaseLayerVariant<LayerProperties> {
+ 
+         FlingerLayerType layer =
+                 Base::template createLayerWithFactory<BufferQueueLayer>(test, [test]() {
+-                    LayerCreationArgs args(test->mFlinger.flinger(), sp<Client>(), "test-layer",
++                    LayerCreationArgs args(test->mFlinger.flinger(), sp<Client>(), "test-layer", "",
+                                            LayerProperties::WIDTH, LayerProperties::HEIGHT,
+                                            LayerProperties::LAYER_FLAGS, LayerMetadata());
+                     args.textureName = test->mFlinger.mutableTexturePool().back();
+@@ -966,7 +966,7 @@ struct ContainerLayerVariant : public BaseLayerVariant<LayerProperties> {
+     using FlingerLayerType = sp<ContainerLayer>;
+ 
+     static FlingerLayerType createLayer(CompositionTest* test) {
+-        LayerCreationArgs args(test->mFlinger.flinger(), sp<Client>(), "test-container-layer",
++        LayerCreationArgs args(test->mFlinger.flinger(), sp<Client>(), "test-container-layer", "",
+                                LayerProperties::WIDTH, LayerProperties::HEIGHT,
+                                LayerProperties::LAYER_FLAGS, LayerMetadata());
+         FlingerLayerType layer = new ContainerLayer(args);
+diff --git a/native/services/surfaceflinger/tests/unittests/FpsReporterTest.cpp b/native/services/surfaceflinger/tests/unittests/FpsReporterTest.cpp
+index 010c67557..299eb319e 100644
+--- a/native/services/surfaceflinger/tests/unittests/FpsReporterTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/FpsReporterTest.cpp
+@@ -114,7 +114,7 @@ FpsReporterTest::~FpsReporterTest() {
+ 
+ sp<BufferStateLayer> FpsReporterTest::createBufferStateLayer(LayerMetadata metadata = {}) {
+     sp<Client> client;
+-    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", WIDTH, HEIGHT,
++    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", "", WIDTH, HEIGHT,
+                            LAYER_FLAGS, metadata);
+     return new BufferStateLayer(args);
+ }
+diff --git a/native/services/surfaceflinger/tests/unittests/GameModeTest.cpp b/native/services/surfaceflinger/tests/unittests/GameModeTest.cpp
+index 3fa1a2c2f..9c7207228 100644
+--- a/native/services/surfaceflinger/tests/unittests/GameModeTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/GameModeTest.cpp
+@@ -53,7 +53,7 @@ public:
+ 
+     sp<BufferStateLayer> createBufferStateLayer() {
+         sp<Client> client;
+-        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", 100, 100, 0,
++        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", "", 100, 100, 0,
+                                LayerMetadata());
+         return new BufferStateLayer(args);
+     }
+@@ -156,4 +156,4 @@ TEST_F(GameModeTest, ReparentingDoesNotOverrideMetadata) {
+     rootLayer->removeChild(childLayer2);
+     EXPECT_EQ(childLayer2->getGameMode(), 2);
+ }
+-} // namespace android
+\ No newline at end of file
++} // namespace android
+diff --git a/native/services/surfaceflinger/tests/unittests/RefreshRateSelectionTest.cpp b/native/services/surfaceflinger/tests/unittests/RefreshRateSelectionTest.cpp
+index 35033ea54..b1641a3b6 100644
+--- a/native/services/surfaceflinger/tests/unittests/RefreshRateSelectionTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/RefreshRateSelectionTest.cpp
+@@ -92,21 +92,21 @@ RefreshRateSelectionTest::~RefreshRateSelectionTest() {
+ 
+ sp<BufferQueueLayer> RefreshRateSelectionTest::createBufferQueueLayer() {
+     sp<Client> client;
+-    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-queue-layer", WIDTH, HEIGHT,
++    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-queue-layer", "", WIDTH, HEIGHT,
+                            LAYER_FLAGS, LayerMetadata());
+     return new BufferQueueLayer(args);
+ }
+ 
+ sp<BufferStateLayer> RefreshRateSelectionTest::createBufferStateLayer() {
+     sp<Client> client;
+-    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-queue-layer", WIDTH, HEIGHT,
++    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-queue-layer", "", WIDTH, HEIGHT,
+                            LAYER_FLAGS, LayerMetadata());
+     return new BufferStateLayer(args);
+ }
+ 
+ sp<EffectLayer> RefreshRateSelectionTest::createEffectLayer() {
+     sp<Client> client;
+-    LayerCreationArgs args(mFlinger.flinger(), client, "color-layer", WIDTH, HEIGHT, LAYER_FLAGS,
++    LayerCreationArgs args(mFlinger.flinger(), client, "color-layer", "", WIDTH, HEIGHT, LAYER_FLAGS,
+                            LayerMetadata());
+     return new EffectLayer(args);
+ }
+diff --git a/native/services/surfaceflinger/tests/unittests/SetFrameRateTest.cpp b/native/services/surfaceflinger/tests/unittests/SetFrameRateTest.cpp
+index a4e9d20b7..4019558bf 100644
+--- a/native/services/surfaceflinger/tests/unittests/SetFrameRateTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/SetFrameRateTest.cpp
+@@ -70,7 +70,7 @@ public:
+     std::string name() override { return "BufferQueueLayer"; }
+     sp<Layer> createLayer(TestableSurfaceFlinger& flinger) override {
+         sp<Client> client;
+-        LayerCreationArgs args(flinger.flinger(), client, "buffer-queue-layer", WIDTH, HEIGHT,
++        LayerCreationArgs args(flinger.flinger(), client, "buffer-queue-layer", "", WIDTH, HEIGHT,
+                                LAYER_FLAGS, LayerMetadata());
+         return new BufferQueueLayer(args);
+     }
+@@ -81,7 +81,7 @@ public:
+     std::string name() override { return "BufferStateLayer"; }
+     sp<Layer> createLayer(TestableSurfaceFlinger& flinger) override {
+         sp<Client> client;
+-        LayerCreationArgs args(flinger.flinger(), client, "buffer-state-layer", WIDTH, HEIGHT,
++        LayerCreationArgs args(flinger.flinger(), client, "buffer-state-layer", "", WIDTH, HEIGHT,
+                                LAYER_FLAGS, LayerMetadata());
+         return new BufferStateLayer(args);
+     }
+@@ -92,7 +92,7 @@ public:
+     std::string name() override { return "EffectLayer"; }
+     sp<Layer> createLayer(TestableSurfaceFlinger& flinger) override {
+         sp<Client> client;
+-        LayerCreationArgs args(flinger.flinger(), client, "color-layer", WIDTH, HEIGHT, LAYER_FLAGS,
++        LayerCreationArgs args(flinger.flinger(), client, "color-layer", "", WIDTH, HEIGHT, LAYER_FLAGS,
+                                LayerMetadata());
+         return new EffectLayer(args);
+     }
+diff --git a/native/services/surfaceflinger/tests/unittests/TransactionFrameTracerTest.cpp b/native/services/surfaceflinger/tests/unittests/TransactionFrameTracerTest.cpp
+index a749ece83..2d2cad286 100644
+--- a/native/services/surfaceflinger/tests/unittests/TransactionFrameTracerTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/TransactionFrameTracerTest.cpp
+@@ -56,7 +56,7 @@ public:
+ 
+     sp<BufferStateLayer> createBufferStateLayer() {
+         sp<Client> client;
+-        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", 100, 100, 0,
++        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", "", 100, 100, 0,
+                                LayerMetadata());
+         return new BufferStateLayer(args);
+     }
+diff --git a/native/services/surfaceflinger/tests/unittests/TransactionSurfaceFrameTest.cpp b/native/services/surfaceflinger/tests/unittests/TransactionSurfaceFrameTest.cpp
+index 2a7921f66..849616a4d 100644
+--- a/native/services/surfaceflinger/tests/unittests/TransactionSurfaceFrameTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/TransactionSurfaceFrameTest.cpp
+@@ -56,7 +56,7 @@ public:
+ 
+     sp<BufferStateLayer> createBufferStateLayer() {
+         sp<Client> client;
+-        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", 100, 100, 0,
++        LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", "", 100, 100, 0,
+                                LayerMetadata());
+         return new BufferStateLayer(args);
+     }
+diff --git a/native/services/surfaceflinger/tests/unittests/TunnelModeEnabledReporterTest.cpp b/native/services/surfaceflinger/tests/unittests/TunnelModeEnabledReporterTest.cpp
+index e4f74694f..43000f5ef 100644
+--- a/native/services/surfaceflinger/tests/unittests/TunnelModeEnabledReporterTest.cpp
++++ b/native/services/surfaceflinger/tests/unittests/TunnelModeEnabledReporterTest.cpp
+@@ -100,7 +100,7 @@ TunnelModeEnabledReporterTest::~TunnelModeEnabledReporterTest() {
+ sp<BufferStateLayer> TunnelModeEnabledReporterTest::createBufferStateLayer(
+         LayerMetadata metadata = {}) {
+     sp<Client> client;
+-    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", WIDTH, HEIGHT,
++    LayerCreationArgs args(mFlinger.flinger(), client, "buffer-state-layer", "", WIDTH, HEIGHT,
+                            LAYER_FLAGS, metadata);
+     return new BufferStateLayer(args);
+ }
+diff --git a/native/services/surfaceflinger/tests/unittests/mock/MockLayer.h b/native/services/surfaceflinger/tests/unittests/mock/MockLayer.h
+index ba2e4db0f..eb1fa12dd 100644
+--- a/native/services/surfaceflinger/tests/unittests/mock/MockLayer.h
++++ b/native/services/surfaceflinger/tests/unittests/mock/MockLayer.h
+@@ -25,7 +25,7 @@ namespace android::mock {
+ class MockLayer : public Layer {
+ public:
+     MockLayer(SurfaceFlinger* flinger, std::string name)
+-          : Layer(LayerCreationArgs(flinger, nullptr, std::move(name), 800, 600, 0, {})) {}
++          : Layer(LayerCreationArgs(flinger, nullptr, std::move(name), "", 800, 600, 0, {})) {}
+     explicit MockLayer(SurfaceFlinger* flinger) : MockLayer(flinger, "TestLayer") {}
+ 
+     MOCK_CONST_METHOD0(getType, const char*());
+-- 
+2.31.1
+
