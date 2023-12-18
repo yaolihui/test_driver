@@ -1,0 +1,12 @@
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: *** FATAL EXCEPTION IN SYSTEM PROCESS: FingerprintService
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: java.lang.IllegalStateException: Cannot register duplicate authenticator
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at com.android.server.biometrics.BiometricService$BiometricServiceWrapper.registerAuthenticator(BiometricService.java:645)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at com.android.server.biometrics.sensors.fingerprint.FingerprintService$FingerprintServiceWrapper.lambda$registerAuthenticators$1(FingerprintService.java:983)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at com.android.server.biometrics.sensors.fingerprint.FingerprintService$FingerprintServiceWrapper.$r8$lambda$7PdVC0SFHImwrUmVRiSqKKMRL-c(Unknown Source:0)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at com.android.server.biometrics.sensors.fingerprint.FingerprintService$FingerprintServiceWrapper$$ExternalSyntheticLambda0.run(Unknown Source:4)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:942)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:201)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:288)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+12-03 00:00:51.077214  1598  3602 E AndroidRuntime: 	at com.android.server.ServiceThread.run(ServiceThread.java:44)

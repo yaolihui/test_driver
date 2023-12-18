@@ -1,0 +1,141 @@
+UaBiometricScheduler/FingerprintProvider/default/0: [Added] {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}, new queue size: 1
+UaBiometricScheduler/FingerprintProvider/default/0: [Polled] {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}, State: 0
+UaBiometricScheduler/FingerprintProvider/default/0: [Started] {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}
+FingerprintAuthenticationClient: xdja.finger doAuthenticate: <<<>>>
+FingerprintAuthenticationClient: java.lang.Throwable: $$$$$$$$$$$$$$$
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.doAuthenticate(FingerprintAuthenticationClient.java:328)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.startHalOperation(FingerprintAuthenticationClient.java:316)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.AuthenticationClient.start(AuthenticationClient.java:443)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.start(FingerprintAuthenticationClient.java:183)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricSchedulerOperation.doStart(BiometricSchedulerOperation.java:240)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricSchedulerOperation.start(BiometricSchedulerOperation.java:187)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler.startNextOperationIfIdle(BiometricScheduler.java:291)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.UserAwareBiometricScheduler.startNextOperationIfIdle(UserAwareBiometricScheduler.java:138)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler.scheduleClientMonitor(BiometricScheduler.java:398)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.scheduleForSensor(FingerprintProvider.java:261)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.lambda$scheduleAuthenticate$9(FingerprintProvider.java:453)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.$r8$lambda$hXVtoR9IQTkd-JT-3WLjVA1RDL0(Unknown Source:0)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider$$ExternalSyntheticLambda12.run(Unknown Source:24)
+FingerprintAuthenticationClient:       at android.os.Handler.handleCallback(Handler.java:942)
+FingerprintAuthenticationClient:       at android.os.Handler.dispatchMessage(Handler.java:99)
+FingerprintAuthenticationClient:       at android.os.Looper.loopOnce(Looper.java:201)
+FingerprintAuthenticationClient:       at android.os.Looper.loop(Looper.java:288)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.run(SystemServer.java:966)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.main(SystemServer.java:651)
+FingerprintAuthenticationClient:       at java.lang.reflect.Method.invoke(Native Method)
+FingerprintAuthenticationClient:       at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+FingerprintAuthenticationClient:       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:914)
+BiometricSchedulerOperation: started: {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}, State: 2
+UaBiometricScheduler/FingerprintProvider/default/0: [Added] {[95] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=81, userId=0}, new queue size: 1
+UaBiometricScheduler/FingerprintProvider/default/0: [Cancelling Interruptable]: {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}, State: 2
+BiometricSchedulerOperation: [Cancelling] Current client: {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}
+KeyguardUpdateMonitor: xdja.finger isUnlockingWithBiometricAllowed=true
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger shouldListenUdfpsState=true
+KeyguardUpdateMonitor: xdja.finger isUdfps=true
+KeyguardUpdateMonitor: xdja.finger userCanSkipBouncer=false
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger userDoesNotHaveTrust=true
+KeyguardUpdateMonitor: xdja.finger shouldListen=true
+KeyguardUpdateMonitor: xdja.finger shouldListenKeyguardState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenUserState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenBouncerState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenSideFpsState=true
+KeyguardUpdateMonitor: xdja.finger isFingerprintLockedOut=false
+KeyguardUpdateMonitor: xdja.finger VM_IDX=0,shouldEnableFinger=false
+KeyguardUpdateMonitor: xdja.finger !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FingerprintAuthenticationClient: xdja.finger stopHalOperation
+FingerprintAuthenticationClient: java.lang.Throwable: !!!!!!!!!!!!
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.stopHalOperation(FingerprintAuthenticationClient.java:362)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.AcquisitionClient.cancel(AcquisitionClient.java:141)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.AuthenticationClient.cancel(AuthenticationClient.java:448)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricSchedulerOperation.cancel(BiometricSchedulerOperation.java:307)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler.scheduleClientMonitor(BiometricScheduler.java:396)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.scheduleForSensor(FingerprintProvider.java:261)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.lambda$scheduleAuthenticate$9(FingerprintProvider.java:453)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider.$r8$lambda$hXVtoR9IQTkd-JT-3WLjVA1RDL0(Unknown Source:0)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintProvider$$ExternalSyntheticLambda12.run(Unknown Source:24)
+FingerprintAuthenticationClient:       at android.os.Handler.handleCallback(Handler.java:942)
+FingerprintAuthenticationClient:       at android.os.Handler.dispatchMessage(Handler.java:99)
+FingerprintAuthenticationClient:       at android.os.Looper.loopOnce(Looper.java:201)
+FingerprintAuthenticationClient:       at android.os.Looper.loop(Looper.java:288)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.run(SystemServer.java:966)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.main(SystemServer.java:651)
+FingerprintAuthenticationClient:       at java.lang.reflect.Method.invoke(Native Method)
+FingerprintAuthenticationClient:       at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+FingerprintAuthenticationClient:       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:914)
+KeyguardUpdateMonitor: xdja.finger isUnlockingWithBiometricAllowed=true
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger shouldListenUdfpsState=true
+KeyguardUpdateMonitor: xdja.finger isUdfps=true
+KeyguardUpdateMonitor: xdja.finger userCanSkipBouncer=false
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger userDoesNotHaveTrust=true
+KeyguardUpdateMonitor: xdja.finger shouldListen=true
+KeyguardUpdateMonitor: xdja.finger shouldListenKeyguardState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenUserState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenBouncerState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenSideFpsState=true
+KeyguardUpdateMonitor: xdja.finger isFingerprintLockedOut=false
+KeyguardUpdateMonitor: xdja.finger VM_IDX=0,shouldEnableFinger=false
+KeyguardUpdateMonitor: xdja.finger !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FingerprintProvider/default/0: onError, client: FingerprintAuthenticationClient, error: 5, vendorCode: 0
+BiometricSchedulerOperation: [Finished / destroy]: {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}
+UaBiometricScheduler/FingerprintProvider/default/0: [Finishing] {[94] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=80, userId=0}, success: false
+UaBiometricScheduler/FingerprintProvider/default/0: [Polled] {[95] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=81, userId=0}, State: 0
+UaBiometricScheduler/FingerprintProvider/default/0: [Started] {[95] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=81, userId=0}
+FingerprintAuthenticationClient: xdja.finger doAuthenticate: <<<>>>
+FingerprintAuthenticationClient: java.lang.Throwable: $$$$$$$$$$$$$$$
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.doAuthenticate(FingerprintAuthenticationClient.java:328)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.startHalOperation(FingerprintAuthenticationClient.java:316)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.AuthenticationClient.start(AuthenticationClient.java:443)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.start(FingerprintAuthenticationClient.java:183)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricSchedulerOperation.doStart(BiometricSchedulerOperation.java:240)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricSchedulerOperation.start(BiometricSchedulerOperation.java:187)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler.startNextOperationIfIdle(BiometricScheduler.java:291)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.UserAwareBiometricScheduler.startNextOperationIfIdle(UserAwareBiometricScheduler.java:138)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler$1.lambda$onClientFinished$0(BiometricScheduler.java:208)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler$1.$r8$lambda$BdOn6goaErNYp3MgqKQSXdmkBqw(Unknown Source:0)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.BiometricScheduler$1$$ExternalSyntheticLambda0.run(Unknown Source:6)
+FingerprintAuthenticationClient:       at android.os.Handler.handleCallback(Handler.java:942)
+FingerprintAuthenticationClient:       at android.os.Handler.dispatchMessage(Handler.java:99)
+FingerprintAuthenticationClient:       at android.os.Looper.loopOnce(Looper.java:201)
+FingerprintAuthenticationClient:       at android.os.Looper.loop(Looper.java:288)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.run(SystemServer.java:966)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.main(SystemServer.java:651)
+FingerprintAuthenticationClient:       at java.lang.reflect.Method.invoke(Native Method)
+FingerprintAuthenticationClient:       at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+FingerprintAuthenticationClient:       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:914)
+BiometricSchedulerOperation: started: {[95] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=81, userId=0}, State: 2
+KeyguardUpdateMonitor: xdja.finger isUnlockingWithBiometricAllowed=true
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger shouldListenUdfpsState=true
+KeyguardUpdateMonitor: xdja.finger isUdfps=true
+KeyguardUpdateMonitor: xdja.finger userCanSkipBouncer=false
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger userDoesNotHaveTrust=true
+KeyguardUpdateMonitor: xdja.finger shouldListen=true
+KeyguardUpdateMonitor: xdja.finger shouldListenKeyguardState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenUserState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenBouncerState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenSideFpsState=true
+KeyguardUpdateMonitor: xdja.finger isFingerprintLockedOut=false
+KeyguardUpdateMonitor: xdja.finger VM_IDX=0,shouldEnableFinger=false
+KeyguardUpdateMonitor: xdja.finger !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+KeyguardUpdateMonitor: xdja.finger isUnlockingWithBiometricAllowed=true
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger shouldListenUdfpsState=true
+KeyguardUpdateMonitor: xdja.finger isUdfps=true
+KeyguardUpdateMonitor: xdja.finger userCanSkipBouncer=false
+KeyguardUpdateMonitor: xdja.finger strongerAuthRequired=false
+KeyguardUpdateMonitor: xdja.finger userDoesNotHaveTrust=true
+KeyguardUpdateMonitor: xdja.finger shouldListen=true
+KeyguardUpdateMonitor: xdja.finger shouldListenKeyguardState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenUserState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenBouncerState=true
+KeyguardUpdateMonitor: xdja.finger shouldListenSideFpsState=true
+KeyguardUpdateMonitor: xdja.finger isFingerprintLockedOut=false
+KeyguardUpdateMonitor: xdja.finger VM_IDX=0,shouldEnableFinger=false
+KeyguardUpdateMonitor: xdja.finger !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+KeyguardUpdateMonitor: setFingerprintRunningState(fingerprintRunningState=0
+KeyguardUpdateMonitor: xdja.finger isUnlockingWithBiometricAllowed=true

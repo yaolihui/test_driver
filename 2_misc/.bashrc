@@ -119,7 +119,7 @@ fi
 
 if [ -e /mnt/c ] && [ ! -e /mnt/wsl/PHYSICALDRIVE1 ]; then /mnt/c/Windows/System32/wsl.exe --mount \\\\.\\PHYSICALDRIVE1  > /dev/null 2>&1; fi
 
-export GREP_COLORS='ms=01;32:mc=01;31:sl=:cx=:fn=33:ln=32:bn=32:se=36'
+export GREP_COLORS='ms=01;31:mc=01;31:sl=:cx=:fn=33:ln=32:bn=32:se=36'
 export PATH=~/bin:$PATH
 
 export USE_CCACHE=1

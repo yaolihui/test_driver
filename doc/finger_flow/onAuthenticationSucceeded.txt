@@ -1,0 +1,53 @@
+FingerprintHal: onAuthenticated(fid=2145054240, gid=0)
+FingerprintHal: GfAuthToken_to_authToken
+FingerprintProvider/default/0: xdja.finger  onAuthenticationSucceeded(enrollmentId=2145054240
+FingerprintProvider/default/0: java.lang.Throwable: ~~~~~~~~~
+FingerprintProvider/default/0:         at com.android.server.biometrics.sensors.fingerprint.aidl.Sensor$HalSessionCallback.onAuthenticationSucceeded(Sensor.java:255)
+FingerprintProvider/default/0:         at android.hardware.biometrics.fingerprint.ISessionCallback$Stub.onTransact(ISessionCallback.java:193)
+FingerprintProvider/default/0:         at android.os.Binder.execTransactInternal(Binder.java:1296)
+FingerprintProvider/default/0:         at android.os.Binder.execTransact(Binder.java:1255)
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] match_score =51
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] coverage =100
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] quality =43
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] capture_latency_ms =147ms
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] preprocess_latency_ms =14ms
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] getfeature_latency_ms =11ms
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] matcher_latency_ms =7ms
+[GF_HAL][CustomizedFingerprintCore]: [dumpKPI] antispoof_latency_ms =18ms
+FingerprintAuthenticationClient: xdja.finger  onAuthenticated(BiometricId=2145054240, authenticated=true
+FingerprintAuthenticationClient: java.lang.Throwable: ~~~~~~~~~
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.onAuthenticated(FingerprintAuthenticationClient.java:234)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.Sensor$HalSessionCallback.lambda$onAuthenticationSucceeded$5(Sensor.java:273)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.Sensor$HalSessionCallback.$r8$lambda$ABvADn068VG3MLgto8VgMvCNjWI(Unknown Source:0)
+FingerprintAuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.Sensor$HalSessionCallback$$ExternalSyntheticLambda10.run(Unknown Source:6)
+FingerprintAuthenticationClient:       at android.os.Handler.handleCallback(Handler.java:942)
+FingerprintAuthenticationClient:       at android.os.Handler.dispatchMessage(Handler.java:99)
+FingerprintAuthenticationClient:       at android.os.Looper.loopOnce(Looper.java:201)
+FingerprintAuthenticationClient:       at android.os.Looper.loop(Looper.java:288)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.run(SystemServer.java:966)
+FingerprintAuthenticationClient:       at com.android.server.SystemServer.main(SystemServer.java:651)
+FingerprintAuthenticationClient:       at java.lang.reflect.Method.invoke(Native Method)
+FingerprintAuthenticationClient:       at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+FingerprintAuthenticationClient:       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:914)
+BiometricLogger: Authentication latency: 272
+Biometrics/AuthenticationClient: onAuthenticated(true), ID:2145054240, Owner: com.android.systemui, isBP: false, listener: com.android.server.biometrics.sensors.ClientMonitorCallbackConverter@8bbbfa4, requireConfirmation: false, user: 0, clientMonitor: {[96] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=73, userId=0}
+Biometrics/AuthenticationClient: Allowing background authentication, this is allowed only for platform or test invocations
+BaseClientMonitor: marking operation as done: {[96] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=73, userId=0}
+Biometrics/AuthenticationClient: sendAuthenticationResult
+Biometrics/AuthenticationClient: java.lang.Throwable: 11111111111111
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.AuthenticationClient$1.sendAuthenticationResult(AuthenticationClient.java:247)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.CoexCoordinator.onAuthenticationSucceeded(CoexCoordinator.java:236)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.AuthenticationClient.onAuthenticated(AuthenticationClient.java:243)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.handleAuthenticate(FingerprintAuthenticationClient.java:220)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.lambda$onAuthenticated$0(FingerprintAuthenticationClient.java:257)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient.$r8$lambda$zz_ApeFy8i75Qd77bZlgH6A1K6Y(Unknown Source:0)
+Biometrics/AuthenticationClient:       at com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient$$ExternalSyntheticLambda5.run(Unknown Source:8)
+Biometrics/AuthenticationClient:       at android.os.Handler.handleCallback(Handler.java:942)
+Biometrics/AuthenticationClient:       at android.os.Handler.dispatchMessage(Handler.java:99)
+Biometrics/AuthenticationClient:       at android.os.Looper.loopOnce(Looper.java:201)
+Biometrics/AuthenticationClient:       at android.os.Looper.loop(Looper.java:288)
+Biometrics/AuthenticationClient:       at com.android.server.SystemServer.run(SystemServer.java:966)
+Biometrics/AuthenticationClient:       at com.android.server.SystemServer.main(SystemServer.java:651)
+Biometrics/AuthenticationClient:       at java.lang.reflect.Method.invoke(Native Method)
+Biometrics/AuthenticationClient:       at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+Biometrics/AuthenticationClient:       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:914)
