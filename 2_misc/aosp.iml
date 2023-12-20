@@ -2,14 +2,20 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java">
-      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java" isTestSource="false" />
+    <content url="file:////wsl$/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/media/java">
+      <sourceFolder url="file:////wsl$/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/media/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/apex/jobscheduler/framework/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/apex/jobscheduler/framework/java" isTestSource="false" />
+    </content>
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java" isTestSource="false" />
     </content>
     <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/core/java">
       <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/core/java" isTestSource="false" />
     </content>
-    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java">
-      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/core/java" isTestSource="false" />
+    <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java">
+      <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/java" isTestSource="false" />
     </content>
     <content url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/xdja/java">
       <sourceFolder url="file:////wsl.localhost/Ubuntu-18.04/mnt/wsl/PHYSICALDRIVE2/T_DST_AOSP/aosp/frameworks/base/services/xdja/java" isTestSource="false" />
