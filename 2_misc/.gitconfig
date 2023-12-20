@@ -17,7 +17,7 @@
     email = yaolihui888@163.com
     name = yaolihui
 [alias]
-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit 
+	lg = log --color --graph --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:'%Cred%h%Creset -%C(yellow)%d %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit 
 	st = status
 	co = checkout
 	ci = commit
