@@ -1,5 +1,7 @@
-select vdisk file=d:\WSL\pixel6.vhdx
-attach vdisk
 select vdisk file=C:\Users\Administrator\ccache.vhd
+attach vdisk
+select vdisk file=d:\WSL\aosp.vhdx
+attach vdisk
+select vdisk file=d:\WSL\aosp2.vhdx
 attach vdisk
 exit
