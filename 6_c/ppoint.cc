@@ -18,7 +18,7 @@ int main()
 	printf("-------------------------------------\n");
 	char as[4] = "123";as[3] = '\0';
 	char *ss = as;
-	printf("ss=%p, &ss=%p, ss=%s, as=%s\n", ss, &ss, ss, as);	
+	printf("ss=%p, &ss=%p, ss=%s, as=%s, &as=%s\n", ss, &ss, ss, as, &as);	
 	printf("as=%p, &as=%p, &as[0]=%p, &as[1]=%p\n", as, &as, &(as[0]), &(as[1]));
 	printf("(char*)\"123\"=%p, &\"123\"=%p\n", (char *)"123", &"123");
 	
@@ -31,12 +31,15 @@ int main()
 	printf("aa=%p, &ss=%p, *aa=%p, ss=%p, *aa=%s\n", aa, &ss, *aa, ss, *aa);
 	ppoint2(aa);
 	printf("aa=%p, &ss=%p, *aa=%p, ss=%p, *aa=%s, ss=%s, as=%s\n", aa, &ss, *aa, ss, *aa, ss, as);
-
+	//aa = as;
+	//printf("aa=%s", aa);
+	
 	char *a = (char*)"123";
 	char *const K = (char *)"123";
 	//a[1] = 'H'; //常量不能改
 	printf("a[2]=%c\n", a[2]);
-
+	aa = &a;
+	printf("aa=%s, *aa=%s\n", aa, *aa);
 	
 	int b = 456;
 	int *bp = &b;
