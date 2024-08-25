@@ -1,0 +1,9 @@
+keytool -list -v -keystore d:\update.bks -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -storepass 13g29417 -providerpath d:\bcprov-jdk18on-1.78.1.jar
+keytool -keystore d:\update.bks -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -storepass 13g29417  -providerpath d:\bcprov-jdk18on-1.78.1.jar -exportcert  -file update.cer
+
+openssl x509 -in update.cer -inform der -outform pem -out update.crt
+
+keytool -list -v -keystore d:\trust_xdja1234.bks -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -storepass xdja1234 -providerpath d:\bcprov-jdk18on-1.78.1.jar
+keytool -keystore d:\update.bks -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -storepass 13g29417  -providerpath d:\bcprov-jdk18on-1.78.1.jar -exportcert  -file trust_xdja1234.cer
+
+openssl x509 -in trust_xdja1234.cer -inform der -outform pem -out trust_xdja1234.crt
