@@ -24,7 +24,7 @@ alias mkk='_(){\
         echo -e "\e[1;33m~~~~~~~~~~~~~~~~~~~~~~~~\e[0m" &&\
         echo -e "\e[1;33m./build/build.sh        \e[0m" &&\
         echo -e "\e[1;33m~~~~~~~~~~~~~~~~~~~~~~~~\e[0m" &&\
-        (./build/build.sh |tee build.log) && \
+        (./build/build.sh |tee $(date +%y%m%d_%H%M%S)_build.log) && \
         echo -e "\e[1;32m ####################\e[0m" &&\
         echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S) ;\
         export PATH=~/bin:$PATH
@@ -37,7 +37,7 @@ alias mka='_(){\
         echo -e "\e[1;33mlunch aosp_oriole-eng   			\e[0m" &&\
         echo -e "\e[1;33mmake -j16 $@            			\e[0m" &&\
         echo -e "\e[1;33m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\e[0m" &&\
-        (make -j16 $@ |tee build.log);\
+        (make -j16 $@ |tee $(date +%y%m%d_%H%M%S)_build.log);\
         echo -e "\e[1;32m ####################\e[0m" &&\
         echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S) ;\
         export PATH=~/bin:$PATH
