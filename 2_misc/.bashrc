@@ -57,11 +57,14 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@ hello:\[\033[01;33m\]\w\[\033[36m\]`__git_ps1`\[\033[0m\]\n\$ '"${_ps1_symbol}"''
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
+
+IP=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$IP:\[\033[01;33m\]\w\[\033[36m\]`__git_ps1`\[\033[0m\]\n\$ '"${_ps1_symbol}"''
+
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
@@ -125,6 +128,9 @@ export PATH=~/bin:$PATH
 export USE_CCACHE=1
 export CCACHE_COMPRESS=1
 export CCACHE_EXEC=/usr/bin/ccache
+
+export GIT_SSH_COMMAND="ssh " git pull
+
 #export lishaoqiang=lishaoqiang@192.168.89.209 #ontim123
 #export luxi=luxi@192.168.88.240 #LX147258
 #export windows_host=`cat /etc/resolv.conf|grep nameserver|awk '{print $2}'`

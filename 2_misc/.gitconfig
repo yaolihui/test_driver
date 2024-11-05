@@ -12,7 +12,7 @@
 [http]
 	sslverify = false
 [credential]
-        helper = store --file ~/.git-credentials
+    helper = store --file ~/.git-credentials
 [user]
     email = yaolihui888@163.com
     name = yaolihui
@@ -26,4 +26,11 @@
 [color]
 	ui = auto
 [core]
-	editor = vim
+        editor = vim
+        filemode = false
+        whitespace = trailing-space,space-before-tab,cr-at-eol
+        eol = lf
+        autocrlf = input
+        safecrlf = false
+[pager]
+        log = false
