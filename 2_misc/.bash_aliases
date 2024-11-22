@@ -17,6 +17,7 @@ alias mkk='_(){\
         echo $(date -d @$[$(date +%s)-$t-28800] +%H:%M:%S) ;\
         };_'
 
+
 alias gitc='git clean -df . && git co . && echo -e "\e[1;36mgit clean finish ...\e[0m"'
 
 alias b='_(){
@@ -47,3 +48,4 @@ alias b2='cd ~/ngf && b all'
 alias bu='cd ~/ngf && b user'
 
 alias tt='c=0; while [ ! -e ~/target ]; do echo waiting... $((c++)); sleep 5; done'
+
