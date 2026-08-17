@@ -23,6 +23,7 @@
 	ci = commit
 	br = branch
 	rs = reset
+	re = restore
 [color]
 	ui = auto
 [core]
