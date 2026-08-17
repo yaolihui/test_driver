@@ -1,0 +1,50 @@
+Consumer<T>				void accept(T t);
+Function<T, R>			R apply(T t);
+Predicate<T>			boolean test(T t);
+Supplier<T>				T get();
+
+BiConsumer<T, U>		void accept(T t, U u);
+BiFunction<T, U, R>		R apply(T t, U u);
+BiPredicate<T, U>		boolean test(T t, U u);
+BinaryOperator<T> extends BiFunction<T,T,T>
+BooleanSupplier			boolean getAsBoolean();
+
+DoubleBinaryOperator	double applyAsDouble(double left, double right);
+DoubleConsumer			void accept(double value);
+DoubleFunction<R>		R apply(double value);
+DoublePredicate			boolean test(double value);
+DoubleSupplier			double getAsDouble();
+DoubleToIntFunction		int applyAsInt(double value);
+DoubleToLongFunction	long applyAsLong(double value);
+DoubleUnaryOperator		double applyAsDouble(double operand);
+
+IntBinaryOperator		int applyAsInt(int left, int right);
+IntConsumer				void accept(int value);
+IntFunction<R>			R apply(int value);
+IntPredicate			boolean test(int value);
+IntSupplier				int getAsInt();
+IntToDoubleFunction		double applyAsDouble(int value);
+IntToLongFunction		long applyAsLong(int value);
+IntUnaryOperator		int applyAsInt(int operand);
+
+LongBinaryOperator		long applyAsLong(long left, long right);
+LongConsumer			void accept(long value);
+LongFunction<R>			R apply(long value);
+LongPredicate			boolean test(long value);
+LongSupplier			long getAsLong();
+LongToDoubleFunction	double applyAsDouble(long value);
+LongToIntFunction		int applyAsInt(long value);
+LongUnaryOperator		long applyAsLong(long operand);
+
+ObjDoubleConsumer<T>	void accept(T t, double value);
+ObjIntConsumer<T>		void accept(T t, int value);
+ObjLongConsumer<T>		void accept(T t, long value);
+
+ToDoubleBiFunction<T, U>	double applyAsDouble(T t, U u);
+ToDoubleFunction<T>		double applyAsDouble(T value);
+ToIntBiFunction<T, U>	int applyAsInt(T t, U u);
+ToIntFunction<T>		int applyAsInt(T value);
+ToLongBiFunction<T, U>	long applyAsLong(T t, U u);
+ToLongFunction<T>		long applyAsLong(T value);
+
+UnaryOperator<T> extends Function<T, T>

@@ -1,0 +1,6 @@
+cc_binary {
+    name: "tt",
+    srcs: ["tt.c"],
+    shared_libs: ["libcutils", "liblog"],
+    cflags: ["-Werror"],
+}

@@ -1,0 +1,7 @@
+在Windows系统中，以管理员身份打开PowerShell或命令提示符。
+使用以下命令列出可用的磁盘驱动器：
+powershell
+
+GET-CimInstance -query "SELECT * from Win32_DiskDrive"
+或者
+wmic diskdrive list brief

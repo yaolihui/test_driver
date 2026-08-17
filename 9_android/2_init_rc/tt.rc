@@ -1,0 +1,5 @@
+service tt_test /system/bin/tt
+    class main
+    user root
+    group root
+    seclabel  u:r:init:s0
