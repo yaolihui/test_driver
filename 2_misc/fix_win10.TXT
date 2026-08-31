@@ -1,0 +1,23 @@
+Windows 10 系统修复命令
+
+/Online：指定操作目标
+‌含义‌：告诉 DISM 工具，你要操作的对象是‌当前正在运行的 Windows 操作系统‌。
+/Cleanup-Image：指定操作类别
+‌含义‌：这是一个父级命令开关，表示接下来要执行的操作属于‌“清理和维护系统映像”‌这一类任务。
+
+DISM.exe /Online /Cleanup-Image /ScanHealth			快速体检‌	几秒~几十秒		仅检查注册表标记，判断组件存储是否被标记为“损坏”。它不进行深度文件扫描，速度极快，用于初步判断是否有必要进行后续操作。
+
+DISM.exe /Online /Cleanup-Image /CheckHealth		深度扫描‌	数分钟~十几分钟	对系统组件存储进行全面的完整性扫描。它会逐个检查文件哈希值，确认是否存在损坏，并记录日志。如果此步骤发现损坏，才需要执行下一步修复。
+
+DISM.exe /Online /Cleanup-image /Restorehealth		自动修复‌	10分钟~半小时+	在扫描发现损坏后，尝试从 Windows Update 服务器或指定的本地源（如 ISO 镜像）下载健康的文件，替换本地损坏的组件。这是实际执行“治病”的步骤。
+
+DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase 		执行常规组件清理 
+
+DISM /Online /Cleanup-Image 		执行深度清理
+
+DISM 修复的是底层的“组件存储”（WinSxS），它并不直接替换当前正在运行的系统文件。
+因此，‌在执行完 DISM /RestoreHealth 后，必须紧接着运行 SFC 命令‌，以让系统文件检查器利用刚刚修复好的健康组件来替换实际受损的系统文件：
+
+sfc /scannow
+
+ 
