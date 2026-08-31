@@ -1,0 +1,21 @@
+dept_id,dept_name,p_dept_id
+1,Headquarters,0
+2,Executive Office,1
+3,Finance Dept,1
+4,Human Resources Dept,1
+5,R&D Center,1
+6,Product Division,1
+7,Engineering Dept,6
+8,Quality Assurance Dept,6
+9,DevOps Dept,6
+10,Marketing Division,1
+11,Brand Management Dept,10
+12,Digital Marketing Dept,10
+13,Sales Division,1
+14,North Sales Dept,13
+15,South Sales Dept,13
+16,Customer Support Dept,13
+17,Operations Division,1
+18,Logistics Dept,17
+19,Procurement Dept,17
+20,IT Support Dept,17
